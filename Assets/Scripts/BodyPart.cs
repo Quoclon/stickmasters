@@ -10,6 +10,7 @@ public class BodyPart : MonoBehaviour
 
     [Header("State")]
     public bool disabled;
+    public bool isGrounded;
 
     [Header("Rigid Body")]
     public Rigidbody2D rb;
@@ -35,8 +36,6 @@ public class BodyPart : MonoBehaviour
     [Header("Hinges")]
     public HingeJoint2D bodyPartHinge;
     public HingeJoint2D otherBodyPartConnectedByHinge2D;
-
-
 
     // Start is called before the first frame update
     void Start()
@@ -79,6 +78,7 @@ public class BodyPart : MonoBehaviour
 
     }
     
+
     public void ApplyDirectionalForce(Direction direction)
     {
         if (disabled)
@@ -90,6 +90,9 @@ public class BodyPart : MonoBehaviour
         directionalForce.ApplyForce(direction);
     }
 
+
+
+    #region Damage and Death
     public void TakeDamage(float dmg, Players playerDealingDamage)
     {
         // If Body Part disabled, return
@@ -102,7 +105,7 @@ public class BodyPart : MonoBehaviour
     }
 
     void ReduceHealth(float dmg, Players playerDealingDamage)
-    {   
+    {
         health -= dmg;
 
         // Check if bodyPart is Destroyed/Disabled
@@ -110,54 +113,83 @@ public class BodyPart : MonoBehaviour
             DisableBodyPart(playerDealingDamage);
     }
 
-    // ~ Move this entire section to Body? So it can centralize?
     void DisableBodyPart(Players playerDealingDamage)
     {
-        // SlowTime(WaitTime, SlowAmt)
-        //TimeManager.Inst.SlowTime(.05f, 0.1f, true);
-        //TimeManager.Inst.SlowTime(.01f, 0.5f, true);
+        if (body.slowTimeOnDisableBodyPart)
+        {
+            TimeManager.Inst.SlowTime(.1f, .5f, true);
+        }
 
         // Removing Body Parts via Body Array of Parts (Centrealized) ~ Is this useful? Awareness?
         body.DisableBodyPart(this);
 
-        // Disables all connected hinges to destroyed bodyPart
         //DestoryAllConnectedBodyPartHinges();
 
-        // ~ Don't run twice (i.e. once for head and body -- or will remove NPC Twice
+        // Return if the player is already dead
         if (!body.alive)
             return;
 
         if (eBodyPart == BodyParts.Head || eBodyPart == BodyParts.Body)
         {
-            // Set Body State (i.e. for checking game over)
-            body.alive = false;
-
-            // Disable any remaining "Balancing" parts (so player falls)
-            body.DisableAllBalancingBodyParts();     
-            body.DisableAllBodyParts();
-
-            foreach (var weapon in body.weapons)
-            {
-                weapon.DisableWeapon();                                 // ~ Does this also Happe in body? Probably shoul
-            }
-            // Set Game Over State -- let GameManager know winner
-            //GameManager.Inst.GameOver(playerDealingDamage);
-            GameManager.Inst.CheckGameOver(body.playerType, playerDealingDamage, body);
-
+            body.DisableBody(playerDealingDamage);
         }
     }
-    
 
-    void DetermineDirectlyConenctedHinge()
+
+
+    // Damage Flashing
+    public void FlashBodyPart(float waitTimeAmount, float flashSpeedAmount)
     {
-        HingeJoint2D[] hingeBodyParts = gameObject.GetComponentInParent<Movement>().GetComponentsInChildren<HingeJoint2D>();
+        // Coroutine for Flash Body Part ~ Could be whole body later
+        StartCoroutine(FlashBodyPartCoroutine(waitTimeAmount, flashSpeedAmount));
+    }
 
-        foreach (var hinge in hingeBodyParts)
+    private IEnumerator FlashBodyPartCoroutine(float waitTime, float flashSpeed)
+    {
+        sprite.color = Color.white;
+        yield return new WaitForSeconds(waitTime);
+        sprite.color = spriteColorOriginal;
+    }
+
+    #endregion
+
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        isGrounded = true;
+
+        // ~ Collision of Body Part - Right now just with things that can cause impact damage -- Maybe everthing later?
+        if(collision.gameObject.tag == "CausesDamage")
         {
-            if (hinge.connectedBody.gameObject == this.gameObject)
-                otherBodyPartConnectedByHinge2D = hinge;
+            // Create some Damage Amount 
+            float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
+
+            // If Damage is over threshhold, deal damage
+            if (potentialMagnitudeDamage > 1)
+            {
+                TakeDamage(potentialMagnitudeDamage, Players.Environment);
+            }
         }
     }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        isGrounded = false;
+    }
+
+
+    // Archie
+    #region Disable Hinges
+    void DetermineDirectlyConenctedHinge()
+{
+    HingeJoint2D[] hingeBodyParts = gameObject.GetComponentInParent<Movement>().GetComponentsInChildren<HingeJoint2D>();
+
+    foreach (var hinge in hingeBodyParts)
+    {
+        if (hinge.connectedBody.gameObject == this.gameObject)
+            otherBodyPartConnectedByHinge2D = hinge;
+    }
+}
 
     //Disable Hinge of Body Part --- Likely need a recurssive action here
     void DestoryAllConnectedBodyPartHinges()
@@ -166,7 +198,7 @@ public class BodyPart : MonoBehaviour
 
         foreach (var hinge in hingeBodyParts)
         {
-            if(hinge.connectedBody.gameObject == this.gameObject)
+            if (hinge.connectedBody.gameObject == this.gameObject)
             {
                 Debug.Log("Connected Hinge Name: " + hinge.connectedBody.gameObject.name);
                 if (hinge.GetComponent<Balance>() != null)
@@ -183,40 +215,7 @@ public class BodyPart : MonoBehaviour
             bodyPartHinge.enabled = false;
     }
 
-
-    // Damage Flashing
-    public void FlashBodyPart(float waitTimeAmount, float flashSpeedAmount)
-    {
-        // Coroutine for Slow Mo on Hit
-        StartCoroutine(FlashBodyPartCoroutine(waitTimeAmount, flashSpeedAmount));
-    }
-
-    private IEnumerator FlashBodyPartCoroutine(float waitTime, float flashSpeed)
-    {
-        sprite.color = Color.white;
-        yield return new WaitForSeconds(waitTime);
-        sprite.color = spriteColorOriginal;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // ~ Improve Collision Logic (i.e. how to determine who caused force?)
-        //if (collision.gameObject.tag != "Weapon" && collision.gameObject.tag != "Ground")
-        if(collision.gameObject.tag == "CausesDamage")
-        {
-            // Create some Damage Amount 
-            float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
-
-            //Debug.Log(potentialMagnitudeDamage);
-
-            // If Damage is over threshhold, deal damage
-            if (potentialMagnitudeDamage > 1)
-            {
-                TakeDamage(potentialMagnitudeDamage, Players.Environment);
-            }
-        }
-    }
-
+    #endregion
 
 
 

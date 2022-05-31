@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Body : MonoBehaviour
 {
+    [Header("Options")]
+    public bool weaponCollidesWithGround;
+    public bool slowTimeOnHit;
+    public bool slowTimeOnDisableBodyPart;
+    public bool useJumpTimer;
+
     [Header("Player - Set in PlayerStats.cs")]
     public Players playerType;
 
@@ -26,9 +32,6 @@ public class Body : MonoBehaviour
     [Header("State")]
     public bool alive;
 
-    
-
-    //Arrays
     [Header("Arrays of Attached Components")]
     public Balance[] balancingParts;
     public BodyPart[] bodyParts;
@@ -60,27 +63,51 @@ public class Body : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-  
+
+    
+
     }
 
-    public void SetupPlayerType()
-    {
-        //playerType = GetComponent<PlayerStats>().GetPlayerType();
-    }
 
     public void AddDirectionalForceToRelevantBodyParts(Direction direction)
     {
-        foreach (var part in bodyParts)
+        // Handle Jumping
+        bool isGrounded = false;
+        if (direction == Direction.Up)
         {
-            part.ApplyDirectionalForce(direction);
+            foreach (var part in bodyParts)
+            {
+                if (part.isGrounded)
+                {
+                    isGrounded = true;
+                    break;
+                }
+            }
+
+            if (isGrounded)
+            {
+                foreach (var part in bodyParts)
+                {
+                    part.ApplyDirectionalForce(direction);
+                }
+            }
+        }
+        // Handle All Non-Jumping Movement
+        else
+        {
+            foreach (var part in bodyParts)
+            {
+                part.ApplyDirectionalForce(direction);
+            }
         }
 
         foreach (var weappon in weapons)
         {
             weappon.ApplyDirectionalForce(direction);
         }
+
     }
-    
+
     #region StaggeredMovementBetterAnimation
     // This should produce a "walking" motion by waiting before each "step" (i.e. Left/Right legs)
     // ~ TODO: This produces slightly better animations, but requires identifying each leg
@@ -130,11 +157,12 @@ public class Body : MonoBehaviour
 
     #endregion
 
+    #region DisableBody
     public void DisableBodyPart(BodyPart bodyPart)
     {
         foreach (var part in bodyParts)
         {
-            if(bodyPart == part)
+            if (bodyPart == part)
             {
                 // Disable Hinge
                 if (bodyPart.bodyPartHinge != null)
@@ -145,10 +173,10 @@ public class Body : MonoBehaviour
                     bodyPart.balancingPart.force = 0f;
 
                 // ! TEST: Disable connected joints                     //~ DOes this ever work? Test in DidsbleDirectly...
-                if(bodyPart.bodyPartHinge != null)
+                if (bodyPart.bodyPartHinge != null)
                     if (bodyPart.bodyPartHinge.connectedBody != null)
                         DisableDirectlyConnectedHingeJoints(bodyPart);
-                
+
                 // Set Layer to Disabled (i.e. only collide with ground - in Project Settings)
                 bodyPart.gameObject.layer = 9;
 
@@ -157,6 +185,23 @@ public class Body : MonoBehaviour
         }
     }
 
+    public void DisableBody(Players playerDealingDamage)
+    {
+        // Set Body State (i.e. for checking game over)
+        alive = false;
+
+        // Disable any remaining "Balancing" parts (so player falls)
+        DisableAllBalancingBodyParts();
+        DisableAllBodyParts();
+
+        foreach (var weapon in weapons)
+        {
+            weapon.DisableWeapon();
+        }
+
+        // Set Game Over State -- let GameManager know winner
+        GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
+    }
     public void DisableAllBalancingBodyParts()
     {
         for (int i = 0; i < balancingParts.Length; i++)
@@ -175,7 +220,7 @@ public class Body : MonoBehaviour
     }
 
     // ~ TODO: Improve Hinges
-    void DisableDirectlyConnectedHingeJoints(BodyPart bodyPart)                                  
+    void DisableDirectlyConnectedHingeJoints(BodyPart bodyPart)
     {
         foreach (var hingeInBody in hingeBodyParts)
         {
@@ -191,22 +236,14 @@ public class Body : MonoBehaviour
         }
     }
 
-
     void DisableHingeJoint2D(HingeJoint2D hinge)
     {
-            hinge.enabled = false;
+        hinge.enabled = false;
     }
 
-    public void CheckForWeaponDrop()
-    {
+    #endregion
 
-    }
-
-
-
-
-
-    #region Setup Arrays
+    #region Setup Reference Arrays
     void SetupBodyPartsArray()
     {
         bodyParts = GetComponentsInChildren<BodyPart>();
@@ -233,6 +270,19 @@ public class Body : MonoBehaviour
     }
     #endregion
 
+    public void FlippingExperimentation()
+    {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            //transform.position = new Vector2(-transform.position.x, transform.position.y);
+            transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
+
+            foreach (var part in bodyParts)
+            {
+                part.transform.position = new Vector2(transform.position.x - part.transform.position.x, transform.position.y - part.transform.position.y);
+            }
+        }
+    }
 
 
 }

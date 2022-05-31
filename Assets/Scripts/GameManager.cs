@@ -241,8 +241,6 @@ public class GameManager : MonoBehaviour
 
             Debug.Log(playerBody.gameObject.name);
 
-            playerBody.SetupPlayerType();
-
             if (playerBody.playerType == Players.AI)
             {
                 numberOfNpcs++;

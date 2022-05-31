@@ -70,8 +70,9 @@ public class Movement : MonoBehaviour
         // Assign Animator
         anim = GetComponent<Animator>();
 
-        // Start Enemy with 0 jump timer
         ResetEnemyTimer();
+
+        // Start Enemy with 0 jump timer
         //ResetJumpCooldown();
         jumpCooldown = 0;
 
@@ -239,7 +240,7 @@ public class Movement : MonoBehaviour
     {
         jumpCooldown -= Time.deltaTime;
 
-        if (jumpCooldown > 0)
+        if (jumpCooldown > 0 && body.useJumpTimer)
             return;
 
         // Player Jumping
@@ -330,7 +331,15 @@ public class Movement : MonoBehaviour
 
     void ResetJumpCooldown()
     {
-        jumpCooldown = jumpCooldownMax;
+        if (body.useJumpTimer)
+        {
+            jumpCooldown = jumpCooldownMax;
+        }
+        else
+        {
+            jumpCooldown = 0;
+        }
+        
     }
 
     #region Archive

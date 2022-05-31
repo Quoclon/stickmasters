@@ -47,7 +47,8 @@ public class Weapon : MonoBehaviour
         if (GetComponent<DirectionalForce>() != null)
             directionalForce = GetComponent<DirectionalForce>();
 
-
+        if(ownersBody.weaponCollidesWithGround)
+            gameObject.layer = 8;
     }
 
 
@@ -181,6 +182,9 @@ public class Weapon : MonoBehaviour
     {
         float dmgMagnitude = collision.relativeVelocity.magnitude;
 
+        if (collision.gameObject.GetComponentInParent<Body>() == null)
+            return;
+
         Body collisionPlayerBody = collision.gameObject.GetComponentInParent<Body>();
 
         // Check if there is a body part to damage
@@ -192,7 +196,12 @@ public class Weapon : MonoBehaviour
         else
         {
             // SLow Time on Hit (slowdown for .1f seconds, time get cut in half)
-            //TimeManager.Inst.SlowTime(.05f, .75f, false);
+            if (ownersBody.slowTimeOnHit)
+            {
+                Debug.Log("Slow Time On HIt");
+                TimeManager.Inst.SlowTime(.05f, .8f, false);
+
+            }
 
             // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
             collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, weaponOwner);

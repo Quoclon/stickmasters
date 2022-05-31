@@ -4,16 +4,10 @@ using UnityEngine;
 
 public class IgnoreCollision : MonoBehaviour
 {
-    public LayerMask weaponLayer;
-    public LayerMask groundLayer;
     public Body body;
 
-    // Start is called before the first frame update
     void Start()
     {
-        // Body has the collectin of colliders on it  -- localize this?
-        //body = GetComponent<Body>();
-
         // Setup to Avoid collisions with self
         AvoidInternalCollisions();
 
@@ -25,7 +19,6 @@ public class IgnoreCollision : MonoBehaviour
     public void AvoidInternalCollisions()
     {
         var colliders = body.colliders;
-       // Debug.Log("AvoidInternalCollisions - body.colliders.length: " + body.colliders.Length);
 
         for (int i = 0; i < colliders.Length; i++)
         {
