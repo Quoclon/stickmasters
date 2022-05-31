@@ -278,5 +278,24 @@ public enum BodyParts
     UpperLeftLeg,
     LowerLeftLeg,
     UpperRightLeg,
-    LowerRightLeg
+    LowerRightLeg,
+    WeaponHolder
 }
+
+public enum eWeaponType
+{
+    None,
+    Katana,
+    Cudgel,
+    GreatSword,
+    Dagger,
+    Spear
+}
+
+public enum eWeaponHolderOptions
+{
+    NoWeapon,
+    Default,
+    Random
+}
+

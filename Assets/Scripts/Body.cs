@@ -32,6 +32,9 @@ public class Body : MonoBehaviour
     [Header("State")]
     public bool alive;
 
+    [Header("Weapons")]
+    public WeaponHandler weaponsHandler;
+
     [Header("Arrays of Attached Components")]
     public Balance[] balancingParts;
     public BodyPart[] bodyParts;
@@ -251,6 +254,30 @@ public class Body : MonoBehaviour
 
     void SetupWeaponsArray()
     {
+        /*
+        weaponsHandler = GetComponent<WeaponHandler>();
+        foreach (var part in bodyParts)
+        {
+            if(part.eBodyPart == BodyParts.LowerLeftArm || part.eBodyPart == BodyParts.LowerRightArm)
+            {
+                weaponsHandler.EquipWeapon(part.gameObject, part.eBodyPart);
+            }
+        }
+        */
+
+        foreach (var part in bodyParts)
+        {
+            if (part.GetComponent<WeaponHolder>() != null)
+            {
+                WeaponHolder weaponHolder = part.GetComponent<WeaponHolder>();
+                weaponHolder.EquipWeapon();
+                //part.GetComponent<WeaponHolder>().EquipWeapon(eWeaponType.Katana);
+                //part.GetComponent<WeaponHolder>().EquipRandomWeapon();
+            }
+
+
+        }
+
         weapons = GetComponentsInChildren<Weapon>();
     }
 

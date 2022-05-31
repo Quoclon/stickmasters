@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
+    [Header("Weapon Type")]
+    public eWeaponType weaponType;
+
+    [Header("Impact Force")]
+    public PointEffector2D pointEffector2d;
+
     [Header("Weapon Stats")]
     public Players weaponOwner;
     public Body ownersBody;
@@ -36,9 +42,104 @@ public class Weapon : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {     
+        /*
+        // Rigid Body
         rb = GetComponent<Rigidbody2D>();
+
+        // Setup Hinge
         weaponsHinge = GetComponent<HingeJoint2D>();
+        weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();
         weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
+
+        // Ownership
+        ownersBody = GetComponentInParent<Body>();
+        weaponOwner = ownersBody.playerType;
+
+        // Sounds
+        readyToPlaySwingSound = true;
+        swingSoundTimer = swingSoundTimerMax;
+
+        // Directional Force
+        if (GetComponent<DirectionalForce>() != null)
+            directionalForce = GetComponent<DirectionalForce>();
+
+        // Collision Layers
+        if(ownersBody.weaponCollidesWithGround)
+            gameObject.layer = 8;     
+        */
+    }
+
+    private void OnEnable()
+    {
+        /*
+        // Rigid Body
+        rb = GetComponent<Rigidbody2D>();
+
+        // Setup Hinge
+        weaponsHinge = GetComponent<HingeJoint2D>();
+        weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();
+        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
+
+        // Ownership
+        ownersBody = GetComponentInParent<Body>();
+        weaponOwner = ownersBody.playerType;
+
+        // Sounds
+        readyToPlaySwingSound = true;
+        swingSoundTimer = swingSoundTimerMax;
+
+        // Directional Force
+        if (GetComponent<DirectionalForce>() != null)
+            directionalForce = GetComponent<DirectionalForce>();
+
+        // Collision Layers
+        if (ownersBody.weaponCollidesWithGround)
+            gameObject.layer = 8;
+        */
+    }
+
+    public void SetupWeapon()
+    {
+        // Rigid Body
+        rb = GetComponent<Rigidbody2D>();
+
+        // Setup Hinge
+        weaponsHinge = GetComponent<HingeJoint2D>();
+        //weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();  // Already Setup 
+        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
+
+        // Ownership
+        ownersBody = GetComponentInParent<Body>();
+        weaponOwner = ownersBody.playerType;
+
+        // Sounds
+        readyToPlaySwingSound = true;
+        swingSoundTimer = swingSoundTimerMax;
+
+        // Directional Force
+        if (GetComponent<DirectionalForce>() != null)
+            directionalForce = GetComponent<DirectionalForce>();
+
+        if (GetComponentInChildren<PointEffector2D>() != null)
+            pointEffector2d = GetComponentInChildren<PointEffector2D>();
+
+        // Collision Layers
+        if (ownersBody.weaponCollidesWithGround)
+            gameObject.layer = 8;
+    }
+
+    public void SetupWeaponComplicated(GameObject bodyPartGO)
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+        // Setup Hinge
+        weaponsHinge = GetComponent<HingeJoint2D>();
+        weaponsHinge.connectedBody = bodyPartGO.GetComponent<Rigidbody2D>();
+
+        //
+        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
+
+
         ownersBody = GetComponentInParent<Body>();
         weaponOwner = ownersBody.playerType;  // ~ NEEDS WORK
         readyToPlaySwingSound = true;
@@ -47,10 +148,9 @@ public class Weapon : MonoBehaviour
         if (GetComponent<DirectionalForce>() != null)
             directionalForce = GetComponent<DirectionalForce>();
 
-        if(ownersBody.weaponCollidesWithGround)
+        if (ownersBody.weaponCollidesWithGround)
             gameObject.layer = 8;
     }
-
 
     // Update is called once per frame
     void Update()
@@ -113,8 +213,13 @@ public class Weapon : MonoBehaviour
 
         // Set Weapon to WeaponIgnoreCollisionExceptGround (i.e. layer 8)
         gameObject.layer = 8;
+
+        if (GetComponentInChildren<PointEffector2D>() != null)
+        {
+            pointEffector2d.forceMagnitude = 0;
+        }
     }
- 
+
     void CheckSwordSwingSound()
     {
         swingSoundTimer -= Time.deltaTime;
@@ -206,13 +311,38 @@ public class Weapon : MonoBehaviour
             // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
             collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, weaponOwner);
 
+            if (pointEffector2d != null)
+            {
+                float forceAmount = 50 * dmgMagnitude;
+                EnableEffector(0.5f, forceAmount);
+                //pointEffector2d.forceMagnitude = 1000;
+            }
+
             // Spawn Particles at Collision Location
             ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmgMagnitude, collision.transform);
 
             // Play Sound
             SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+
+            //explosionEffector.SetActive(false);
         }
     }
+
+    public void EnableEffector(float waitTimeAmount, float amount)
+    {
+        StartCoroutine(EnableEffectorCoroutine(waitTimeAmount, amount));
+    }
+
+    private IEnumerator EnableEffectorCoroutine(float waitTime, float amount)
+    {
+        pointEffector2d.forceMagnitude = amount;
+        yield return new WaitForSeconds(waitTime);
+        pointEffector2d.forceMagnitude = 0;
+    }
+
+
+
+
 
     void DetermineDirectlyConenctedHinge()
     {
