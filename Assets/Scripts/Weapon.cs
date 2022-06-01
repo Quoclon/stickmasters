@@ -40,34 +40,6 @@ public class Weapon : MonoBehaviour
     private float swingSoundTimerMax = 4f;
 
     // Start is called before the first frame update
-    void Start()
-    {     
-        /*
-        // Rigid Body
-        rb = GetComponent<Rigidbody2D>();
-
-        // Setup Hinge
-        weaponsHinge = GetComponent<HingeJoint2D>();
-        weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();
-        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
-
-        // Ownership
-        ownersBody = GetComponentInParent<Body>();
-        weaponOwner = ownersBody.playerType;
-
-        // Sounds
-        readyToPlaySwingSound = true;
-        swingSoundTimer = swingSoundTimerMax;
-
-        // Directional Force
-        if (GetComponent<DirectionalForce>() != null)
-            directionalForce = GetComponent<DirectionalForce>();
-
-        // Collision Layers
-        if(ownersBody.weaponCollidesWithGround)
-            gameObject.layer = 8;     
-        */
-    }
 
     private void OnEnable()
     {

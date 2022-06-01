@@ -163,31 +163,103 @@ public class Body : MonoBehaviour
     #region DisableBody
     public void DisableBodyPart(BodyPart bodyPart)
     {
+        // Check all the bodyParts for the part passed in (via BodyPar.cs) to disable
         foreach (var part in bodyParts)
         {
+            // Disable the Body Part if it maches one on the Body (which it should
             if (bodyPart == part)
             {
                 // Disable Hinge
-                if (bodyPart.bodyPartHinge != null)
-                    DisableHingeJoint2D(bodyPart.bodyPartHinge);
+                if (bodyPart.bodyPartHinge != null) 
+                {
+                    // Disable Body Part Hinge (i.e. disable the hinge that connets the lower arm to the Upper Arm)
+                    bool disableHinge = true;
+                    DisablePart(bodyPart, disableHinge);
 
-                // Disable Balancing
-                if (bodyPart.balancingPart != null)
-                    bodyPart.balancingPart.force = 0f;
+                    // Check for a connectedBody (i.e. the RigidBody of the Upper Arm, which the Lower Arm was connected to)
+                    if (bodyPart.bodyPartHinge.connectedBody == null)
+                        continue;
 
-                // ! TEST: Disable connected joints                     //~ DOes this ever work? Test in DidsbleDirectly...
-                if (bodyPart.bodyPartHinge != null)
-                    if (bodyPart.bodyPartHinge.connectedBody != null)
-                        DisableDirectlyConnectedHingeJoints(bodyPart);
+                    //Debug.Log("bodyPart.bodyPartHinge.connectedBody: " + bodyPart.bodyPartHinge.connectedBody);
+                    DisableDirectlyConnectedHingeJoints(bodyPart);
+                }
 
-                // Set Layer to Disabled (i.e. only collide with ground - in Project Settings)
-                bodyPart.gameObject.layer = 9;
-
-                bodyPart.disabled = true;
             }
         }
     }
 
+    void DisablePart(BodyPart bodyPart, bool disableHinge)
+    {
+        //Debug.Log("DisableHingeJoint2D"  + hinge.name);
+
+        // Disable Balancing
+        if (bodyPart.balancingPart != null)
+            bodyPart.balancingPart.force = 0f;
+
+        // Set Layer to Disabled (i.e. only collide with ground - in Project Settings)
+        bodyPart.gameObject.layer = 9;
+
+        // Set the state
+        bodyPart.disabled = true;
+
+        // Disable Hinge of bodyPart (i.e. lower arm, which releases it from the Upper Arm)
+        if(disableHinge)
+            bodyPart.bodyPartHinge.enabled = false;
+
+        // Disable a weapon - if it's Hinges 'connectedBody', is this body part (comparing hinges)
+        foreach (var weapon in weapons)
+        {
+            if (weapon.weaponHolderHinge == bodyPart.bodyPartHinge)
+                weapon.DisableWeapon();
+        }
+    }
+
+
+    // ~ TODO: Improve Hinges
+    void DisableDirectlyConnectedHingeJoints(BodyPart bodyPart)
+    {
+        // Checking all 'lower' in the chain body parts
+        // Seeing if they have a 'connected body' that is the body part we are disabling
+        foreach (var part in bodyParts)
+        {
+            if (part.bodyPartHinge == null)
+                continue;
+
+            if (part.bodyPartHinge.connectedBody == null)
+                continue;
+
+            if (part.bodyPartHinge.connectedBody == bodyPart.rb)
+            {
+                if (part.enabled)
+                {
+                    bool disableHinge = false;      // Disable the lower-body-part, but not it's hinge
+                    DisablePart(part, disableHinge);
+                }
+            }
+        }
+
+      
+
+        /*
+        // Loop through all the hinges
+        foreach (var hingeInBody in hingeBodyParts)
+        {
+            //Debug.Log("hingeInBody.name: " + hingeInBody.name);
+
+            // If the "connected body" is connected to this bodyParts hinge
+            if (hingeInBody.connectedBody == bodyPart.bodyPartHinge.attachedRigidbody)
+            {
+                foreach (var weapon in weapons)
+                {
+                    if (weapon.weaponHolderHinge == hingeInBody || weapon.weaponHolderHinge == bodyPart.bodyPartHinge)
+                        weapon.DisableWeapon();
+                }
+            }
+        }
+        */
+    }
+
+   
     public void DisableBody(Players playerDealingDamage)
     {
         // Set Body State (i.e. for checking game over)
@@ -205,6 +277,7 @@ public class Body : MonoBehaviour
         // Set Game Over State -- let GameManager know winner
         GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
     }
+
     public void DisableAllBalancingBodyParts()
     {
         for (int i = 0; i < balancingParts.Length; i++)
@@ -222,27 +295,6 @@ public class Body : MonoBehaviour
         }
     }
 
-    // ~ TODO: Improve Hinges
-    void DisableDirectlyConnectedHingeJoints(BodyPart bodyPart)
-    {
-        foreach (var hingeInBody in hingeBodyParts)
-        {
-            // If the "connected body" is connected to this bodyParts hinge
-            if (hingeInBody.connectedBody == bodyPart.bodyPartHinge.attachedRigidbody)
-            {
-                foreach (var weapon in weapons)
-                {
-                    if (weapon.weaponHolderHinge == hingeInBody || weapon.weaponHolderHinge == bodyPart.bodyPartHinge)
-                        weapon.DisableWeapon();
-                }
-            }
-        }
-    }
-
-    void DisableHingeJoint2D(HingeJoint2D hinge)
-    {
-        hinge.enabled = false;
-    }
 
     #endregion
 

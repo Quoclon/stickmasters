@@ -100,6 +100,7 @@ public class Movement : MonoBehaviour
         if (body.alive == false)
             return;
 
+
         // Check what Direction Players are Facing
         CheckFacingDirection();
 

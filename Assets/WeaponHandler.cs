@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WeaponHandler : MonoBehaviour
 {
+    /*
     public GameObject[] weaponPrefabs;
 
     // Start is called before the first frame update
@@ -32,7 +33,6 @@ public class WeaponHandler : MonoBehaviour
 
         Weapon weaponScript = weapon.GetComponent<Weapon>();
         weaponScript.SetupWeaponComplicated(bodyPartGO);
-
-
     }
+    */
 }

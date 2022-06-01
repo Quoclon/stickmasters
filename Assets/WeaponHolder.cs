@@ -36,7 +36,7 @@ public class WeaponHolder : MonoBehaviour
             if(weapon.activeInHierarchy == true)
             {
                 currentWeapon = weapon;
-                currentWeaponScript = weapon.GetComponent<Weapon>();
+                currentWeaponScript = weapon.GetComponent<Weapon>();             // ~ can creat a callback that informs of weapon is selected (i.e. in case we only want one)
                 currentWeaponScript.SetupWeapon();
                 return;
             }
@@ -56,7 +56,16 @@ public class WeaponHolder : MonoBehaviour
 
     public void EquipRandomWeapon()
     {
-        int random = Random.Range(0, weapons.Length);
+        // Reduce Cudgel
+        int rareCudgel = Random.Range(0, 100);
+        if(rareCudgel >= 95)
+        {
+            EquipWeapon(weapons[weapons.Length-1]);
+            return;
+        }
+
+        // Katana or GreatSword
+        int random = Random.Range(0, weapons.Length-1);
         EquipWeapon(weapons[random]);
     }
 

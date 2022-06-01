@@ -187,9 +187,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80822e87062c54a4eaff2ab0752b86d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPrefabs:
-  - {fileID: 3589490481469612087, guid: 3b12c17d1e5c6c7428b994cfae2bb9d8, type: 3}
-  - {fileID: 3760063473505543822, guid: 78e81b0c1b0f84b459bc053296cc2748, type: 3}
 --- !u!114 &28859821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,7 +422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -2442,7 +2438,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -2996,7 +2991,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &149356424
 MonoBehaviour:
@@ -4366,7 +4361,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &188773385
 MonoBehaviour:
@@ -5229,7 +5224,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &228692172
 SpriteRenderer:
@@ -5599,7 +5594,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 154978709}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -5864,7 +5858,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &264808335
 MonoBehaviour:
@@ -6427,7 +6421,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &291774121
 SpriteRenderer:
@@ -7310,7 +7304,7 @@ MonoBehaviour:
   rb: {fileID: 0}
   directionalForce: {fileID: 0}
   balancingPart: {fileID: 0}
-  healthMax: 50
+  healthMax: 30
   health: 0
   sprite: {fileID: 0}
   bodyPartHinge: {fileID: 0}
@@ -8389,7 +8383,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -8815,7 +8808,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 553960229}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -9408,7 +9400,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &425729292
 SpriteRenderer:
@@ -10656,7 +10648,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &462952533
 SpriteRenderer:
@@ -12532,7 +12524,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &543689209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12545,9 +12537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80822e87062c54a4eaff2ab0752b86d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPrefabs:
-  - {fileID: 3589490481469612087, guid: 3b12c17d1e5c6c7428b994cfae2bb9d8, type: 3}
-  - {fileID: 3760063473505543822, guid: 78e81b0c1b0f84b459bc053296cc2748, type: 3}
 --- !u!114 &543689210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15611,7 +15600,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &730554967
 MonoBehaviour:
@@ -16049,7 +16038,7 @@ MonoBehaviour:
   rb: {fileID: 0}
   directionalForce: {fileID: 0}
   balancingPart: {fileID: 0}
-  healthMax: 50
+  healthMax: 100
   health: 0
   sprite: {fileID: 0}
   bodyPartHinge: {fileID: 0}
@@ -16128,7 +16117,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &760080042
 SpriteRenderer:
@@ -16594,7 +16583,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 1292864317}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -16785,7 +16773,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 64273162}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -18190,7 +18177,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850963273}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -65.25, z: 0}
+  m_LocalPosition: {x: 0, y: -64.62, z: 0}
   m_LocalScale: {x: 1000, y: 100, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18204,7 +18191,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850963273}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -18230,7 +18217,7 @@ SpriteMask:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850963273}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -18315,7 +18302,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &854647342
 MonoBehaviour:
@@ -18719,7 +18706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db669859048605d4eb630304d2b0c747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnOption: 2
+  spawnOption: 0
   defaultWeapon: 1
   currentWeaponScript: {fileID: 0}
   currentWeapon: {fileID: 0}
@@ -18941,7 +18928,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -20025,7 +20011,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -20362,7 +20347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 900075909}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -20553,7 +20537,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -21299,7 +21282,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -23447,7 +23429,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -23592,7 +23573,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1080167035}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.06, y: -10.83, z: 0}
+  m_LocalPosition: {x: -22, y: -10.83, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23669,9 +23650,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80822e87062c54a4eaff2ab0752b86d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPrefabs:
-  - {fileID: 3589490481469612087, guid: 3b12c17d1e5c6c7428b994cfae2bb9d8, type: 3}
-  - {fileID: 3760063473505543822, guid: 78e81b0c1b0f84b459bc053296cc2748, type: 3}
 --- !u!1 &1089103157
 GameObject:
   m_ObjectHideFlags: 0
@@ -24402,7 +24380,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1117775308
 SpriteRenderer:
@@ -25386,7 +25364,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -25662,7 +25639,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1213609416
 SpriteRenderer:
@@ -27591,7 +27568,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 202579557}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -27831,7 +27807,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -27996,7 +27971,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &1357506822
 MonoBehaviour:
@@ -28380,7 +28355,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -28852,7 +28826,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &1372205592
 MonoBehaviour:
@@ -30217,7 +30191,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -30657,7 +30630,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!70 &1443312918
 CapsuleCollider2D:
@@ -36668,7 +36641,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 1362258700}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -36882,7 +36854,7 @@ MonoBehaviour:
   rb: {fileID: 0}
   directionalForce: {fileID: 0}
   balancingPart: {fileID: 0}
-  healthMax: 50
+  healthMax: 30
   health: 0
   sprite: {fileID: 0}
   bodyPartHinge: {fileID: 0}
@@ -38149,7 +38121,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &1645862595
 MonoBehaviour:
@@ -39200,7 +39172,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1681722772
 SpriteRenderer:
@@ -39607,7 +39579,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -41276,7 +41247,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 0
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -42057,7 +42027,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1806390562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42070,9 +42040,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80822e87062c54a4eaff2ab0752b86d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPrefabs:
-  - {fileID: 3589490481469612087, guid: 3b12c17d1e5c6c7428b994cfae2bb9d8, type: 3}
-  - {fileID: 3760063473505543822, guid: 78e81b0c1b0f84b459bc053296cc2748, type: 3}
 --- !u!114 &1806390563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42718,7 +42685,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1844977469
 SpriteRenderer:
@@ -44097,7 +44064,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 1
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -44624,7 +44590,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -45307,7 +45272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db669859048605d4eb630304d2b0c747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnOption: 2
+  spawnOption: 0
   defaultWeapon: 3
   currentWeaponScript: {fileID: 0}
   currentWeapon: {fileID: 0}
@@ -45390,7 +45355,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1947642706
 SpriteRenderer:
@@ -47440,7 +47405,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 3
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -47951,7 +47915,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!70 &2084597479
 CapsuleCollider2D:
@@ -48364,7 +48328,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 2
-  explosionEffector: {fileID: 1969143596}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}
@@ -49253,7 +49216,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponType: 0
-  explosionEffector: {fileID: 0}
   pointEffector2d: {fileID: 0}
   weaponOwner: 0
   ownersBody: {fileID: 0}

@@ -156,25 +156,30 @@ public class BodyPart : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Used for Jumping
         isGrounded = true;
 
-        // ~ Collision of Body Part - Right now just with things that can cause impact damage -- Maybe everthing later?
+        // Damage if hitting a Wall or other Causes Damage object
         if(collision.gameObject.tag == "CausesDamage")
         {
-            // Create some Damage Amount 
             float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
-
             // If Damage is over threshhold, deal damage
             if (potentialMagnitudeDamage > 1)
-            {
                 TakeDamage(potentialMagnitudeDamage, Players.Environment);
-            }
-        }
+        }   
+ 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
+        // Used for Jumping
         isGrounded = false;
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        // Used for Jumping
+        isGrounded = true;
     }
 
 
