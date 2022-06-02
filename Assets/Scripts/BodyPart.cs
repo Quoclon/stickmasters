@@ -94,41 +94,6 @@ public class BodyPart : MonoBehaviour
 
 
     #region Damage and Death
-    public void TakeDamageFromEnvironment(float dmg, Players attackingPlayersType)
-    {
-        // If Body Part disabled, return
-        if (disabled)
-            return;
-
-        if (dmg > 0)
-        {
-            DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
-            FlashBodyPart(.1f, 0f);
-            //ReduceHealth(dmg, attackingPlayersType);
-        }
-    }
-
-    public void TakeDamageFromWeapon(float dmg, Body damagedPlayersBody, Body attackingPlayersBody,  Players attackingPlayersType)
-    {
-        // If Body Part disabled, return
-        if (disabled)
-            return;
-
-        // ~ TODO: Did putting this if cause issues?
-        if(dmg > 0)
-        {
-            DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
-            FlashBodyPart(.1f, 0f);
-
-            // Reduce Health
-            health -= dmg;
-
-            // Check if bodyPart is Destroyed/Disabled
-            if (health <= 0)
-                DisableBodyPart(attackingPlayersType);
-        }            
-    }
-
     void ReduceHealth()
     {
 
@@ -144,9 +109,7 @@ public class BodyPart : MonoBehaviour
         if (dmg < dmgThreshold) // TODO: Make this global for testing, because Weapon + OnCollision2d (for bodypart) also handle magnitude returns
             return;
 
-        // From "Weapon" Orignally //
-
-        // Spawn Particles at Collision Location
+        // Spawn Particles - OPTION: use 'TakeDamage'
         //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
 
         // Play Sound
@@ -164,6 +127,7 @@ public class BodyPart : MonoBehaviour
         // Check if bodyPart is Destroyed/Disabled
         if (health <= 0) 
         {
+            // Spawn Particles - OPTION: use on 'DiableBodyPart'
             ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
             DisableBodyPart(attackingPlayersType);
         }           
