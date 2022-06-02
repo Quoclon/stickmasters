@@ -10,6 +10,7 @@ TagManager:
   - AI
   - Ground
   - CausesDamage
+  - Joystick
   layers:
   - Default
   - TransparentFX

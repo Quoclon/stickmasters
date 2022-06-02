@@ -24,6 +24,10 @@ public class Weapon : MonoBehaviour
     [Header("Manual Swinging - Torque")]
     public float weaponTorqueForce;
 
+    [Header("Manual Swinging - Balance")]
+    public Balance balance;
+    public float balanceRotationDefault;
+
     [Header("Weapon RigidBody")]
     Rigidbody2D rb;
 
@@ -39,39 +43,11 @@ public class Weapon : MonoBehaviour
     private float swingSoundTimer;
     private float swingSoundTimerMax = 4f;
 
-    // Start is called before the first frame update
-
-    private void OnEnable()
-    {
-        /*
-        // Rigid Body
-        rb = GetComponent<Rigidbody2D>();
-
-        // Setup Hinge
-        weaponsHinge = GetComponent<HingeJoint2D>();
-        weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();
-        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
-
-        // Ownership
-        ownersBody = GetComponentInParent<Body>();
-        weaponOwner = ownersBody.playerType;
-
-        // Sounds
-        readyToPlaySwingSound = true;
-        swingSoundTimer = swingSoundTimerMax;
-
-        // Directional Force
-        if (GetComponent<DirectionalForce>() != null)
-            directionalForce = GetComponent<DirectionalForce>();
-
-        // Collision Layers
-        if (ownersBody.weaponCollidesWithGround)
-            gameObject.layer = 8;
-        */
-    }
-
     public void SetupWeapon()
     {
+        // ~ TESTING
+        balanceRotationDefault = 180f; /// testing
+
         // Rigid Body
         rb = GetComponent<Rigidbody2D>();
 
@@ -87,6 +63,13 @@ public class Weapon : MonoBehaviour
         // Sounds
         readyToPlaySwingSound = true;
         swingSoundTimer = swingSoundTimerMax;
+
+        // Balance
+        if (GetComponent<Balance>() != null)
+        {
+            balance = GetComponent<Balance>();
+            balance.targetRotation = balanceRotationDefault;
+        }
 
         // Directional Force
         if (GetComponent<DirectionalForce>() != null)
@@ -134,6 +117,7 @@ public class Weapon : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && weaponOwnerType == Players.P1)
         {
             //SwingWeaponForce();
+            ChangeBalance();
         }
 
         // ~ TODO: TEST/REMOVE
@@ -157,6 +141,20 @@ public class Weapon : MonoBehaviour
         rb.AddTorque(-relativeMousePositionToPlayersChest.normalized.x * weaponTorqueForce);
     }
 
+    void ChangeBalance()
+    {
+        if (balance == null)
+            return;
+
+        // TESTING -- better way to auto flip within Zero?
+        if (balance.targetRotation > 0)
+            balance.targetRotation = 0;
+
+        else if(balance.targetRotation == 0)
+            balance.targetRotation = balanceRotationDefault;
+    }
+
+
     public void ApplyDirectionalForce(Direction direction)
     {
         if (weaponDisabled)
@@ -167,7 +165,6 @@ public class Weapon : MonoBehaviour
 
         directionalForce.ApplyForce(direction);
     }
-
 
     public void DisableWeapon()
     {

@@ -12,7 +12,7 @@ public class Movement : MonoBehaviour
     [Header("Body")]
     Body body;
 
-    [Header("Legs")]                // ~ TODO: Be more explicit about which part of left leg or use body
+    [Header("Legs - ARCHIVED?")]                // ~ TODO: Be more explicit about which part of left leg or use body
     public GameObject leftLeg;
     public GameObject rightLeg;
     Rigidbody2D leftLegRB;
@@ -25,8 +25,13 @@ public class Movement : MonoBehaviour
     Animator anim;
     bool facingRight;
 
+    [Header("Input - Mobile")]
+    public bool optionMobileControls;
+    public bool mobileCanJump;
+    public bool mobileCanDuck;
+    public VariableJoystick variableJoystick;
+
     [Header("Input")]
-    bool isMovingHorizontal;
     bool isButtonDownLeft;
     bool isButtonDownRight;
 
@@ -53,6 +58,11 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // ~TESTING
+        optionMobileControls = true;
+        mobileCanDuck = true;
+        mobileCanJump = true;
+
         // Used for Facing Direction
         headTransform = headTransformOriginal;
 
@@ -76,6 +86,7 @@ public class Movement : MonoBehaviour
         //ResetJumpCooldown();
         jumpCooldown = 0;
 
+
         //Enemy AI Setup - Move Later                                                   /// JUST CHANGTED THIS COLD CAUSE BOYGS
         if(body.playerType == Players.AI)
         {
@@ -88,6 +99,10 @@ public class Movement : MonoBehaviour
                     targetPlayerMovement = playerBody.GetComponent<Movement>();
                 }
             }
+        }
+        else
+        {
+            variableJoystick = GameObject.FindGameObjectWithTag("Joystick").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
     }
 
@@ -113,12 +128,18 @@ public class Movement : MonoBehaviour
         if (body.playerType == Players.P1)
         {
             // Player1 Actions
-            if (Input.GetAxis("Horizontal") != 0)
+            if (Input.GetAxis("Horizontal") != 0 || variableJoystick.Horizontal != 0)
+            {
                 CheckMovement();
+            }
             else
+            {
                 anim.Play("idle");
+            }
 
+            // Checks for Input, but also handles Jump Counter countdown
             CheckJump();
+
             CheckDuck();
         }
         else
@@ -233,10 +254,10 @@ public class Movement : MonoBehaviour
 
     void CheckMovement()
     {
-        // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)
-        if (Input.GetAxis("Horizontal") > 0)
+        // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
+        if (Input.GetAxis("Horizontal") > 0 || variableJoystick.Horizontal > variableJoystick.DeadZone)
             ActionMoveRight();
-        else
+        else if(Input.GetAxis("Horizontal") < 0 || variableJoystick.Horizontal < -variableJoystick.DeadZone)
             ActionMoveLeft();
 
         // Mobile Controls?
@@ -255,8 +276,11 @@ public class Movement : MonoBehaviour
             return;
 
         // Player Jumping
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
-        {    
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystick.Vertical > variableJoystick.DeadZone)
+        {
+            if (optionMobileControls && !mobileCanJump)
+                return;
+
             ActionMoveJump();
         }
     }
@@ -264,9 +288,13 @@ public class Movement : MonoBehaviour
     void CheckDuck()
     {
         // Player Jumping
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
         {
+            if (optionMobileControls && !mobileCanDuck)
+                return;
+
             ActionMoveDuck();
+
         }
     }
     
@@ -274,6 +302,9 @@ public class Movement : MonoBehaviour
     public void ActionMoveJump()
     {
         body.AddDirectionalForceToRelevantBodyParts(Direction.Up);
+
+        if (optionMobileControls)
+            StartCoroutine(MobileJumpCooldown(.5f));
         /*
         if (bodyPartExists(leftLegRB))
             if (leftLegHinge.enabled)
@@ -289,6 +320,9 @@ public class Movement : MonoBehaviour
     public void ActionMoveDuck()
     {
         body.AddDirectionalForceToRelevantBodyParts(Direction.Down);
+
+        if(optionMobileControls)
+            StartCoroutine(MobileDuckCooldown(.5f));
 
         /*
         if (bodyPartExists(leftLegRB))
@@ -380,6 +414,20 @@ public class Movement : MonoBehaviour
             if (leftLegHinge.enabled)
                 leftLegRB.AddForce(Vector2.left * (speed * 1000) * Time.deltaTime);
     }
+    IEnumerator MobileJumpCooldown(float seconds)
+    {
+        mobileCanJump = false;
+        yield return new WaitForSeconds(seconds);
+        mobileCanJump = true;
+    }
+
+    IEnumerator MobileDuckCooldown(float seconds)
+    {
+        mobileCanDuck = false;
+        yield return new WaitForSeconds(seconds);
+        mobileCanDuck = true;
+    }
+
 
     bool bodyPartExists(Rigidbody2D bodyPart)
     {

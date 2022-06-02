@@ -287,7 +287,8 @@ public enum eWeaponType
     Cudgel,
     GreatSword,
     Dagger,
-    Spear
+    Spear,
+    GreatSwordBalanced
 }
 
 public enum eWeaponHolderOptions
