@@ -31,6 +31,7 @@ public class Body : MonoBehaviour
 
     [Header("State")]
     public bool alive;
+    public bool winner;
 
     [Header("Weapons")]
     public WeaponHandler weaponsHandler;
@@ -76,11 +77,12 @@ public class Body : MonoBehaviour
     {
         // Handle Jumping
         bool isGrounded = false;
+
         if (direction == Direction.Up)
         {
             foreach (var part in bodyParts)
             {
-                if (part.isGrounded)
+                if (part.isGrounded && !part.disabled)
                 {
                     isGrounded = true;
                     break;
@@ -237,26 +239,6 @@ public class Body : MonoBehaviour
                 }
             }
         }
-
-      
-
-        /*
-        // Loop through all the hinges
-        foreach (var hingeInBody in hingeBodyParts)
-        {
-            //Debug.Log("hingeInBody.name: " + hingeInBody.name);
-
-            // If the "connected body" is connected to this bodyParts hinge
-            if (hingeInBody.connectedBody == bodyPart.bodyPartHinge.attachedRigidbody)
-            {
-                foreach (var weapon in weapons)
-                {
-                    if (weapon.weaponHolderHinge == hingeInBody || weapon.weaponHolderHinge == bodyPart.bodyPartHinge)
-                        weapon.DisableWeapon();
-                }
-            }
-        }
-        */
     }
 
    
@@ -277,6 +259,20 @@ public class Body : MonoBehaviour
         // Set Game Over State -- let GameManager know winner
         GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
     }
+
+    public void DisableAllVelocity()
+    {
+        foreach (var part in bodyParts)
+        {
+            part.rb.velocity = new Vector2(0, 0);
+        }
+
+        foreach (var weapon in weapons)
+        {
+            weapon.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        }
+    }
+
 
     public void DisableAllBalancingBodyParts()
     {

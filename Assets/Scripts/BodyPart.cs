@@ -7,6 +7,7 @@ public class BodyPart : MonoBehaviour
     [Header("Body Deatails")]
     public Body body;
     public BodyParts eBodyPart;
+    private float dmgThreshold = 5f;
 
     [Header("State")]
     public bool disabled;
@@ -93,42 +94,97 @@ public class BodyPart : MonoBehaviour
 
 
     #region Damage and Death
-    public void TakeDamage(float dmg, Players playerDealingDamage)
+    public void TakeDamageFromEnvironment(float dmg, Players attackingPlayersType)
     {
         // If Body Part disabled, return
         if (disabled)
             return;
 
-        DamageNumberManager.Inst.SpawnDamageNumber(dmg, playerDealingDamage, body.head.transform);
-        FlashBodyPart(.1f, 0f);
-        ReduceHealth(dmg, playerDealingDamage);
+        if (dmg > 0)
+        {
+            DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
+            FlashBodyPart(.1f, 0f);
+            //ReduceHealth(dmg, attackingPlayersType);
+        }
     }
 
-    void ReduceHealth(float dmg, Players playerDealingDamage)
+    public void TakeDamageFromWeapon(float dmg, Body damagedPlayersBody, Body attackingPlayersBody,  Players attackingPlayersType)
     {
+        // If Body Part disabled, return
+        if (disabled)
+            return;
+
+        // ~ TODO: Did putting this if cause issues?
+        if(dmg > 0)
+        {
+            DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
+            FlashBodyPart(.1f, 0f);
+
+            // Reduce Health
+            health -= dmg;
+
+            // Check if bodyPart is Destroyed/Disabled
+            if (health <= 0)
+                DisableBodyPart(attackingPlayersType);
+        }            
+    }
+
+    void ReduceHealth()
+    {
+
+    }
+
+    public void TakeDamage(float dmg, Body attackingPlayersBody, Players attackingPlayersType)
+    {
+        // If Body Part disabled, return
+        if (disabled)
+            return;
+
+        // If damage is under threshhold (also checked in Weapon and OnCollision2d)                             
+        if (dmg < dmgThreshold) // TODO: Make this global for testing, because Weapon + OnCollision2d (for bodypart) also handle magnitude returns
+            return;
+
+        // From "Weapon" Orignally //
+
+        // Spawn Particles at Collision Location
+        //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
+
+        // Play Sound
+        SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+
+        // Spawn Damage Numbers
+        DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
+        
+        // Flash Body on Hit
+        FlashBodyPart(.25f, 0f);
+
+        // Reduce Health
         health -= dmg;
 
         // Check if bodyPart is Destroyed/Disabled
-        if (health <= 0)
-            DisableBodyPart(playerDealingDamage);
+        if (health <= 0) 
+        {
+            ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
+            DisableBodyPart(attackingPlayersType);
+        }           
     }
+
+
 
     void DisableBodyPart(Players playerDealingDamage)
     {
+        // Use Slow Time if the option is ticked
         if (body.slowTimeOnDisableBodyPart)
-        {
             TimeManager.Inst.SlowTime(.1f, .5f, true);
-        }
 
-        // Removing Body Parts via Body Array of Parts (Centrealized) ~ Is this useful? Awareness?
+        // Removing Body Parts via Body - Array of Parts
         body.DisableBodyPart(this);
-
-        //DestoryAllConnectedBodyPartHinges();
 
         // Return if the player is already dead
         if (!body.alive)
             return;
 
+        // Kill the Player if Head or 'Chest' is destroyed
         if (eBodyPart == BodyParts.Head || eBodyPart == BodyParts.Body)
         {
             body.DisableBody(playerDealingDamage);
@@ -159,15 +215,18 @@ public class BodyPart : MonoBehaviour
         // Used for Jumping
         isGrounded = true;
 
+        // Damage based on magnitude / threshodl (i.e. 30 / 6 = 5 damage)
+        float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
+
+        if(potentialMagnitudeDamage <= 5)
+            return;
+
         // Damage if hitting a Wall or other Causes Damage object
-        if(collision.gameObject.tag == "CausesDamage")
+        if (collision.gameObject.tag == "CausesDamage")
         {
-            float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
-            // If Damage is over threshhold, deal damage
-            if (potentialMagnitudeDamage > 1)
-                TakeDamage(potentialMagnitudeDamage, Players.Environment);
+            TakeDamage(potentialMagnitudeDamage, null, Players.Environment);
         }   
- 
+
     }
 
     private void OnCollisionExit2D(Collision2D collision)

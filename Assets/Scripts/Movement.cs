@@ -94,6 +94,11 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+       //if (GameManager.Inst.isGameOver && playerType == Players.AI)
+            //body.DisableAllVelocity();
+
+        // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
         if (GameManager.Inst.isGameOver && GameManager.Inst.playerWinner != playerType)
             return;
 
@@ -171,9 +176,14 @@ public class Movement : MonoBehaviour
         if(targetPlayerMovement != null && randomInt > 0)
         {
             Vector2 direction = targetPlayerMovement.headTransform.position - this.headTransform.position;
+            
+            // ~ TODO: Set this up in inspector via AI
+            int chanceToMoveInOppositeDirectionOfPlayer = Random.Range(0, 100);
 
+            // What additional Actions to Take after moving
             int bonusMoveInt = Random.Range(0, 100);
-            if (direction.x < 0)
+
+            if (direction.x < 0 && chanceToMoveInOppositeDirectionOfPlayer > 10)
             {
                 //Debug.Log("Moving Left");
                 ActionMoveLeft();

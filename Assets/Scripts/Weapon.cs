@@ -9,9 +9,10 @@ public class Weapon : MonoBehaviour
 
     [Header("Impact Force")]
     public PointEffector2D pointEffector2d;
+    public float effectorForce;
 
     [Header("Weapon Stats")]
-    public Players weaponOwner;
+    public Players weaponOwnerType;
     public Body ownersBody;
     public float dmgMultiplier = 1f;
     public bool weaponDisabled;
@@ -19,7 +20,6 @@ public class Weapon : MonoBehaviour
     [Header("Manual Swinging - Force")]
     public float weaponForce;
     private Vector2 SwingDirection;
-
 
     [Header("Manual Swinging - Torque")]
     public float weaponTorqueForce;
@@ -82,7 +82,7 @@ public class Weapon : MonoBehaviour
 
         // Ownership
         ownersBody = GetComponentInParent<Body>();
-        weaponOwner = ownersBody.playerType;
+        weaponOwnerType = ownersBody.playerType;
 
         // Sounds
         readyToPlaySwingSound = true;
@@ -113,7 +113,7 @@ public class Weapon : MonoBehaviour
 
 
         ownersBody = GetComponentInParent<Body>();
-        weaponOwner = ownersBody.playerType;  // ~ NEEDS WORK
+        weaponOwnerType = ownersBody.playerType;  // ~ NEEDS WORK
         readyToPlaySwingSound = true;
         swingSoundTimer = swingSoundTimerMax;
 
@@ -131,13 +131,13 @@ public class Weapon : MonoBehaviour
             return;
 
         // ~ TODO: TEST/REMOVE
-        if (Input.GetMouseButtonDown(0) && weaponOwner == Players.P1)
+        if (Input.GetMouseButtonDown(0) && weaponOwnerType == Players.P1)
         {
             //SwingWeaponForce();
         }
 
         // ~ TODO: TEST/REMOVE
-        if (Input.GetMouseButtonDown(1) && weaponOwner == Players.P1)
+        if (Input.GetMouseButtonDown(1) && weaponOwnerType == Players.P1)
         {
             //SwingWeaponTorque();
         }
@@ -186,10 +186,9 @@ public class Weapon : MonoBehaviour
         // Set Weapon to WeaponIgnoreCollisionExceptGround (i.e. layer 8)
         gameObject.layer = 8;
 
+        // Disable any "Force" Point Effectors on Weapon (i.e. cudgel)
         if (GetComponentInChildren<PointEffector2D>() != null)
-        {
             pointEffector2d.forceMagnitude = 0;
-        }
     }
 
     void CheckSwordSwingSound()
@@ -226,10 +225,17 @@ public class Weapon : MonoBehaviour
         if (GameManager.Inst.isGameOver)
             return;
 
+        // Don't deal damage if not above threshhold (i.e. zero)
+        if(collision.relativeVelocity.magnitude < 1)
+            return;
+
+        // magnitude used for Weapon Damage amount
+        float dmgMagnitude = collision.relativeVelocity.magnitude;
+
         // Collision with Another Weapon
         if (collision.gameObject.tag == "Weapon")
         {
-            WeaponCollision(collision);
+            WeaponCollision(collision, dmgMagnitude);
         }
         else if(collision.gameObject.tag == "CausesDamage")
         {
@@ -237,66 +243,54 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            BodyPartCollision(collision);
+            BodyPartCollision(collision, dmgMagnitude);
         }     
     }
 
-    void WeaponCollision(Collision2D collision)
+    void WeaponCollision(Collision2D collision, float dmgMagnitude)
     {
-        // ~ TODO: Knock weapons out of hands, or destroy, can pickup, or use fists, etc.
-        float dmgMagnitude = collision.relativeVelocity.magnitude;
-
         // Create Sound
         SoundManager.Inst.PlayRandomFromArray(SoundManager.Inst.swordClashes);
 
         // Spawn Particles at Collision Location
-        //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleSteel, dmgMagnitude, collision.transform);
         ParticleManager.Inst.SpawnSpriteAnimation(collision);
+        //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleSteel, dmgMagnitude, collision.transform);
         //ParticleManager.Inst.SpawnSpriteAnimation(collision.GetContact(0).point);
     }
 
-    void BodyPartCollision(Collision2D collision)
+    void BodyPartCollision(Collision2D collision, float dmgMagnitude)
     {
-        float dmgMagnitude = collision.relativeVelocity.magnitude;
-
+        // Get the collision body
         if (collision.gameObject.GetComponentInParent<Body>() == null)
             return;
-
         Body collisionPlayerBody = collision.gameObject.GetComponentInParent<Body>();
 
-        // Check if there is a body part to damage
-        if (collisionPlayerBody.alive == false || collisionPlayerBody.playerType == weaponOwner)
+        // Check if there is a body part to damage, check if it's the same "Type" of Player (i.e. Player or NPC can't harm their type)
+        if (collisionPlayerBody.alive == false || collisionPlayerBody.playerType == weaponOwnerType)
         {
-            //Debug.Log("No BodyPart Script Attached to this collision Object");
             return;
         }
         else
         {
             // SLow Time on Hit (slowdown for .1f seconds, time get cut in half)
             if (ownersBody.slowTimeOnHit)
-            {
-                Debug.Log("Slow Time On HIt");
                 TimeManager.Inst.SlowTime(.05f, .8f, false);
 
-            }
-
             // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
-            collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, weaponOwner);
+            collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, ownersBody, weaponOwnerType);
 
+            // Deal damage first above, the spawn a Force Point Effector for a moment via coroutine
             if (pointEffector2d != null)
             {
-                float forceAmount = 50 * dmgMagnitude;
+                float forceAmount = effectorForce * dmgMagnitude;
                 EnableEffector(0.5f, forceAmount);
-                //pointEffector2d.forceMagnitude = 1000;
             }
 
             // Spawn Particles at Collision Location
-            ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmgMagnitude, collision.transform);
+            //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmgMagnitude, collision.transform);
 
             // Play Sound
-            SoundManager.Inst.Play(SoundManager.Inst.playerHit);
-
-            //explosionEffector.SetActive(false);
+            //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
         }
     }
 
@@ -311,9 +305,6 @@ public class Weapon : MonoBehaviour
         yield return new WaitForSeconds(waitTime);
         pointEffector2d.forceMagnitude = 0;
     }
-
-
-
 
 
     void DetermineDirectlyConenctedHinge()

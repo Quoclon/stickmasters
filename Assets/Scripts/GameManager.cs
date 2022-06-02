@@ -129,22 +129,13 @@ public class GameManager : MonoBehaviour
     public void CheckGameOver(Players playerKilled, Players playerDealingLastBlow, Body bodyKilled)
     {
 
-        //Debug.Log("Pre Remove - npcBodyList.Count " + npcBodyList.Count);
-        //Debug.Log("Pre Remove -  playerBodyList.Count " + playerBodyList.Count);
-
         RemovePlayerFromList(bodyKilled, playerKilled);
 
-        //Debug.Log("Post Remove - npcBodyList.Count " + npcBodyList.Count);
-        //Debug.Log("Post Remove - playerBodyList.Count " + playerBodyList.Count);
-
-        if (npcBodyList.Count <= 0)
-            GameOver(playerDealingLastBlow);
-
-        else if (playerBodyList.Count <= 0)
-            GameOver(playerDealingLastBlow);
-         
+        if (npcBodyList.Count <= 0 || playerBodyList.Count <= 0)
+            GameOver(playerDealingLastBlow);         
     }
 
+    // ~ Convert this to not be "Player Type" - but rather player "Body" or something specific (i.e. not NPC)
     public void GameOver(Players playerDealingLastBlow)
     {
         Debug.Log("Game Over - Player Wins: " + playerDealingLastBlow.ToString());
@@ -154,11 +145,11 @@ public class GameManager : MonoBehaviour
         if (playerDealingLastBlow == Players.AI) gameOverText.text = "NPC Wins!";
 
         // ~ TODO: Set Canvas after a few seconds using Coroutine
-        //Debug.Log("Game Over Ran");
-        //canvasGameOver.SetActive(true);
         StartCoroutine(WaitForGammeOverCorourtine(2));
+
         isGameOver = true;
         playerWinner = playerDealingLastBlow;
+
         DisablePlayers();
     }
 
@@ -166,15 +157,22 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in GameObject.FindGameObjectsWithTag("Player"))
         {
-            if(player.GetComponent<Movement>().playerType != playerWinner)
+            Movement playerMovement = player.GetComponent<Movement>();
+
+            if (playerMovement.playerType != playerWinner)
             {
+                //playerMovement.dis
+
                 foreach (var weapon in player.GetComponentsInChildren<Weapon>())
                 {
-                    weapon.DisableWeapon();
+                    weapon.weaponDisabled = true;
+                    weapon.gameObject.layer = 8;
+                    //weapon.DisableWeapon();
                 } 
             }
         }
     }
+
 
     // ~ TODO: Couldn't figure out Awake, Enable, Start order with rest of scripts -- So Variables for next round itialized here
     public void ResetScene()
