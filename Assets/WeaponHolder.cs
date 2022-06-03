@@ -17,17 +17,8 @@ public class WeaponHolder : MonoBehaviour
     // Array of Weapons
     public GameObject[] weapons;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // Array of Weapons
+    public GameObject[] weaponArms;
 
     public void EquipWeapon()
     {
@@ -35,6 +26,7 @@ public class WeaponHolder : MonoBehaviour
         {
             if(weapon.activeInHierarchy == true)
             {
+                //Debug.Log("weapon.name: " + weapon.name);
                 currentWeapon = weapon;
                 currentWeaponScript = weapon.GetComponent<Weapon>();             // ~ can creat a callback that informs of weapon is selected (i.e. in case we only want one)
                 currentWeaponScript.SetupWeapon();

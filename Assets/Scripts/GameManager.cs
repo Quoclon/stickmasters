@@ -284,17 +284,20 @@ public enum eWeaponType
 {
     None,
     Katana,
-    Cudgel,
+    KatanaDefense,
     GreatSword,
+    GreatSwordBalanced,
+    GreatSwordDefense,
+    Cudgel,
     Dagger,
     Spear,
-    GreatSwordBalanced
 }
 
 public enum eWeaponHolderOptions
 {
     NoWeapon,
     Default,
-    Random
+    Random,
+    EntireArm
 }
 

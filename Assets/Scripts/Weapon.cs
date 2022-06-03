@@ -80,7 +80,7 @@ public class Weapon : MonoBehaviour
 
         // Collision Layers
         if (ownersBody.weaponCollidesWithGround)
-            gameObject.layer = 8;
+            gameObject.layer = 10;
     }
 
     public void SetupWeaponComplicated(GameObject bodyPartGO)

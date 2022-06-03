@@ -9,6 +9,7 @@ public class Body : MonoBehaviour
     public bool slowTimeOnHit;
     public bool slowTimeOnDisableBodyPart;
     public bool useJumpTimer;
+    public bool optionMobileControls;
 
     [Header("Player - Set in PlayerStats.cs")]
     public Players playerType;
@@ -42,6 +43,7 @@ public class Body : MonoBehaviour
     public Weapon[] weapons;
     public HingeJoint2D[] hingeBodyParts;
     public Collider2D[] colliders;
+    public WeaponHandler[] weaponHandlers;
 
     void Start()
     {
@@ -106,6 +108,7 @@ public class Body : MonoBehaviour
             }
         }
 
+        // Handle Weapon Force (if any)
         foreach (var weappon in weapons)
         {
             weappon.ApplyDirectionalForce(direction);
@@ -302,29 +305,28 @@ public class Body : MonoBehaviour
 
     void SetupWeaponsArray()
     {
-        /*
-        weaponsHandler = GetComponent<WeaponHandler>();
-        foreach (var part in bodyParts)
-        {
-            if(part.eBodyPart == BodyParts.LowerLeftArm || part.eBodyPart == BodyParts.LowerRightArm)
-            {
-                weaponsHandler.EquipWeapon(part.gameObject, part.eBodyPart);
-            }
-        }
-        */
 
+        weaponHandlers = GetComponentsInChildren<WeaponHandler>();
+
+        foreach (var weaponHandler in weaponHandlers)
+        {
+            weaponHandler.EquipWeaponArm();
+        }
+
+
+        // Setup Player with Weapons -- Just the Weapons (not custom arm limit settings, etc.)     
         foreach (var part in bodyParts)
         {
             if (part.GetComponent<WeaponHolder>() != null)
             {
                 WeaponHolder weaponHolder = part.GetComponent<WeaponHolder>();
                 weaponHolder.EquipWeapon();
+
+                // ARCHIVE
                 //part.GetComponent<WeaponHolder>().EquipWeapon(eWeaponType.Katana);
                 //part.GetComponent<WeaponHolder>().EquipRandomWeapon();
             }
-
-
-        }
+        }      
 
         weapons = GetComponentsInChildren<Weapon>();
     }

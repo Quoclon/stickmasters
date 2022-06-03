@@ -26,7 +26,6 @@ public class Movement : MonoBehaviour
     bool facingRight;
 
     [Header("Input - Mobile")]
-    public bool optionMobileControls;
     public bool mobileCanJump;
     public bool mobileCanDuck;
     public VariableJoystick variableJoystick;
@@ -58,10 +57,7 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // ~TESTING
-        optionMobileControls = true;
-        mobileCanDuck = true;
-        mobileCanJump = true;
+
 
         // Used for Facing Direction
         headTransform = headTransformOriginal;
@@ -70,6 +66,18 @@ public class Movement : MonoBehaviour
 
         // Setup Body
         body = GetComponent<Body>();
+
+        // ~TESTING
+        if(body.optionMobileControls == true)
+        {
+            mobileCanDuck = true;
+            mobileCanJump = true;
+        }
+        else
+        {
+            mobileCanDuck = false;
+            mobileCanJump = false;
+        }
 
         // Setup Lets ~ Can this be simplified? Can it be in each body part? Tasked to Body.cs
         leftLegRB = leftLeg.GetComponent<Rigidbody2D>();
@@ -278,7 +286,7 @@ public class Movement : MonoBehaviour
         // Player Jumping
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystick.Vertical > variableJoystick.DeadZone)
         {
-            if (optionMobileControls && !mobileCanJump)
+            if (body.optionMobileControls && !mobileCanJump)
                 return;
 
             ActionMoveJump();
@@ -290,7 +298,7 @@ public class Movement : MonoBehaviour
         // Player Jumping
         if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
         {
-            if (optionMobileControls && !mobileCanDuck)
+            if (body.optionMobileControls && !mobileCanDuck)
                 return;
 
             ActionMoveDuck();
@@ -303,7 +311,7 @@ public class Movement : MonoBehaviour
     {
         body.AddDirectionalForceToRelevantBodyParts(Direction.Up);
 
-        if (optionMobileControls)
+        if (body.optionMobileControls)
             StartCoroutine(MobileJumpCooldown(.5f));
         /*
         if (bodyPartExists(leftLegRB))
@@ -321,7 +329,7 @@ public class Movement : MonoBehaviour
     {
         body.AddDirectionalForceToRelevantBodyParts(Direction.Down);
 
-        if(optionMobileControls)
+        if(body.optionMobileControls)
             StartCoroutine(MobileDuckCooldown(.5f));
 
         /*
