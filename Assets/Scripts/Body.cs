@@ -78,7 +78,8 @@ public class Body : MonoBehaviour
     public void AddDirectionalForceToRelevantBodyParts(Direction direction)
     {
         // Handle Jumping
-        bool isGrounded = false;
+        //bool isGrounded = false;
+        bool canJump = false;
 
         if (direction == Direction.Up)
         {
@@ -86,12 +87,12 @@ public class Body : MonoBehaviour
             {
                 if (part.isGrounded && !part.disabled)
                 {
-                    isGrounded = true;
+                    canJump = true;
                     break;
                 }
             }
 
-            if (isGrounded)
+            if (canJump)
             {
                 foreach (var part in bodyParts)
                 {

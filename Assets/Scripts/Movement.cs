@@ -28,7 +28,9 @@ public class Movement : MonoBehaviour
     [Header("Input - Mobile")]
     public bool mobileCanJump;
     public bool mobileCanDuck;
-    public VariableJoystick variableJoystick;
+    public VariableJoystick variableJoystickP1;
+    public VariableJoystick variableJoystickP2;
+
 
     [Header("Input")]
     bool isButtonDownLeft;
@@ -108,9 +110,13 @@ public class Movement : MonoBehaviour
                 }
             }
         }
-        else
+        else if(body.playerType == Players.P1)
         {
-            variableJoystick = GameObject.FindGameObjectWithTag("Joystick").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+            variableJoystickP1 = GameObject.FindGameObjectWithTag("JoystickP1").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+        }
+        else if (body.playerType == Players.P2)
+        {
+            variableJoystickP2 = GameObject.FindGameObjectWithTag("JoystickP2").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
     }
 
@@ -133,17 +139,36 @@ public class Movement : MonoBehaviour
         CheckFacingDirection();
 
         // Check Acions
-        if (body.playerType == Players.P1)
+        if (body.playerType == Players.P1 || body.playerType == Players.P2)
         {
             // Player1 Actions
-            if (Input.GetAxis("Horizontal") != 0 || variableJoystick.Horizontal != 0)
+            if(body.playerType == Players.P1)
             {
-                CheckMovement();
+                if (Input.GetAxis("Horizontal") != 0 || variableJoystickP1.Horizontal != 0)
+                {
+                    CheckMovement();
+                }
+                else
+                {
+                    anim.Play("idle");
+                }
             }
-            else
+
+            if (body.playerType == Players.P2)
             {
-                anim.Play("idle");
+                // Player2 Actions
+                if (variableJoystickP2.Horizontal != 0)
+                {
+                    Debug.Log("P2 Pre-Check Movement");
+                    CheckMovement();
+                }
+                else
+                {
+                    anim.Play("idle");
+                }
+
             }
+
 
             // Checks for Input, but also handles Jump Counter countdown
             CheckJump();
@@ -262,11 +287,24 @@ public class Movement : MonoBehaviour
 
     void CheckMovement()
     {
-        // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
-        if (Input.GetAxis("Horizontal") > 0 || variableJoystick.Horizontal > variableJoystick.DeadZone)
-            ActionMoveRight();
-        else if(Input.GetAxis("Horizontal") < 0 || variableJoystick.Horizontal < -variableJoystick.DeadZone)
-            ActionMoveLeft();
+        if(playerType == Players.P1)
+        {
+            // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
+            if (Input.GetAxis("Horizontal") > 0 || variableJoystickP1.Horizontal > variableJoystickP1.DeadZone)
+                ActionMoveRight();
+            else if (Input.GetAxis("Horizontal") < 0 || variableJoystickP1.Horizontal < -variableJoystickP1.DeadZone)
+                ActionMoveLeft();
+        }
+
+        if (playerType == Players.P2)
+        {
+            // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
+            if (variableJoystickP2.Horizontal > variableJoystickP2.DeadZone)
+                ActionMoveRight();
+            else if (variableJoystickP2.Horizontal < -variableJoystickP2.DeadZone)
+                ActionMoveLeft();
+        }
+
 
         // Mobile Controls?
         if (isButtonDownLeft)
@@ -284,26 +322,56 @@ public class Movement : MonoBehaviour
             return;
 
         // Player Jumping
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystick.Vertical > variableJoystick.DeadZone)
+        if(playerType == Players.P1)
         {
-            if (body.optionMobileControls && !mobileCanJump)
-                return;
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystickP1.Vertical > variableJoystickP1.DeadZone)
+            {
+                if (body.optionMobileControls && !mobileCanJump)
+                    return;
 
-            ActionMoveJump();
+                ActionMoveJump();
+            }
         }
+
+        if (playerType == Players.P2)
+        {
+            if (variableJoystickP2.Vertical > variableJoystickP2.DeadZone)
+            {
+                if (body.optionMobileControls && !mobileCanJump)
+                    return;
+
+                ActionMoveJump();
+            }
+        }
+
+
     }
 
     void CheckDuck()
     {
         // Player Jumping
-        if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
+        if(playerType == Players.P1)
         {
-            if (body.optionMobileControls && !mobileCanDuck)
-                return;
+            if (Input.GetKeyDown(KeyCode.S) || variableJoystickP1.Vertical < -variableJoystickP1.DeadZone)
+            {
+                if (body.optionMobileControls && !mobileCanDuck)
+                    return;
 
-            ActionMoveDuck();
-
+                ActionMoveDuck();
+            }
         }
+
+        if (playerType == Players.P2)
+        {
+            if (variableJoystickP2.Vertical < -variableJoystickP2.DeadZone)
+            {
+                if (body.optionMobileControls && !mobileCanDuck)
+                    return;
+
+                ActionMoveDuck();
+            }
+        }
+
     }
     
 
@@ -355,7 +423,7 @@ public class Movement : MonoBehaviour
         if(offsetHorizontalMovement)
             body.AddDirectionalForceToRelevantBodyParts(Direction.Right, legWait);
         else
-        body.AddDirectionalForceToRelevantBodyParts(Direction.Right);      
+            body.AddDirectionalForceToRelevantBodyParts(Direction.Right);      
     }
 
     public void ActionMoveLeft()

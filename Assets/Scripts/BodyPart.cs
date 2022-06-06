@@ -75,8 +75,8 @@ public class BodyPart : MonoBehaviour
 
 
     void Update()
-    {        
-
+    {
+        //Debug.Log(this.name + " " + isGrounded);
     }
     
 
@@ -196,6 +196,7 @@ public class BodyPart : MonoBehaviour
     private void OnCollisionExit2D(Collision2D collision)
     {
         // Used for Jumping
+        //Debug.Log(this.name + "OnCollisionExit2D"); 
         isGrounded = false;
     }
 

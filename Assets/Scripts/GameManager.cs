@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Camera")]
     public CinemachineTargetGroup cinemachineTargetGroup;
+    public float playerCameraTargetWeight;
 
 
     // Start is called before the first frame update
@@ -107,7 +108,7 @@ public class GameManager : MonoBehaviour
 
         if (playerType == Players.P1 || playerType == Players.P2)
         {
-            int playerCameraTargetWeight = 4;
+            playerCameraTargetWeight = 1;
             playerBodyList.Add(body);
             cinemachineTargetGroup.AddMember(body.chest.transform, playerCameraTargetWeight, 0);
         }
