@@ -76,8 +76,8 @@ public class GameManager : MonoBehaviour
         {
             // whatever for desktop browser
             isMobileWebGL = false;
-            variableJoystickP1.gameObject.SetActive(false);
-            variableJoystickP2.gameObject.SetActive(false);
+            //variableJoystickP1.gameObject.SetActive(false);
+            //variableJoystickP2.gameObject.SetActive(false);
         }
     }
 

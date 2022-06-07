@@ -29,11 +29,10 @@ public class Movement : MonoBehaviour
     public bool mobileCanJump;
     public bool mobileCanDuck;
     public VariableJoystick variableJoystick;
-    public VariableJoystick variableJoystickP1;
-    public VariableJoystick variableJoystickP2;
-
 
     [Header("Input")]
+    float moveX = 0f;
+    float moveY = 0f;
     bool isButtonDownLeft;
     bool isButtonDownRight;
 
@@ -60,7 +59,9 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        // Direction
+        moveX = 0f;
+        moveY = 0f;
 
         // Used for Facing Direction
         headTransform = headTransformOriginal;
@@ -114,14 +115,10 @@ public class Movement : MonoBehaviour
         else if(body.playerType == Players.P1)
         {
             variableJoystick = GameManager.Inst.variableJoystickP1;
-            variableJoystickP1 = variableJoystick;
-            //variableJoystickP1 = GameObject.FindGameObjectWithTag("JoystickP1").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
         else if (body.playerType == Players.P2)
         {
             variableJoystick = GameManager.Inst.variableJoystickP2;
-            variableJoystickP2 = variableJoystick;
-            //variableJoystickP2 = GameObject.FindGameObjectWithTag("JoystickP2").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
     }
 
@@ -143,49 +140,108 @@ public class Movement : MonoBehaviour
         // Check what Direction Players are Facing
         CheckFacingDirection();
 
-        // Check Acions
-        if (body.playerType == Players.P1 || body.playerType == Players.P2)
+        if (body.playerType == Players.AI)
+            CheckEnemyActions();
+
+        // Handle Players
+        HandleInputs();
+
+        // Check Movement
+        CheckMovement();
+
+        // Checks for Input, but also handles Jump Counter countdown
+        CheckJump();
+
+        // Checks for Duck
+        CheckDuck();
+
+
+
+
+        /*
+        // Handle Players
+        if (body.playerType == Players.P1)
+            moveX = Input.GetAxis("Horizontal");
+
+        if (body.playerType == Players.P2)
+            moveX = Input.GetAxis("Horizontal");
+
+        if (moveX != 0 || variableJoystick.Horizontal != 0)
         {
-            // Player1 Actions
-            if(body.playerType == Players.P1)
-            {
-                if (Input.GetAxis("Horizontal") != 0 || variableJoystickP1.Horizontal != 0)
-                {
-                    CheckMovement();
-                }
-                else
-                {
-                    anim.Play("idle");
-                }
-            }
 
-            if (body.playerType == Players.P2)
-            {
-                // Player2 Actions
-                if (variableJoystickP2.Horizontal != 0)
-                {
-                    Debug.Log("P2 Pre-Check Movement");
-                    CheckMovement();
-                }
-                else
-                {
-                    anim.Play("idle");
-                }
-
-            }
-
-
-            // Checks for Input, but also handles Jump Counter countdown
-            CheckJump();
-
-            CheckDuck();
+            CheckMovement();
         }
         else
-        {   
-            // AI Actions
-            CheckEnemyActions();  
+        {
+            anim.Play("idle");
         }
-  
+        */
+
+
+        /*
+        // Player1 Actions
+        if (body.playerType == Players.P1)
+        {
+            if (Input.GetAxis("Horizontal") != 0 || variableJoystick.Horizontal != 0)
+            {
+                CheckMovement();
+            }
+            else
+            {
+                anim.Play("idle");
+            }
+        }
+
+        if (body.playerType == Players.P2)
+        {
+            // Player2 Actions
+            if (variableJoystick.Horizontal != 0)
+            {
+                Debug.Log("P2 Pre-Check Movement");
+                CheckMovement();
+            }
+            else
+            {
+                anim.Play("idle");
+            }
+
+        }
+        */
+
+
+        // Checks for Input, but also handles Jump Counter countdown
+        //CheckJump();
+
+        //CheckDuck();
+
+
+
+    }
+
+    void HandleInputs()
+    {
+        if (body.playerType == Players.P1)
+        {
+            moveX = Input.GetAxis("Horizontal");
+            moveY = Input.GetAxis("Vertical");
+        }
+
+        if (body.playerType == Players.P2)
+        {
+            moveX = Input.GetAxis("Horizontal");
+            moveY = Input.GetAxis("Vertical");
+        }
+
+        // Add Mobiles Directions if available (overwrite the keys by default)
+        if (variableJoystick != null)
+        {
+            if (variableJoystick.Horizontal > variableJoystick.DeadZone || variableJoystick.Horizontal < -variableJoystick.DeadZone)
+                moveX = variableJoystick.Horizontal;
+
+            if (variableJoystick.Vertical > variableJoystick.DeadZone || variableJoystick.Vertical < -variableJoystick.DeadZone)
+                moveY = variableJoystick.Vertical;
+        }
+
     }
 
     public void PressButtonLeft()
@@ -292,31 +348,17 @@ public class Movement : MonoBehaviour
 
     void CheckMovement()
     {
-        if(playerType == Players.P1)
+        if (moveX != 0 || variableJoystick.Horizontal != 0)
         {
-            // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
-            if (Input.GetAxis("Horizontal") > 0 || variableJoystickP1.Horizontal > variableJoystickP1.DeadZone)
+            if(moveX > 0)
                 ActionMoveRight();
-            else if (Input.GetAxis("Horizontal") < 0 || variableJoystickP1.Horizontal < -variableJoystickP1.DeadZone)
+            else
                 ActionMoveLeft();
         }
-
-        if (playerType == Players.P2)
+        else
         {
-            // ~ TODO: Have a bool for Movement Based on EITHER (Axis Raw OR Button Push)                       //~  Use variables instead polling twice
-            if (variableJoystickP2.Horizontal > variableJoystickP2.DeadZone)
-                ActionMoveRight();
-            else if (variableJoystickP2.Horizontal < -variableJoystickP2.DeadZone)
-                ActionMoveLeft();
+            anim.Play("idle");
         }
-
-
-        // Mobile Controls?
-        if (isButtonDownLeft)
-            ActionMoveLeft();
-
-        if (isButtonDownRight)
-            ActionMoveRight();
     }
 
     void CheckJump()
@@ -329,7 +371,7 @@ public class Movement : MonoBehaviour
         // Player Jumping
         if(playerType == Players.P1)
         {
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystickP1.Vertical > variableJoystickP1.DeadZone)
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystick.Vertical > variableJoystick.DeadZone)
             {
                 if (body.optionMobileControls && !mobileCanJump)
                     return;
@@ -340,7 +382,7 @@ public class Movement : MonoBehaviour
 
         if (playerType == Players.P2)
         {
-            if (variableJoystickP2.Vertical > variableJoystickP2.DeadZone)
+            if (variableJoystick.Vertical > variableJoystick.DeadZone)
             {
                 if (body.optionMobileControls && !mobileCanJump)
                     return;
@@ -357,7 +399,7 @@ public class Movement : MonoBehaviour
         // Player Jumping
         if(playerType == Players.P1)
         {
-            if (Input.GetKeyDown(KeyCode.S) || variableJoystickP1.Vertical < -variableJoystickP1.DeadZone)
+            if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
             {
                 if (body.optionMobileControls && !mobileCanDuck)
                     return;
@@ -368,7 +410,7 @@ public class Movement : MonoBehaviour
 
         if (playerType == Players.P2)
         {
-            if (variableJoystickP2.Vertical < -variableJoystickP2.DeadZone)
+            if (variableJoystick.Vertical < -variableJoystick.DeadZone)
             {
                 if (body.optionMobileControls && !mobileCanDuck)
                     return;
