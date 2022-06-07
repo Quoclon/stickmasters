@@ -28,6 +28,7 @@ public class Movement : MonoBehaviour
     [Header("Input - Mobile")]
     public bool mobileCanJump;
     public bool mobileCanDuck;
+    public VariableJoystick variableJoystick;
     public VariableJoystick variableJoystickP1;
     public VariableJoystick variableJoystickP2;
 
@@ -112,11 +113,15 @@ public class Movement : MonoBehaviour
         }
         else if(body.playerType == Players.P1)
         {
-            variableJoystickP1 = GameObject.FindGameObjectWithTag("JoystickP1").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+            variableJoystick = GameManager.Inst.variableJoystickP1;
+            variableJoystickP1 = variableJoystick;
+            //variableJoystickP1 = GameObject.FindGameObjectWithTag("JoystickP1").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
         else if (body.playerType == Players.P2)
         {
-            variableJoystickP2 = GameObject.FindGameObjectWithTag("JoystickP2").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+            variableJoystick = GameManager.Inst.variableJoystickP2;
+            variableJoystickP2 = variableJoystick;
+            //variableJoystickP2 = GameObject.FindGameObjectWithTag("JoystickP2").GetComponent<VariableJoystick>();   // ~ Improve setting this?
         }
     }
 

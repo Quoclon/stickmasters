@@ -7,24 +7,7 @@ using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
-    //~ TODO:
-    // Jump Force coming from body (or upper legs) or change responsibility based on status
-    // Add "Effectors" like crazy force pushes
-    // Create great environments that can be damaged, and cause damge
-
-    // IDEAS:
-    // New "Poses" for players, less gravity on legs, etc.
-    // blood spray when parts come off
-    // Improve Slow Time on Hit
-
-
-    // TODO - GameManager
-    // Setup Spawning, add to player lists, npc lists, etc.
-
-
     #region Singleton
-    // Singleton instance.
-    //public static GameManager Inst = null;
     static GameManager _instance;
     public static GameManager Inst
     {
@@ -32,7 +15,7 @@ public class GameManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = GameObject.Find("SingletonWellKnownName").GetComponent<GameManager>();
+                _instance = GameObject.Find("SingletonWellKnownName").GetComponent<GameManager>();      // This is Broken -- See SoundManager
             }
             return _instance;
         }
@@ -41,28 +24,18 @@ public class GameManager : MonoBehaviour
     // Initialize the singleton instance.
     private void Awake()
     {
-
-        // If there is not already an instance of SoundManager, set it to this.
-
         _instance = this;
-        
-        //If an instance already exists, destroy whatever this object is to enforce the singleton.
-
-        /*
-        else if (Inst != this)
-        {
-            Destroy(gameObject);
-        }
-
-        //Set SoundManager to DontDestroyOnLoad so that it won't be destroyed when reloading our scene.
-        DontDestroyOnLoad(gameObject);
-
-        //cinemachineTargetGroup = FindObjectOfType<CinemachineTargetGroup>();
-
-        Debug.Log("OnAwake");
-        */
+        CheckMobileWebGL();
     }
     #endregion
+
+    [Header("Game Mode")]
+    public eGameMode gameMode;
+    public bool isMobileWebGL;
+
+    [Header("Controls")]
+    public VariableJoystick variableJoystickP1;
+    public VariableJoystick variableJoystickP2;
 
     [Header("Canvas")]
     public GameObject canvasGameOver;
@@ -86,7 +59,26 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        SetGameMode();
+    }
 
+    void CheckMobileWebGL()
+    {
+        variableJoystickP1 = GameObject.FindGameObjectWithTag("JoystickP1").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+        variableJoystickP2 = GameObject.FindGameObjectWithTag("JoystickP2").GetComponent<VariableJoystick>();   // ~ Improve setting this?
+
+        if (Platform.IsMobileBrowser())
+        {
+            // whatever for mobile browser
+            isMobileWebGL = true;
+        }
+        else
+        {
+            // whatever for desktop browser
+            isMobileWebGL = false;
+            variableJoystickP1.gameObject.SetActive(false);
+            variableJoystickP2.gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -94,6 +86,12 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
             ResetScene();
+    }
+
+    void SetGameMode()
+    {
+        if(MainMenuManager.Inst != null)
+            gameMode = MainMenuManager.Inst.gameMode;
     }
 
     public void AddPlayerToList(Body body, Players playerType)
@@ -188,6 +186,18 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void LoadMainMenu()
+    {
+        isGameOver = false;
+        canvasGameOver.SetActive(false);
+
+        Time.timeScale = 1;
+        npcBodyList.Clear();
+        playerBodyList.Clear();
+
+        SceneManager.LoadScene(0);
+    }
+
     private IEnumerator WaitForGammeOverCorourtine(float waitTime)
     {
         // Wait until running -- do nothing first
@@ -254,8 +264,33 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
+
+    public void SetGameMode(eGameMode _gameMode)
+    {
+        Debug.Log(gameMode);
+        Debug.Log(_gameMode);
+
+        switch (_gameMode)
+        {
+            case eGameMode.SinglePlayer:
+                gameMode = _gameMode;
+                break;
+            case eGameMode.MultiPlayer:
+                gameMode = _gameMode;
+                break;
+            default:
+                break;
+        }
+
+        Debug.Log(gameMode);
+    }
 }
 
+public enum eGameMode
+{
+    SinglePlayer,
+    MultiPlayer
+}
 
 public enum Players
 {
