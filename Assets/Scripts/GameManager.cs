@@ -7,6 +7,33 @@ using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
+    /*
+    #region Singleton
+    // Singleton instance.
+    public static GameManager Inst = null;
+
+    // Initialize the singleton instance.
+    private void Awake()
+    {
+        // If there is not already an instance of SoundManager, set it to this.
+        if (Inst == null)
+        {
+            Inst = this;
+        }
+        //If an instance already exists, destroy whatever this object is to enforce the singleton.
+        else if (Inst != this)
+        {
+            Destroy(gameObject);
+        }
+
+        //Set SoundManager to DontDestroyOnLoad so that it won't be destroyed when reloading our scene.
+        DontDestroyOnLoad(gameObject);
+    }
+    #endregion
+    */
+
+    // Old type doesn't work?
+    
     #region Singleton
     static GameManager _instance;
     public static GameManager Inst
@@ -28,7 +55,7 @@ public class GameManager : MonoBehaviour
         CheckMobileWebGL();
     }
     #endregion
-
+    
     [Header("Game Mode")]
     public eGameMode gameMode;
     public bool isMobileWebGL;
@@ -37,13 +64,20 @@ public class GameManager : MonoBehaviour
     public VariableJoystick variableJoystickP1;
     public VariableJoystick variableJoystickP2;
 
-    [Header("Canvas")]
+    [Header("Canvas - Game Over")]
     public GameObject canvasGameOver;
+    public GameObject mainMenuButton;
+    public GameObject nextRoundButton;
     public TextMeshProUGUI gameOverText;
 
     [Header("Game Over")]
-    public bool isGameOver;
+    public bool isRoundOver;
+    public int roundsToWin;
     public Players playerWinner;
+
+    [Header("Canvas - Scores")]
+    public TextMeshProUGUI scoreTextP1;
+    public TextMeshProUGUI scoreTextP2;
 
     [Header("Player Body List")]
     public List<Body> playerBodyList;
@@ -60,6 +94,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         SetGameMode();
+        SetupScoreCanvas();
     }
 
     void CheckMobileWebGL()
@@ -76,8 +111,8 @@ public class GameManager : MonoBehaviour
         {
             // whatever for desktop browser
             isMobileWebGL = false;
-            //variableJoystickP1.gameObject.SetActive(false);
-            //variableJoystickP2.gameObject.SetActive(false);
+            variableJoystickP1.gameObject.SetActive(false);
+            variableJoystickP2.gameObject.SetActive(false);
         }
     }
 
@@ -86,6 +121,12 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
             ResetScene();
+    }
+
+    void SetupScoreCanvas()
+    {
+        scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+        scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
     }
 
     void SetGameMode()
@@ -137,18 +178,80 @@ public class GameManager : MonoBehaviour
     // ~ Convert this to not be "Player Type" - but rather player "Body" or something specific (i.e. not NPC)
     public void GameOver(Players playerDealingLastBlow)
     {
-        Debug.Log("Game Over - Player Wins: " + playerDealingLastBlow.ToString());
+        Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
 
-        if (playerDealingLastBlow == Players.P1) gameOverText.text = "Player 1 Wins!";
-        if (playerDealingLastBlow == Players.P2) gameOverText.text = "Player 2 Wins!";
-        if (playerDealingLastBlow == Players.AI) gameOverText.text = "NPC Wins!";
+        if (playerDealingLastBlow == Players.P1)
+        {
+            ScoreManager.Inst.scoreP1 += 1;
+            scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+            //gameOverText.text = "Player 1 Wins Round!";
+            Debug.Log("ScoreManager.Inst.scoreP1: " + ScoreManager.Inst.scoreP1);
+            Debug.Log("Rounds To Win" + roundsToWin);
+
+            if (ScoreManager.Inst.scoreP1 < roundsToWin)
+            {
+                Debug.Log("ScoreManager.Inst.scoreP1 >= roundsToWin");
+                gameOverText.text = "Player 1 Wins Round!";
+                nextRoundButton.SetActive(true);
+                mainMenuButton.SetActive(false);
+            }
+            else
+            {
+                gameOverText.text = "Player 1 Wins Match!";
+                mainMenuButton.SetActive(true);
+                nextRoundButton.SetActive(false);
+            }
+
+        }
+
+        if (playerDealingLastBlow == Players.P2)
+        {
+            ScoreManager.Inst.scoreP2 += 1;
+            scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+            //gameOverText.text = "Player 2 Wins Round!";
+
+            if (ScoreManager.Inst.scoreP2 < roundsToWin)
+            {
+                gameOverText.text = "Player 2 Wins Round!";
+                nextRoundButton.SetActive(true);
+                mainMenuButton.SetActive(false);
+            }
+            else
+            {
+                gameOverText.text = "Player 2 Wins Match!";
+                mainMenuButton.SetActive(true);
+                nextRoundButton.SetActive(false);
+            }
+
+        }
+
+        if (playerDealingLastBlow == Players.AI)
+        {
+            ScoreManager.Inst.scoreP2 += 1;
+            scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+
+            if(ScoreManager.Inst.scoreP2 < roundsToWin)
+            {
+                gameOverText.text = "NPC Wins Round!";
+                nextRoundButton.SetActive(true);
+                mainMenuButton.SetActive(false);
+            }
+            else
+            {
+                gameOverText.text = "NPC Wins Match!";
+                mainMenuButton.SetActive(true);
+                nextRoundButton.SetActive(false);
+            }
+        }
 
         // ~ TODO: Set Canvas after a few seconds using Coroutine
         StartCoroutine(WaitForGammeOverCorourtine(2));
 
-        isGameOver = true;
-        playerWinner = playerDealingLastBlow;
+        // Used throughout game
+        isRoundOver = true;
 
+        // Disable all players but Winner
+        playerWinner = playerDealingLastBlow;
         DisablePlayers();
     }
 
@@ -160,13 +263,11 @@ public class GameManager : MonoBehaviour
 
             if (playerMovement.playerType != playerWinner)
             {
-                //playerMovement.dis
 
                 foreach (var weapon in player.GetComponentsInChildren<Weapon>())
                 {
                     weapon.weaponDisabled = true;
                     weapon.gameObject.layer = 8;
-                    //weapon.DisableWeapon();
                 } 
             }
         }
@@ -176,7 +277,7 @@ public class GameManager : MonoBehaviour
     // ~ TODO: Couldn't figure out Awake, Enable, Start order with rest of scripts -- So Variables for next round itialized here
     public void ResetScene()
     {
-        isGameOver = false;
+        isRoundOver = false;
         canvasGameOver.SetActive(false);
 
         Time.timeScale = 1;
@@ -188,12 +289,15 @@ public class GameManager : MonoBehaviour
 
     public void LoadMainMenu()
     {
-        isGameOver = false;
+        isRoundOver = false;
         canvasGameOver.SetActive(false);
 
         Time.timeScale = 1;
         npcBodyList.Clear();
         playerBodyList.Clear();
+       
+        ScoreManager.Inst.scoreP1 = 0;
+        ScoreManager.Inst.scoreP2 = 0;
 
         SceneManager.LoadScene(0);
     }
@@ -202,14 +306,19 @@ public class GameManager : MonoBehaviour
     {
         // Wait until running -- do nothing first
         yield return new WaitForSeconds(waitTime);
-        if(isGameOver)
+
+        if (isRoundOver)
+        {
             canvasGameOver.SetActive(true);
+        }
+            
     }
 
 
     #region Archive
     void SetupBodiesInScene()
     {
+        /*
         GameObject[] allPlayersAndNpcs = GameObject.FindGameObjectsWithTag("Player");
 
         Debug.Log("allPlayersAndNpcs.Count: " + allPlayersAndNpcs.Length);
@@ -219,6 +328,7 @@ public class GameManager : MonoBehaviour
             Body playerBody = player.GetComponent<Body>();
             playerBody.SetupBody();
         }
+        */
     }
 
     void AwakeSetupMethods()
@@ -233,6 +343,7 @@ public class GameManager : MonoBehaviour
 
     public void SetPlayerAndNpcArrays()
     {
+        /*
         // CLear Lists since Singleton
         npcBodyList.Clear();
         playerBodyList.Clear();
@@ -262,14 +373,12 @@ public class GameManager : MonoBehaviour
                 playerBodyList.Add(playerBody);
             }
         }
+        */
     }
     #endregion
 
     public void SetGameMode(eGameMode _gameMode)
     {
-        Debug.Log(gameMode);
-        Debug.Log(_gameMode);
-
         switch (_gameMode)
         {
             case eGameMode.SinglePlayer:
@@ -281,8 +390,6 @@ public class GameManager : MonoBehaviour
             default:
                 break;
         }
-
-        Debug.Log(gameMode);
     }
 }
 

@@ -34,6 +34,7 @@ public class SoundManager : MonoBehaviour
 	[Header("Audio Sources")]
 	public AudioSource[] swordClashes;
 	public AudioSource[] swordSwings;
+	public AudioSource[] severedLimbs;
 	public AudioSource playerHit;
 
 	// Play a single clip via passing in the public SoundManager singleton AudioSource
@@ -47,9 +48,11 @@ public class SoundManager : MonoBehaviour
 	{
 		AudioSource audioSource = audioSources[Random.Range(0, audioSources.Length-1)];
 
+		/*
 		if (lastAudioSourcePlayed != null)
 			if (lastAudioSourcePlayed.isPlaying)
 				return;
+		*/
 
 		audioSource.Play();
 		lastAudioSourcePlayed = audioSource;

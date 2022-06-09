@@ -47,12 +47,14 @@ public class Body : MonoBehaviour
 
     void Start()
     {
-        SetupBody();
+        //SetupBody();
     }
 
-    public void SetupBody()
+    public void SetupBody(Players _playerType)
     {
-        // Called is 
+        Debug.Log(_playerType);
+        // Called via SpawnManager
+        playerType = _playerType;
         alive = true;
         SetupBodyPartsArray();
         SetupHinge2DArray();
@@ -60,6 +62,9 @@ public class Body : MonoBehaviour
         SetupWeaponsArray();
         SetupCollidersArray();
         GetComponent<IgnoreCollision>().AvoidInternalCollisions();
+
+        // Setup Player Head/Body Color
+        SetupColor();
 
         //Debug.Log("Body: " + this + " " + "PlayerType: " + playerType);
 
@@ -70,11 +75,41 @@ public class Body : MonoBehaviour
     void Update()
     {
 
-    
-
     }
 
+    void SetupColor()
+    {
+        string hexString = "";
+        Color _color = new Color();
 
+        switch (playerType)
+        {
+            case Players.P1:
+                // Use Default Colr for Head
+                break;
+
+            case Players.P2:
+                //hexString = "F1897B"; // Off Red  
+                //ColorUtility.TryParseHtmlString(hexString, out _color);
+                //head.GetComponent<SpriteRenderer>().color = _color;
+                head.GetComponent<SpriteRenderer>().color = Color.red;
+                break;
+
+            case Players.AI:
+                //hexString = "F1897B";   // TODO: ~ Set this to White
+                //ColorUtility.TryParseHtmlString(hexString, out _color);
+                //head.GetComponent<SpriteRenderer>().color = _color;
+                head.GetComponent<SpriteRenderer>().color = Color.white;
+                break;
+
+            case Players.Environment:
+                break;
+
+            default:
+                break;
+        }
+    }
+    
     public void AddDirectionalForceToRelevantBodyParts(Direction direction)
     {
         // Handle Jumping
@@ -169,6 +204,9 @@ public class Body : MonoBehaviour
     #region DisableBody
     public void DisableBodyPart(BodyPart bodyPart)
     {
+        // Play Sound for Disable Body Part
+        SoundManager.Inst.PlayRandomFromArray(SoundManager.Inst.severedLimbs);
+
         // Check all the bodyParts for the part passed in (via BodyPar.cs) to disable
         foreach (var part in bodyParts)
         {
@@ -250,6 +288,9 @@ public class Body : MonoBehaviour
     {
         // Set Body State (i.e. for checking game over)
         alive = false;
+
+        // Final Hit Slow-Down
+        TimeManager.Inst.SlowTime(.15f, .2f, false);
 
         // Disable any remaining "Balancing" parts (so player falls)
         DisableAllBalancingBodyParts();

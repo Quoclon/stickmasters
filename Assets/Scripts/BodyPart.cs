@@ -32,7 +32,7 @@ public class BodyPart : MonoBehaviour
     private Color spriteColorOriginal;
 
     [Header("Environment Damage")]
-    private float environmentDamageDenominator = 10f;
+    private float environmentDamageDenominator = 3;
 
     [Header("Hinges")]
     public HingeJoint2D bodyPartHinge;
@@ -112,8 +112,8 @@ public class BodyPart : MonoBehaviour
         // Spawn Particles - OPTION: use 'TakeDamage'
         //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
 
-        // Play Sound
         SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+
 
         // Spawn Damage Numbers
         DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
@@ -130,7 +130,12 @@ public class BodyPart : MonoBehaviour
             // Spawn Particles - OPTION: use on 'DiableBodyPart'
             ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
             DisableBodyPart(attackingPlayersType);
-        }           
+        }
+        else
+        {
+            // Play Sound -- if hit but not severed
+            //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+        }
     }
 
 

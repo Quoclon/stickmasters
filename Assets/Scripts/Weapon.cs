@@ -15,6 +15,7 @@ public class Weapon : MonoBehaviour
     public Players weaponOwnerType;
     public Body ownersBody;
     public float dmgMultiplier = 1f;
+    //public float dmgEffectorModifer;
     public bool weaponDisabled;
 
     [Header("Manual Swinging - Force")]
@@ -40,8 +41,10 @@ public class Weapon : MonoBehaviour
 
     [Header("Weapon Sounds")]
     private bool readyToPlaySwingSound;
-    private float swingSoundTimer;
-    private float swingSoundTimerMax = 4f;
+    private float swingSoundTimer = 0f;
+    private float swingSoundTimerMax = 2f;
+    private float totalVelocityPerSwing = 0;
+    private float averageVelocityPerSecond = 0f;
 
     public void SetupWeapon()
     {
@@ -190,27 +193,36 @@ public class Weapon : MonoBehaviour
 
     void CheckSwordSwingSound()
     {
-        swingSoundTimer -= Time.deltaTime;
+        swingSoundTimer += Time.deltaTime;
 
-        if (swingSoundTimer < 0)
+        if(swingSoundTimer >= 1)
         {
-            readyToPlaySwingSound = true;
-            swingSoundTimer = swingSoundTimerMax;
+            //totalVelocityPerSwing += rb.velocity.magnitude / Time.deltaTime;
+            //averageVelocityPerSecond += totalVelocityPerSwing / swingSoundTimer;
+            totalVelocityPerSwing += rb.velocity.magnitude;
+            averageVelocityPerSecond = totalVelocityPerSwing / swingSoundTimer * Time.deltaTime;
         }
 
-        if (rb.velocity.magnitude < 2)
+
+        Debug.Log(averageVelocityPerSecond);
+
+        if (swingSoundTimer > swingSoundTimerMax)
         {
-            //readyToPlaySwingSound = true;
+            readyToPlaySwingSound = true;
         }
 
         if (!readyToPlaySwingSound)
             return;
 
-        if (rb.velocity.magnitude > 10)
+       // if (rb.velocity.magnitude > 10)
+       if(Mathf.Abs(averageVelocityPerSecond) > 5)
         {
             // ~ TODO: Improve with checking the sound playing last
             SoundManager.Inst.PlayRandomFromArray(SoundManager.Inst.swordSwings);
             readyToPlaySwingSound = false;
+            swingSoundTimer = 0;
+            totalVelocityPerSwing = 0f;
+            averageVelocityPerSecond = 0f;
         }
     }
 
@@ -219,7 +231,7 @@ public class Weapon : MonoBehaviour
         if (weaponDisabled)
             return;
 
-        if (GameManager.Inst.isGameOver)
+        if (GameManager.Inst.isRoundOver)
             return;
 
         // Don't deal damage if not above threshhold (i.e. zero)
@@ -277,7 +289,7 @@ public class Weapon : MonoBehaviour
             collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, ownersBody, weaponOwnerType);
 
             // Deal damage first above, the spawn a Force Point Effector for a moment via coroutine
-            if (pointEffector2d != null)
+            if (pointEffector2d != null && dmgMagnitude >= 5)
             {
                 float forceAmount = effectorForce * dmgMagnitude;
                 EnableEffector(0.5f, forceAmount);

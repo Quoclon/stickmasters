@@ -126,11 +126,11 @@ public class Movement : MonoBehaviour
     void Update()
     {
 
-       //if (GameManager.Inst.isGameOver && playerType == Players.AI)
+       //if (GameManager.Inst.isRoundOver && playerType == Players.AI)
             //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isGameOver && GameManager.Inst.playerWinner != playerType)
+        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != playerType)
             return;
 
         if (body.alive == false)
@@ -141,7 +141,13 @@ public class Movement : MonoBehaviour
         CheckFacingDirection();
 
         if (body.playerType == Players.AI)
+        {
             CheckEnemyActions();
+            return;
+        }
+
+
+        // Player P1 and Player P1 Checks //
 
         // Handle Players
         HandleInputs();
@@ -154,8 +160,6 @@ public class Movement : MonoBehaviour
 
         // Checks for Duck
         CheckDuck();
-
-
 
 
         /*
@@ -228,8 +232,8 @@ public class Movement : MonoBehaviour
 
         if (body.playerType == Players.P2)
         {
-            moveX = Input.GetAxis("Horizontal");
-            moveY = Input.GetAxis("Vertical");
+            moveX = Input.GetAxis("Horizontal2");
+            moveY = Input.GetAxis("Vertical2");
         }
 
         // Add Mobiles Directions if available (overwrite the keys by default)
@@ -242,25 +246,6 @@ public class Movement : MonoBehaviour
                 moveY = variableJoystick.Vertical;
         }
 
-    }
-
-    public void PressButtonLeft()
-    {
-        Debug.Log("isButtonDownLeft: " + isButtonDownLeft);
-        isButtonDownLeft = true;
-        Debug.Log("isButtonDownLeft: " + isButtonDownLeft);
-        CheckMovement();
-        Debug.Log("isButtonDownLeft: " + isButtonDownLeft);
-        isButtonDownLeft = false;
-        Debug.Log("isButtonDownLeft: " + isButtonDownLeft);
-
-    }
-
-    public void PressButtonRight()
-    {
-        isButtonDownRight = true;
-        CheckMovement();
-        isButtonDownRight = false;
     }
 
 
@@ -348,7 +333,7 @@ public class Movement : MonoBehaviour
 
     void CheckMovement()
     {
-        if (moveX != 0 || variableJoystick.Horizontal != 0)
+        if (moveX != 0)
         {
             if(moveX > 0)
                 ActionMoveRight();
@@ -368,6 +353,15 @@ public class Movement : MonoBehaviour
         if (jumpCooldown > 0 && body.useJumpTimer)
             return;
 
+        if (moveY <= 0)
+            return;
+
+        if (body.optionMobileControls && !mobileCanJump)
+            return;
+
+        ActionMoveJump();
+
+        /*
         // Player Jumping
         if(playerType == Players.P1)
         {
@@ -390,14 +384,25 @@ public class Movement : MonoBehaviour
                 ActionMoveJump();
             }
         }
+        */
 
 
     }
 
     void CheckDuck()
     {
+
+        if (moveY >= 0)
+            return;
+
+        if (body.optionMobileControls && !mobileCanDuck)
+            return;
+
+        ActionMoveDuck();
+
+        /*
         // Player Jumping
-        if(playerType == Players.P1)
+        if (playerType == Players.P1)
         {
             if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
             {
@@ -418,6 +423,7 @@ public class Movement : MonoBehaviour
                 ActionMoveDuck();
             }
         }
+        */
 
     }
     
