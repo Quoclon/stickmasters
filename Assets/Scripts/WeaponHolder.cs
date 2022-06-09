@@ -48,15 +48,17 @@ public class WeaponHolder : MonoBehaviour
 
     public void EquipRandomWeapon()
     {
-        // Reduce Cudgel
+        /*
+        // Reduce Cudgel Chance
         int rareCudgel = Random.Range(0, 100);
         if(rareCudgel >= 95)
         {
             EquipWeapon(weapons[weapons.Length-1]);
             return;
         }
+        */
 
-        // Katana or GreatSword
+        // Equip a random weapon
         int random = Random.Range(0, weapons.Length-1);
         EquipWeapon(weapons[random]);
     }

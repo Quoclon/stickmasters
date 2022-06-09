@@ -26,4 +26,11 @@ public class MainMenu : MonoBehaviour
         MainMenuManager.Inst.gameMode = eGameMode.MultiPlayer;
         MainMenuManager.Inst.LoadScene(1);
     }
+
+
+    public void SetCoopPlayerMode()
+    {
+        MainMenuManager.Inst.gameMode = eGameMode.Coop;
+        MainMenuManager.Inst.LoadScene(1);
+    }
 }

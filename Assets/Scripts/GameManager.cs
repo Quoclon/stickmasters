@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Over")]
     public bool isRoundOver;
+    public bool isMatchOver;
     public int roundsToWin;
     public Players playerWinner;
 
@@ -119,8 +120,22 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // TESTING
         if (Input.GetKeyDown(KeyCode.R))
-            ResetScene();
+        {
+            if (!isMatchOver)
+                ResetScene();
+        }
+
+        // Instead of Clicking "Next Round" Button
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return)))
+        {
+            if(isRoundOver)
+                ResetScene();
+
+            if (isMatchOver)
+                LoadMainMenu();
+        }
     }
 
     void SetupScoreCanvas()
@@ -180,67 +195,111 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
 
-        if (playerDealingLastBlow == Players.P1)
+        if(gameMode == eGameMode.SinglePlayer || gameMode == eGameMode.MultiPlayer)
         {
-            ScoreManager.Inst.scoreP1 += 1;
-            scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
-            //gameOverText.text = "Player 1 Wins Round!";
-            Debug.Log("ScoreManager.Inst.scoreP1: " + ScoreManager.Inst.scoreP1);
-            Debug.Log("Rounds To Win" + roundsToWin);
-
-            if (ScoreManager.Inst.scoreP1 < roundsToWin)
+            if (playerDealingLastBlow == Players.P1)
             {
-                Debug.Log("ScoreManager.Inst.scoreP1 >= roundsToWin");
-                gameOverText.text = "Player 1 Wins Round!";
-                nextRoundButton.SetActive(true);
-                mainMenuButton.SetActive(false);
-            }
-            else
-            {
-                gameOverText.text = "Player 1 Wins Match!";
-                mainMenuButton.SetActive(true);
-                nextRoundButton.SetActive(false);
+                ScoreManager.Inst.scoreP1 += 1;
+                scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP1 < roundsToWin)
+                {
+                    gameOverText.text = "Player 1 Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "Player 1 Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
+
             }
 
+            if (playerDealingLastBlow == Players.P2)
+            {
+                ScoreManager.Inst.scoreP2 += 1;
+                scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP2 < roundsToWin)
+                {
+                    gameOverText.text = "Player 2 Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "Player 2 Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
+
+            }
+
+            if (playerDealingLastBlow == Players.AI)
+            {
+                ScoreManager.Inst.scoreP2 += 1;
+                scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP2 < roundsToWin)
+                {
+                    gameOverText.text = "NPC Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "NPC Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
+            }
         }
 
-        if (playerDealingLastBlow == Players.P2)
+        if(gameMode == eGameMode.Coop)
         {
-            ScoreManager.Inst.scoreP2 += 1;
-            scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
-            //gameOverText.text = "Player 2 Wins Round!";
-
-            if (ScoreManager.Inst.scoreP2 < roundsToWin)
+            if (playerDealingLastBlow == Players.P1 || playerDealingLastBlow == Players.P2)
             {
-                gameOverText.text = "Player 2 Wins Round!";
-                nextRoundButton.SetActive(true);
-                mainMenuButton.SetActive(false);
+                ScoreManager.Inst.scoreP1 += 1;
+                scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP1 < roundsToWin)
+                {
+                    gameOverText.text = "Player Team Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "Player Team Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
             }
-            else
-            {
-                gameOverText.text = "Player 2 Wins Match!";
-                mainMenuButton.SetActive(true);
-                nextRoundButton.SetActive(false);
-            }
 
-        }
-
-        if (playerDealingLastBlow == Players.AI)
-        {
-            ScoreManager.Inst.scoreP2 += 1;
-            scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
-
-            if(ScoreManager.Inst.scoreP2 < roundsToWin)
+            if (playerDealingLastBlow == Players.AI)
             {
-                gameOverText.text = "NPC Wins Round!";
-                nextRoundButton.SetActive(true);
-                mainMenuButton.SetActive(false);
-            }
-            else
-            {
-                gameOverText.text = "NPC Wins Match!";
-                mainMenuButton.SetActive(true);
-                nextRoundButton.SetActive(false);
+                ScoreManager.Inst.scoreP2 += 1;
+                scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP2 < roundsToWin)
+                {
+                    gameOverText.text = "NPC Team Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "NPC Team Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
             }
         }
 
@@ -278,6 +337,7 @@ public class GameManager : MonoBehaviour
     public void ResetScene()
     {
         isRoundOver = false;
+        isMatchOver = false;
         canvasGameOver.SetActive(false);
 
         Time.timeScale = 1;
@@ -290,6 +350,7 @@ public class GameManager : MonoBehaviour
     public void LoadMainMenu()
     {
         isRoundOver = false;
+        isMatchOver = false;
         canvasGameOver.SetActive(false);
 
         Time.timeScale = 1;
@@ -379,6 +440,8 @@ public class GameManager : MonoBehaviour
 
     public void SetGameMode(eGameMode _gameMode)
     {
+        gameMode = _gameMode;
+        /*
         switch (_gameMode)
         {
             case eGameMode.SinglePlayer:
@@ -390,13 +453,15 @@ public class GameManager : MonoBehaviour
             default:
                 break;
         }
+        */
     }
 }
 
 public enum eGameMode
 {
     SinglePlayer,
-    MultiPlayer
+    MultiPlayer,
+    Coop
 }
 
 public enum Players

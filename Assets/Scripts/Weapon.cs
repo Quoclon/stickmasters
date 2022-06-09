@@ -120,7 +120,7 @@ public class Weapon : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && weaponOwnerType == Players.P1)
         {
             //SwingWeaponForce();
-            ChangeBalance();
+            //ChangeBalance();
         }
 
         // ~ TODO: TEST/REMOVE
@@ -238,21 +238,25 @@ public class Weapon : MonoBehaviour
         if(collision.relativeVelocity.magnitude < 1)
             return;
 
+        
+
         // magnitude used for Weapon Damage amount
         float dmgMagnitude = collision.relativeVelocity.magnitude;
 
         // Collision with Another Weapon
-        if (collision.gameObject.tag == "Weapon")
-        {
-            WeaponCollision(collision, dmgMagnitude);
-        }
-        else if(collision.gameObject.tag == "CausesDamage")
+        if (collision.gameObject.tag == "CausesDamage")
         {
             return;
         }
+        else if (collision.gameObject.tag == "Weapon")
+        {
+            if(ContinueWithCollision(collision))
+                WeaponCollision(collision, dmgMagnitude);
+        }
         else
         {
-            BodyPartCollision(collision, dmgMagnitude);
+            if (ContinueWithCollision(collision))
+                BodyPartCollision(collision, dmgMagnitude);
         }     
     }
 
@@ -269,38 +273,52 @@ public class Weapon : MonoBehaviour
 
     void BodyPartCollision(Collision2D collision, float dmgMagnitude)
     {
+   
+        // SLow Time on Hit (slowdown for .1f seconds, time get cut in half)
+        if (ownersBody.slowTimeOnHit)
+            TimeManager.Inst.SlowTime(.05f, .8f, false);
+
+        // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
+        collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, ownersBody, weaponOwnerType);
+
+        // Deal damage first above, the spawn a Force Point Effector for a moment via coroutine
+        if (pointEffector2d != null && dmgMagnitude >= 5)
+        {
+            float forceAmount = effectorForce * dmgMagnitude;
+            EnableEffector(0.5f, forceAmount);
+        }
+
+        // Spawn Particles at Collision Location
+        //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmgMagnitude, collision.transform);
+
+        // Play Sound
+        //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+        
+    }
+
+    bool ContinueWithCollision(Collision2D collision)
+    {
         // Get the collision body
         if (collision.gameObject.GetComponentInParent<Body>() == null)
-            return;
+            return false;
         Body collisionPlayerBody = collision.gameObject.GetComponentInParent<Body>();
 
-        // Check if there is a body part to damage, check if it's the same "Type" of Player (i.e. Player or NPC can't harm their type)
+        // Check if there is a body part to damage, check if it's the same "Type" of Player (i.e. NPC can't harm their type)
         if (collisionPlayerBody.alive == false || collisionPlayerBody.playerType == weaponOwnerType)
         {
-            return;
+            return false;
         }
-        else
+
+        if (GameManager.Inst.gameMode == eGameMode.Coop)
         {
-            // SLow Time on Hit (slowdown for .1f seconds, time get cut in half)
-            if (ownersBody.slowTimeOnHit)
-                TimeManager.Inst.SlowTime(.05f, .8f, false);
+            if (collisionPlayerBody.playerType == Players.P1 && weaponOwnerType == Players.P2)
+                return false;
 
-            // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
-            collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, ownersBody, weaponOwnerType);
-
-            // Deal damage first above, the spawn a Force Point Effector for a moment via coroutine
-            if (pointEffector2d != null && dmgMagnitude >= 5)
-            {
-                float forceAmount = effectorForce * dmgMagnitude;
-                EnableEffector(0.5f, forceAmount);
-            }
-
-            // Spawn Particles at Collision Location
-            //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmgMagnitude, collision.transform);
-
-            // Play Sound
-            //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+            if (collisionPlayerBody.playerType == Players.P2 && weaponOwnerType == Players.P1)
+                return false;
         }
+
+        return true;
     }
 
     public void EnableEffector(float waitTimeAmount, float amount)
