@@ -12,6 +12,7 @@ public class SpawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        RemovePlayersThatShouldHaveBeenSpawned();
         SpawnCharacters();
     }
 
@@ -19,6 +20,15 @@ public class SpawnManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    void RemovePlayersThatShouldHaveBeenSpawned()
+    {
+        GameObject[] playersLeftInSceneOnStart = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var player in playersLeftInSceneOnStart)
+        {
+            Destroy(player);
+        }
     }
 
     void SpawnCharacters()

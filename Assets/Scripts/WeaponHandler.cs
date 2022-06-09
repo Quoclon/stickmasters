@@ -22,6 +22,7 @@ public class WeaponHandler : MonoBehaviour
                 if (weaponArm.weaponType != defaultWeapon)
                     weaponArm.gameObject.SetActive(false);
             }
+            return;
         }
 
         if (spawnOption == eWeaponHolderOptions.Random)
@@ -33,6 +34,8 @@ public class WeaponHandler : MonoBehaviour
                 if (i != randomNum)
                     weaponArms[i].gameObject.SetActive(false);
             }
+            return;
+
         }
 
         if (spawnOption == eWeaponHolderOptions.NoWeapon)
@@ -41,9 +44,12 @@ public class WeaponHandler : MonoBehaviour
             {
                  weaponArm.gameObject.SetActive(false);
             }
+            return;
+
         }
 
-
+        // Fallback Action
+        //weaponArms[0].gameObject.SetActive(true);
 
     }
 
