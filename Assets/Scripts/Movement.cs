@@ -162,66 +162,6 @@ public class Movement : MonoBehaviour
 
         // Checks for Duck
         CheckDuck();
-
-
-        /*
-        // Handle Players
-        if (body.playerType == Players.P1)
-            moveX = Input.GetAxis("Horizontal");
-
-        if (body.playerType == Players.P2)
-            moveX = Input.GetAxis("Horizontal");
-
-        if (moveX != 0 || variableJoystick.Horizontal != 0)
-        {
-
-            CheckMovement();
-        }
-        else
-        {
-            anim.Play("idle");
-        }
-        */
-
-
-        /*
-        // Player1 Actions
-        if (body.playerType == Players.P1)
-        {
-            if (Input.GetAxis("Horizontal") != 0 || variableJoystick.Horizontal != 0)
-            {
-                CheckMovement();
-            }
-            else
-            {
-                anim.Play("idle");
-            }
-        }
-
-        if (body.playerType == Players.P2)
-        {
-            // Player2 Actions
-            if (variableJoystick.Horizontal != 0)
-            {
-                Debug.Log("P2 Pre-Check Movement");
-                CheckMovement();
-            }
-            else
-            {
-                anim.Play("idle");
-            }
-
-        }
-        */
-
-
-        // Checks for Input, but also handles Jump Counter countdown
-        //CheckJump();
-
-        //CheckDuck();
-
-
-
     }
 
     void HandleInputs()
