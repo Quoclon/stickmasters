@@ -7,7 +7,7 @@ public class Movement : MonoBehaviour
 {
 
     [Header("Player Type")]
-    public Players playerType;
+    //public Players playerType;
 
     [Header("Body")]
     Body body;
@@ -128,11 +128,18 @@ public class Movement : MonoBehaviour
     void Update()
     {
 
-       //if (GameManager.Inst.isRoundOver && playerType == Players.AI)
-            //body.DisableAllVelocity();
+        //if (GameManager.Inst.isRoundOver && playerType == Players.AI)
+        //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != playerType)
+        if (GameManager.Inst.isRoundOver)
+        {
+            Debug.Log("Winner: " + GameManager.Inst.playerWinner);
+            Debug.Log("playerType: " + body.playerType);
+        }
+
+
+        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
             return;
 
         if (body.alive == false)
@@ -302,33 +309,6 @@ public class Movement : MonoBehaviour
             return;
 
         ActionMoveJump();
-
-        /*
-        // Player Jumping
-        if(playerType == Players.P1)
-        {
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) || variableJoystick.Vertical > variableJoystick.DeadZone)
-            {
-                if (body.optionMobileControls && !mobileCanJump)
-                    return;
-
-                ActionMoveJump();
-            }
-        }
-
-        if (playerType == Players.P2)
-        {
-            if (variableJoystick.Vertical > variableJoystick.DeadZone)
-            {
-                if (body.optionMobileControls && !mobileCanJump)
-                    return;
-
-                ActionMoveJump();
-            }
-        }
-        */
-
-
     }
 
     void CheckDuck()
@@ -341,31 +321,6 @@ public class Movement : MonoBehaviour
             return;
 
         ActionMoveDuck();
-
-        /*
-        // Player Jumping
-        if (playerType == Players.P1)
-        {
-            if (Input.GetKeyDown(KeyCode.S) || variableJoystick.Vertical < -variableJoystick.DeadZone)
-            {
-                if (body.optionMobileControls && !mobileCanDuck)
-                    return;
-
-                ActionMoveDuck();
-            }
-        }
-
-        if (playerType == Players.P2)
-        {
-            if (variableJoystick.Vertical < -variableJoystick.DeadZone)
-            {
-                if (body.optionMobileControls && !mobileCanDuck)
-                    return;
-
-                ActionMoveDuck();
-            }
-        }
-        */
 
     }
     
@@ -404,7 +359,6 @@ public class Movement : MonoBehaviour
             if (rightLegHinge.enabled)
                 rightLegRB.AddForce(Vector2.down * (duckAmt * 1000));
         */
-
     }
 
     public void ActionMoveRight()

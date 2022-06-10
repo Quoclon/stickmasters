@@ -195,9 +195,28 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
 
-        if(gameMode == eGameMode.SinglePlayer || gameMode == eGameMode.MultiPlayer)
+
+        // Round is Over, Only One Player, Check which player is left alive if Environmental Kill
+        if (playerDealingLastBlow == Players.Environment)
         {
-            if (playerDealingLastBlow == Players.P1)
+            // Fin
+            foreach (var player in npcBodyList)
+            {
+                if (player.alive)
+                    playerDealingLastBlow = player.playerType;
+            }
+
+            foreach (var player in playerBodyList)
+            {
+                if (player.alive)
+                    playerDealingLastBlow = player.playerType;
+            }
+
+        }
+
+        if (gameMode == eGameMode.SinglePlayer || gameMode == eGameMode.MultiPlayer)
+        {
+            if (playerDealingLastBlow == Players.P1)                                        
             {
                 ScoreManager.Inst.scoreP1 += 1;
                 scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
@@ -309,16 +328,18 @@ public class GameManager : MonoBehaviour
         // Used throughout game
         isRoundOver = true;
 
-        // Disable all players but Winner
+        // Assign Winner
         playerWinner = playerDealingLastBlow;
-        DisablePlayers();
+
+        //Disable Weapons of all non-winning players
+        DisablePlayerWeapons();
     }
 
-    void DisablePlayers()
+    void DisablePlayerWeapons()
     {
         foreach (var player in GameObject.FindGameObjectsWithTag("Player"))
         {
-            Movement playerMovement = player.GetComponent<Movement>();
+            Body playerMovement = player.GetComponent<Body>();
 
             if (playerMovement.playerType != playerWinner)
             {
