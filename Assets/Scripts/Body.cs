@@ -99,7 +99,7 @@ public class Body : MonoBehaviour
                 //hexString = "F1897B";   // TODO: ~ Set this to White
                 //ColorUtility.TryParseHtmlString(hexString, out _color);
                 //head.GetComponent<SpriteRenderer>().color = _color;
-                head.GetComponent<SpriteRenderer>().color = Color.white;
+                head.GetComponent<SpriteRenderer>().color = Color.cyan;
                 break;
 
             case Players.Environment:

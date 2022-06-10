@@ -12602,7 +12602,7 @@ SpriteRenderer:
   m_Size: {x: 4.82, y: 4.39}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &421421339
@@ -50799,7 +50799,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particleBlood: {fileID: 3559827351523583021, guid: a6c1656c11d74b947b087ca7ce72ae60, type: 3}
-  WeaponClashSprite: {fileID: 7410576256456859978, guid: 1d9162b6c42ca5d458be689cda502625, type: 3}
+  WeaponClashSprite: {fileID: 1407771774917006083, guid: 50a372b8a38590845a80da1372fcf1ca, type: 3}
   particleLifeSpan: 1
 --- !u!4 &1627755722
 Transform:
