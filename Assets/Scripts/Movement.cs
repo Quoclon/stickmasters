@@ -71,8 +71,10 @@ public class Movement : MonoBehaviour
         // Setup Body
         body = GetComponent<Body>();
 
-        // ~TESTING
-        if(body.optionMobileControls == true)
+        // ~Default to "optionsMobileControls" for all players, but not NPC's
+        body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
+
+        if (body.optionMobileControls == true)
         {
             mobileCanDuck = true;
             mobileCanJump = true;

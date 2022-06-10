@@ -455,6 +455,27 @@ public class GameManager : MonoBehaviour
         }
         */
     }
+
+    public bool isPlayerTypePlayer(Players playerType)
+    {
+        switch (playerType)
+        {
+            case Players.P1:
+                return true;
+            case Players.P2:
+                return true;
+            case Players.p3:
+                return true;
+            case Players.p4:
+                return true;
+            case Players.AI:
+                return false;
+            case Players.Environment:
+                return false;
+            default:
+                return false;
+        }
+    }
 }
 
 public enum eGameMode
@@ -468,6 +489,8 @@ public enum Players
 {
     P1,
     P2,
+    p3,
+    p4,
     AI,
     Environment
 }
