@@ -602,7 +602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 0
   leftLeg: {fileID: 462952526}
   rightLeg: {fileID: 1213609409}
   offsetHorizontalMovement: 0
@@ -3216,7 +3215,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 0
   leftLeg: {fileID: 151216341}
   rightLeg: {fileID: 532805228}
   offsetHorizontalMovement: 0
@@ -4728,7 +4726,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 1
   leftLeg: {fileID: 1030479174}
   rightLeg: {fileID: 75764756}
   offsetHorizontalMovement: 0
@@ -20801,7 +20798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 0
   leftLeg: {fileID: 1152538146}
   rightLeg: {fileID: 1154958955}
   offsetHorizontalMovement: 0
@@ -22264,7 +22260,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 0
   leftLeg: {fileID: 1396092046}
   rightLeg: {fileID: 246950290}
   offsetHorizontalMovement: 0
@@ -32288,7 +32283,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 0
   leftLeg: {fileID: 706134308}
   rightLeg: {fileID: 1954011632}
   offsetHorizontalMovement: 0
@@ -35634,7 +35628,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Player 1:'
+  m_text: 'Team1:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -40561,7 +40555,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706b06d577d654e008dac343240cd713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerType: 2
   leftLeg: {fileID: 822525099}
   rightLeg: {fileID: 1092351932}
   offsetHorizontalMovement: 0
@@ -60319,7 +60312,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Player 2:'
+  m_text: 'Team2:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

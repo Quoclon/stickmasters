@@ -132,13 +132,6 @@ public class Movement : MonoBehaviour
         //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isRoundOver)
-        {
-            Debug.Log("Winner: " + GameManager.Inst.playerWinner);
-            Debug.Log("playerType: " + body.playerType);
-        }
-
-
         if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
             return;
 
