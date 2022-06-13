@@ -132,7 +132,7 @@ public class Movement : MonoBehaviour
         //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
+        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)           // ~ TODO: One player of 2 players cant move in Coop with this code
             return;
 
         if (body.alive == false)
