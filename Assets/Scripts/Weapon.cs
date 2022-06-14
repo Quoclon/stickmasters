@@ -46,6 +46,9 @@ public class Weapon : MonoBehaviour
     private float totalVelocityPerSwing = 0;
     private float averageVelocityPerSecond = 0f;
 
+    [Header("State")]
+    public bool isGrounded;
+
     public void SetupWeapon()
     {
         // ~ TESTING
@@ -226,6 +229,18 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+            isGrounded = true;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+            isGrounded = false;
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (weaponDisabled)
@@ -238,7 +253,9 @@ public class Weapon : MonoBehaviour
         if(collision.relativeVelocity.magnitude < 1)
             return;
 
-        
+        if (collision.gameObject.tag == "Ground")
+            isGrounded = true;
+            
 
         // magnitude used for Weapon Damage amount
         float dmgMagnitude = collision.relativeVelocity.magnitude;
@@ -255,6 +272,9 @@ public class Weapon : MonoBehaviour
         }
         else
         {
+            if (isGrounded)
+                return;
+
             if (ContinueWithCollision(collision))
                 BodyPartCollision(collision, dmgMagnitude);
         }     

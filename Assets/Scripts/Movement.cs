@@ -71,8 +71,11 @@ public class Movement : MonoBehaviour
         // Setup Body
         body = GetComponent<Body>();
 
-        // ~Default to "optionsMobileControls" for all players, but not NPC's
-        body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
+        // ~Default to "optionsMobileControls" for all players, but not NPC's ~ TODO: Commented out because of double-jumping for NPCs; Fix this
+        //body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
+        body.useJumpTimer = !GameManager.Inst.isPlayerTypePlayer(body.playerType);
+
+
 
         if (body.optionMobileControls == true)
         {
@@ -97,12 +100,13 @@ public class Movement : MonoBehaviour
         ResetEnemyTimer();
 
         // Start Enemy with 0 jump timer
-        //ResetJumpCooldown();
         jumpCooldown = 0;
+        ResetJumpCooldown();
+
 
 
         //Enemy AI Setup - Move Later                                                   /// JUST CHANGTED THIS COLD CAUSE BOYGS
-        if(body.playerType == Players.AI)
+        if (body.playerType == Players.AI)
         {
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
             foreach (var player in players)
@@ -132,7 +136,7 @@ public class Movement : MonoBehaviour
         //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)           // ~ TODO: One player of 2 players cant move in Coop with this code
+        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
             return;
 
         if (body.alive == false)
@@ -217,8 +221,13 @@ public class Movement : MonoBehaviour
 
         if(targetPlayerMovement != null && randomInt > 0)
         {
+            //Debug.Log("targetPlayerMovement.headTransform.position " + targetPlayerMovement.headTransform.position);
+            //Debug.Log("this.headTransform.position " + this.headTransform.position);
+
             Vector2 direction = targetPlayerMovement.headTransform.position - this.headTransform.position;
-            
+
+            //Debug.Log("direction " + direction);
+
             // ~ TODO: Set this up in inspector via AI
             int chanceToMoveInOppositeDirectionOfPlayer = Random.Range(0, 100);
 

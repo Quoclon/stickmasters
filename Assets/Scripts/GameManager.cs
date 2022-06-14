@@ -60,6 +60,10 @@ public class GameManager : MonoBehaviour
     public eGameMode gameMode;
     public bool isMobileWebGL;
 
+    [Header("Global Options - Testing")]
+    public float totalHealthPerPartModifier;
+    //public bool noDmgIfWeaponGrounded;
+
     [Header("Controls")]
     public VariableJoystick variableJoystickP1;
     public VariableJoystick variableJoystickP2;
@@ -130,11 +134,11 @@ public class GameManager : MonoBehaviour
         // Instead of Clicking "Next Round" Button
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return)))
         {
-            if(isRoundOver)
-                ResetScene();
-
             if (isMatchOver)
                 LoadMainMenu();
+
+            else if (isRoundOver)
+                ResetScene();
         }
     }
 
@@ -176,8 +180,17 @@ public class GameManager : MonoBehaviour
         if (playerType == Players.P1 || playerType == Players.P2)
             playerBodyList.Remove(body);
 
-        cinemachineTargetGroup.RemoveMember(body.chest.transform);
+        //cinemachineTargetGroup.RemoveMember(body.chest.transform
+        //StartCoroutine(RemovePlayerFromTargetGroup(body, .5f));
 
+    }
+
+    // ~ TODO: it hard pans to last player at Game Over it they are far away from each other
+    IEnumerator RemovePlayerFromTargetGroup(Body body, float waitTime)
+    {
+
+        yield return new WaitForSeconds(waitTime);
+        cinemachineTargetGroup.RemoveMember(body.chest.transform);
     }
 
 
@@ -193,7 +206,7 @@ public class GameManager : MonoBehaviour
     // ~ Convert this to not be "Player Type" - but rather player "Body" or something specific (i.e. not NPC)
     public void GameOver(Players playerDealingLastBlow)
     {
-        Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
+        //Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
 
 
         // Round is Over, Only One Player, Check which player is left alive if Environmental Kill
@@ -550,6 +563,7 @@ public enum eWeaponHolderOptions
     NoWeapon,
     Default,
     Random,
+    WeightedRandom,
     EntireArm
 }
 

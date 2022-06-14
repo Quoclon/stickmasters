@@ -14,7 +14,7 @@ public class Body : MonoBehaviour
     [Header("Player - Set in PlayerStats.cs")]
     public Players playerType;
 
-    [Header("Invidivual Body Parts -- Remove Later?")]
+    [Header("Invidivual Body Parts")]
     public BodyPart head;
     public BodyPart chest;
 
@@ -45,6 +45,24 @@ public class Body : MonoBehaviour
     public Collider2D[] colliders;
     public WeaponHandler[] weaponHandlers;
 
+    [Header("Health")]
+    public HealthBar healthbar;
+    [SerializeField] float health;
+    [SerializeField] float maxHealth;
+    float totalHealthPerPartModifier;
+
+    [Header("Dmg")]
+    Players lastPlayerThatDealtDmg;
+    BodyPart lastBodyPartHit;
+    float damageThreshold;
+
+    [Header("Bleed Dmg")]
+    float bleedPerSec;
+    public float bleedPerSecMultiplier;
+
+
+    bool firstUpateAfterRoundStarts = true;
+
     void Start()
     {
         //SetupBody();
@@ -52,7 +70,8 @@ public class Body : MonoBehaviour
 
     public void SetupBody(Players _playerType)
     {
-        Debug.Log(_playerType);
+        //Debug.Log(_playerType);
+
         // Called via SpawnManager
         playerType = _playerType;
         alive = true;
@@ -63,8 +82,13 @@ public class Body : MonoBehaviour
         SetupCollidersArray();
         GetComponent<IgnoreCollision>().AvoidInternalCollisions();
 
+        RefineBodyPartsArray();
+
         // Setup Player Head/Body Color
         SetupColor();
+
+        // Setup Hit Points
+        SetupHealth();
 
         //Debug.Log("Body: " + this + " " + "PlayerType: " + playerType);
 
@@ -74,7 +98,49 @@ public class Body : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Inst.isRoundOver)
+            return;
 
+        if (GameManager.Inst.isMatchOver)
+            return;
+
+        if (!alive)
+            return;
+
+        if (bleedPerSec > 0)
+        {
+            health -= bleedPerSec * Time.deltaTime;
+
+            if(health > 0)
+                healthbar.SetHealthBarCurrentHealth(health);
+        }
+
+        if(health <= 0)
+        {
+            KillPlayer(lastPlayerThatDealtDmg);
+        }
+    }
+
+    void SetupHealth()
+    {
+        //totalHealthPerPartModifier = .5f;
+        totalHealthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;   // ~ TESTING GLOBAL HEALTH modifier
+
+        foreach (var part in bodyParts)
+        {
+            //Debug.Log(part.name + " " + part.healthMax);
+            maxHealth += part.healthMax * totalHealthPerPartModifier;
+        }
+
+        Debug.Log("Total Health: " + maxHealth);
+        health = maxHealth;
+
+        SetupHealthBar();
+    }
+
+    void SetupHealthBar()
+    {
+        healthbar.SetHealthBarDefaultSetup(maxHealth);
     }
 
     void SetupColor()
@@ -122,6 +188,7 @@ public class Body : MonoBehaviour
             {
                 if (part.isGrounded && !part.disabled)
                 {
+                    //Debug.Log(part.name + " isGrounded: " + part.isGrounded);
                     canJump = true;
                     break;
                 }
@@ -201,9 +268,90 @@ public class Body : MonoBehaviour
 
     #endregion
 
-    #region DisableBody
-    public void DisableBodyPart(BodyPart bodyPart)
+    public void DamageBodyPart(BodyPart _bodyPart, float dmg, Players attackingPlayersType)
     {
+        foreach (var bodypart in bodyParts)
+        {
+            if(bodypart == _bodyPart)
+            {
+                // If Body Part disabled, return
+                if (bodypart.disabled)
+                    return;
+
+                // If damage is under threshhold (also checked in Weapon and OnCollision2d)                             
+                if (dmg < bodypart.GetDmgThreshold()) // TODO: Make this global for testing, because Weapon + OnCollision2d (for bodypart) also handle magnitude returns
+                    return;
+
+                // Get last Attacking PlayerType and BodyPart damaged
+                lastPlayerThatDealtDmg = attackingPlayersType;
+                lastBodyPartHit = bodypart;
+
+                // Spawn Particles - OPTION: use 'TakeDamage'
+                //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
+
+                // Sound on Damage
+                SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+
+                // Spawn Damage Numbers
+                DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, head.transform);
+
+                // Flash Body on Hit
+                bodypart.FlashBodyPart(.25f, 0f);
+
+                // Reduce Overall Body Health
+                health -= dmg;
+
+                // Reduce bodyPart Health, but at a slow rate, as it's ONLY used for severing
+                float healthReductionMultiplier = 10f;
+                //bodypart.health -= Mathf.Ceil(dmg / healthReductionMultiplier);
+                bodypart.health -= (dmg / healthReductionMultiplier);
+
+                healthbar.SetHealthBarCurrentHealth(health);
+
+                //Debug.Log(bodypart.name + " Max : " + bodypart.healthMax + " Health: " + bodypart.health);
+
+                // Check if bodyPart is Destroyed/Disabled
+                if (dmg >= bodypart.health)
+                {
+                    // Spawn Particles - OPTION: use on 'DiableBodyPart'
+                    ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, bodypart.transform);
+                    DisableBodyPart(bodypart, attackingPlayersType);                  
+                }
+                else
+                {
+                    // Play Sound -- if hit but not severed
+                    //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+                }
+                /*
+                // Reduce Health
+                bodypart.health -= dmg;
+
+                healthbar.ReduceHealthBarCurrentHealth(dmg);
+
+                // Check if bodyPart is Destroyed/Disabled
+                if (bodypart.health <= 0)
+                {
+                    // Spawn Particles - OPTION: use on 'DiableBodyPart'
+                    ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, bodypart.transform);
+                    DisableBodyPart(bodypart, attackingPlayersType);
+                }
+                else
+                {
+                    // Play Sound -- if hit but not severed
+                    //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
+                }
+                */
+            }
+        }
+    }
+
+    #region DisableBody
+    public void DisableBodyPart(BodyPart bodypart, Players playerDealingDamage)
+    {
+        // Use Slow Time if the option is ticked
+        if (slowTimeOnDisableBodyPart)
+            TimeManager.Inst.SlowTime(.1f, .5f, true);
+
         // Play Sound for Disable Body Part
         SoundManager.Inst.PlayRandomFromArray(SoundManager.Inst.severedLimbs);
 
@@ -211,25 +359,134 @@ public class Body : MonoBehaviour
         foreach (var part in bodyParts)
         {
             // Disable the Body Part if it maches one on the Body (which it should
-            if (bodyPart == part)
+            if (bodypart == part)
             {
                 // Disable Hinge
-                if (bodyPart.bodyPartHinge != null) 
+                if (bodypart.bodyPartHinge != null) 
                 {
                     // Disable Body Part Hinge (i.e. disable the hinge that connets the lower arm to the Upper Arm)
                     bool disableHinge = true;
-                    DisablePart(bodyPart, disableHinge);
+                    DisablePart(bodypart, disableHinge);
 
                     // Check for a connectedBody (i.e. the RigidBody of the Upper Arm, which the Lower Arm was connected to)
-                    if (bodyPart.bodyPartHinge.connectedBody == null)
+                    if (bodypart.bodyPartHinge.connectedBody == null)
                         continue;
 
                     //Debug.Log("bodyPart.bodyPartHinge.connectedBody: " + bodyPart.bodyPartHinge.connectedBody);
-                    DisableDirectlyConnectedHingeJoints(bodyPart);
+                    DisableDirectlyConnectedHingeJoints(bodypart);
                 }
 
             }
         }
+
+
+        // Return if the player is already dead
+        if (!alive)
+            return;
+
+        // Kill the Player if Head or 'Chest' is destroyed
+        if (bodypart.eBodyPart == BodyParts.Head || bodypart.eBodyPart == BodyParts.Body)
+        {
+            KillPlayer(playerDealingDamage);
+        }
+    }
+
+    void DetermineBleedPerSecond()
+    {
+        //Debug.Log("DetermineBleedPerSecond Ran");
+        bleedPerSec = 0;
+        
+        if(legLowerLeft.disabled || legLowerRight.disabled)
+        {
+            if (legLowerLeft.disabled && legLowerRight.disabled)
+            {
+                bleedPerSec += 10f;               
+            }
+            else if (legLowerLeft.disabled)
+            {
+                bleedPerSec += 2f;
+            }
+            else if (legLowerRight.disabled)
+            {
+                bleedPerSec += 2f;
+            }
+        }
+
+        if (legUpperLeft.disabled || legUpperRight.disabled)
+        {
+            if (legUpperLeft.disabled && legUpperRight.disabled)
+            {
+                bleedPerSec += 20f;
+            }
+            else if (legUpperLeft.disabled)
+            {
+                bleedPerSec += 4f;
+            }
+            else if (legUpperRight.disabled)
+            {
+                bleedPerSec += 4f;
+            }
+        }
+
+        if (armLowerLeft.disabled || armLowerRight.disabled)
+        {
+            if (armLowerLeft.disabled && armLowerRight.disabled)
+            {
+                bleedPerSec += 30f;
+            }
+            else if (armLowerLeft.disabled)
+            {
+                bleedPerSec += 1f;
+            }
+            else if (armLowerRight.disabled)
+            {
+                bleedPerSec += 1f;
+            }
+        }
+
+        if (armUpperLeft.disabled || armUpperRight.disabled)
+        {
+            if (armUpperLeft.disabled && armUpperRight.disabled)
+            {
+                bleedPerSec += 30f;
+            }
+            else if (armUpperLeft.disabled)
+            {
+                bleedPerSec += 4f;
+            }
+            else if (armUpperRight.disabled)
+            {
+                bleedPerSec += 4f;
+            }
+        }
+
+        bleedPerSec *= bleedPerSecMultiplier;
+
+        SetupBleedAnimation(bleedPerSec);      
+    }
+
+    void SetupBleedAnimation(float bleedPerSec)
+    {
+        float animationSpeed = 0f;
+
+        Debug.Log("bleedPerSec: " + bleedPerSec);
+
+        if (bleedPerSec > 0)
+            animationSpeed = .15f;
+
+        if (bleedPerSec >= 10)
+            animationSpeed = .25f;
+
+        if (bleedPerSec >= 20)
+            animationSpeed = .50f;
+
+        if (bleedPerSec >= 30)
+            animationSpeed = .75f;
+
+        if (bleedPerSec >= 40)
+            animationSpeed = 1f;
+
+        healthbar.SetBleedAnimation(animationSpeed);
     }
 
     void DisablePart(BodyPart bodyPart, bool disableHinge)
@@ -256,6 +513,9 @@ public class Body : MonoBehaviour
             if (weapon.weaponHolderHinge == bodyPart.bodyPartHinge)
                 weapon.DisableWeapon();
         }
+
+        // ~ Determine Bleed Amount Per Second after each limb is severed
+        DetermineBleedPerSecond();
     }
 
 
@@ -284,8 +544,11 @@ public class Body : MonoBehaviour
     }
 
    
-    public void DisableBody(Players playerDealingDamage)
+    public void KillPlayer(Players playerDealingDamage)    // ~TODO: Trak last palyer doing dmaage for bleed out
     {
+        // Remove Health Bar Visuals
+        healthbar.DisableUI();
+
         // Set Body State (i.e. for checking game over)
         alive = false;
 
@@ -303,19 +566,6 @@ public class Body : MonoBehaviour
 
         // Set Game Over State -- let GameManager know winner
         GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
-    }
-
-    public void DisableAllVelocity()
-    {
-        foreach (var part in bodyParts)
-        {
-            part.rb.velocity = new Vector2(0, 0);
-        }
-
-        foreach (var weapon in weapons)
-        {
-            weapon.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-        }
     }
 
 
@@ -342,7 +592,60 @@ public class Body : MonoBehaviour
     #region Setup Reference Arrays
     void SetupBodyPartsArray()
     {
-        bodyParts = GetComponentsInChildren<BodyPart>();
+        bodyParts = GetComponentsInChildren<BodyPart>();    
+    }
+
+    void RefineBodyPartsArray()
+    {
+        foreach (var bodypart in bodyParts)
+        {
+            // If the bodyPart "Parent" (i.e. the "Right Arm) is Null, then don't assign the child bodyParts (i.e. to "left arm")
+            if(bodypart.gameObject.transform.parent != null)
+            {
+                if (bodypart.gameObject.transform.parent.gameObject.activeInHierarchy == false)
+                    continue;
+            }
+
+            switch (bodypart.eBodyPart)
+            {
+                case BodyParts.Default:
+                    break;
+                case BodyParts.Head:
+                    head = bodypart;
+                    break;
+                case BodyParts.Body:
+                    chest = bodypart;
+                    break;
+                case BodyParts.UpperRightArm:
+                    armUpperRight = bodypart;
+                    break;
+                case BodyParts.LowerRightArm:
+                    armLowerRight = bodypart;
+                    break;
+                case BodyParts.UpperLeftArm:
+                    armUpperLeft = bodypart;
+                    break;
+                case BodyParts.LowerLeftArm:
+                    armLowerLeft = bodypart;
+                    break;
+                case BodyParts.UpperLeftLeg:
+                    legUpperLeft = bodypart;
+                    break;
+                case BodyParts.LowerLeftLeg:
+                    legLowerLeft = bodypart;
+                    break;
+                case BodyParts.UpperRightLeg:
+                    legUpperRight = bodypart;
+                    break;
+                case BodyParts.LowerRightLeg:
+                    legLowerRight = bodypart;
+                    break;
+                case BodyParts.WeaponHolder:
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     void SetupWeaponsArray()

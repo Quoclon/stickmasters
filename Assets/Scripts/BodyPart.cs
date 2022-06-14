@@ -66,19 +66,24 @@ public class BodyPart : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         spriteColorOriginal = sprite.color;
 
+        // ResetGrounded State
+        isGrounded = false;
+    
         // Set Health Stats - Use default Health if no health set for this body part
         health = healthMax;
+
         if (healthMax <= 0)
-            health = defaultHealth;
-        
+            health = defaultHealth;     
     }
 
 
     void Update()
     {
-        //Debug.Log(this.name + " " + isGrounded);
+        if (body.playerType == Players.P2)
+            Debug.Log(this.name + " " + isGrounded);
+
     }
-    
+
 
     public void ApplyDirectionalForce(Direction direction)
     {
@@ -99,8 +104,17 @@ public class BodyPart : MonoBehaviour
 
     }
 
+    public float GetDmgThreshold()
+    {
+        return dmgThreshold;
+    }
+
     public void TakeDamage(float dmg, Body attackingPlayersBody, Players attackingPlayersType)
     {
+        // ~ TODO: Call directly from weapon, etc. eventually
+        body.DamageBodyPart(this, dmg, attackingPlayersType);
+
+        /*
         // If Body Part disabled, return
         if (disabled)
             return;
@@ -136,12 +150,14 @@ public class BodyPart : MonoBehaviour
             // Play Sound -- if hit but not severed
             //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
         }
+        */
     }
 
 
 
     void DisableBodyPart(Players playerDealingDamage)
     {
+        /*
         // Use Slow Time if the option is ticked
         if (body.slowTimeOnDisableBodyPart)
             TimeManager.Inst.SlowTime(.1f, .5f, true);
@@ -158,6 +174,7 @@ public class BodyPart : MonoBehaviour
         {
             body.DisableBody(playerDealingDamage);
         }
+        */
     }
 
 
@@ -184,15 +201,15 @@ public class BodyPart : MonoBehaviour
         // Used for Jumping
         isGrounded = true;
 
-        // Damage based on magnitude / threshodl (i.e. 30 / 6 = 5 damage)
-        float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
-
-        if(potentialMagnitudeDamage <= 5)
-            return;
-
         // Damage if hitting a Wall or other Causes Damage object
         if (collision.gameObject.tag == "CausesDamage")
         {
+            // Damage based on magnitude / threshodl (i.e. 30 / 6 = 5 damage)
+            float potentialMagnitudeDamage = collision.relativeVelocity.magnitude / environmentDamageDenominator;
+
+            if (potentialMagnitudeDamage <= 5)
+                return;
+
             TakeDamage(potentialMagnitudeDamage, null, Players.Environment);
         }   
 

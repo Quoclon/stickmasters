@@ -56,3 +56,6 @@ TagManager:
   - name: Foreground
     uniqueID: 2156273455
     locked: 0
+  - name: WorldSpaceCanvas
+    uniqueID: 1231635643
+    locked: 0
