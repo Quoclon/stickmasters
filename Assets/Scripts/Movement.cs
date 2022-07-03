@@ -49,7 +49,7 @@ public class Movement : MonoBehaviour
     [Header("Enemy")]
     public float enemyActionTimerMax;
     public float enemyActionTimer;
-    Movement targetPlayerMovement;
+    public Movement targetPlayerMovement;
 
     [Header("Head - for facing direct")]
     public Transform headTransform;
@@ -74,8 +74,6 @@ public class Movement : MonoBehaviour
         // ~Default to "optionsMobileControls" for all players, but not NPC's ~ TODO: Commented out because of double-jumping for NPCs; Fix this
         //body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
         body.useJumpTimer = !GameManager.Inst.isPlayerTypePlayer(body.playerType);
-
-
 
         if (body.optionMobileControls == true)
         {

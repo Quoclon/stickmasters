@@ -7,6 +7,8 @@ public class ParticleManager : MonoBehaviour
 
 	[Header("Particle Based")]
 	public ParticleSystem particleBlood;
+	public ParticleSystem[] bloodOnHitParticles;
+	public int particleNumber = -1;
 
 	[Header("Sprite Based")]
     public GameObject WeaponClashSprite;
@@ -57,11 +59,29 @@ public class ParticleManager : MonoBehaviour
 		ParticleSystem particle = Instantiate(particleTypeToInstantiate, collisionPosition);
 
 		// ~ TODO - FIgure out how to make the particles bigger - this is NOT working
-		particle.emissionRate += (collisionMagnitude * 1.5f);
+		//particle.emissionRate += (collisionMagnitude * 1.5f);
 	}
 
+	public void PlayRandomParticle(ParticleSystem[] particleTypeToInstantiate, float collisionMagnitude, Collision2D collision)
+	{
+		int randomNumber = -1;
+		if (particleNumber == -1)
+			randomNumber = Random.Range(0, particleTypeToInstantiate.Length);
+		else
+			randomNumber = particleNumber;
+
+
+		ParticleSystem particle = Instantiate(particleTypeToInstantiate[randomNumber], collision.contacts[0].point, collision.transform.rotation);
+		Debug.Log(particleTypeToInstantiate[randomNumber].name);
+
+		// ~ TODO - FIgure out how to make the particles bigger - this is NOT working
+		//particle.emissionRate += (collisionMagnitude * 1.5f);
+	}
+
+
+
 	// ~NOTE: BloodParticleController - controls the blood splat on ground; it's on the ParticleSystem with blood particles that collide and cause the Sprite
-    public void SpawnSpriteAnimation(Collision2D collision)
+	public void SpawnSpriteAnimation(Collision2D collision)
     {
         GameObject animatedSprite = Instantiate(WeaponClashSprite, collision.contacts[0].point, Quaternion.identity);
     }

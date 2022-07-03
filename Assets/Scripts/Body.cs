@@ -36,6 +36,7 @@ public class Body : MonoBehaviour
 
     [Header("Weapons")]
     public WeaponHandler weaponsHandler;
+    private GameObject[] weaponArmObjects;
 
     [Header("Arrays of Attached Components")]
     public Balance[] balancingParts;
@@ -49,7 +50,8 @@ public class Body : MonoBehaviour
     public HealthBar healthbar;
     [SerializeField] float health;
     [SerializeField] float maxHealth;
-    float totalHealthPerPartModifier;
+    float healthPerPartModifier;
+    float totalHealthModifier;
 
     [Header("Dmg")]
     Players lastPlayerThatDealtDmg;
@@ -58,10 +60,15 @@ public class Body : MonoBehaviour
 
     [Header("Bleed Dmg")]
     float bleedPerSec;
+    public float bleedPerSecFromWeaponDmg;
     public float bleedPerSecMultiplier;
 
+    [Header("Particles")]
+    public ParticleSystem[] dustParticle;
 
-    bool firstUpateAfterRoundStarts = true;
+    [Header("Color")]
+    public bool onlyColorHead;
+    public ColorHandler colorHandler;
 
     void Start()
     {
@@ -123,16 +130,50 @@ public class Body : MonoBehaviour
 
     void SetupHealth()
     {
-        //totalHealthPerPartModifier = .5f;
-        totalHealthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;   // ~ TESTING GLOBAL HEALTH modifier
-
-        foreach (var part in bodyParts)
+        // Survival Mode - Give player more health; Enemy per part will have been reduced already
+        if(GameManager.Inst.gameMode == eGameMode.Survival)
         {
-            //Debug.Log(part.name + " " + part.healthMax);
-            maxHealth += part.healthMax * totalHealthPerPartModifier;
+            // Overall Health = [all parts health] * totalHealthModifier
+            if (GameManager.Inst.isPlayerTypePlayer(playerType))
+            {
+                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * 1.5f;
+                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+            }
+            else
+            {
+                //Debug.Log("GameManager.Inst.spawnedEnemies: " + GameManager.Inst.spawnedEnemies);
+                //Debug.Log("GameManager.Inst.enemiesWaveNumber: " + GameManager.Inst.enemiesWaveNumber);
+                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * GameManager.Inst.enemiesWaveNumber / GameManager.Inst.totalWaveDenominator;  // .20f first level, .40f second level 
+                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+                //Debug.Log("healthPerPartModifier: " + healthPerPartModifier);
+            }
         }
 
-        Debug.Log("Total Health: " + maxHealth);
+        // Non-Survival Modes
+        if (GameManager.Inst.gameMode != eGameMode.Survival)
+        {
+            // Give the player more health
+            if (GameManager.Inst.isPlayerTypePlayer(playerType))
+            {
+                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
+                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier + 0.25f;  // A little extra health vs npc 1v1, 2v2, etc.
+            }
+            else
+            {
+                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
+                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+            }
+
+        }
+
+        // Foreach part, modify it's per-part health; add to total, modify total as needed.
+        foreach (var part in bodyParts)
+        {
+            part.healthMax *= healthPerPartModifier;
+            maxHealth += part.healthMax * totalHealthModifier;
+        }
+
+        //Debug.Log("Player: " + playerType + " " + "Total Health: " + maxHealth);
         health = maxHealth;
 
         SetupHealthBar();
@@ -145,34 +186,39 @@ public class Body : MonoBehaviour
 
     void SetupColor()
     {
-        string hexString = "";
-        Color _color = new Color();
+        // Get the Color Handler Script
+        colorHandler = GetComponent<ColorHandler>();
 
-        switch (playerType)
+        if (GameManager.Inst.isPlayerTypePlayer(playerType))
         {
-            case Players.P1:
-                // Use Default Colr for Head
-                break;
-
-            case Players.P2:
-                //hexString = "F1897B"; // Off Red  
-                //ColorUtility.TryParseHtmlString(hexString, out _color);
-                //head.GetComponent<SpriteRenderer>().color = _color;
-                head.GetComponent<SpriteRenderer>().color = Color.red;
-                break;
-
-            case Players.AI:
-                //hexString = "F1897B";   // TODO: ~ Set this to White
-                //ColorUtility.TryParseHtmlString(hexString, out _color);
-                //head.GetComponent<SpriteRenderer>().color = _color;
-                head.GetComponent<SpriteRenderer>().color = Color.cyan;
-                break;
-
-            case Players.Environment:
-                break;
-
-            default:
-                break;
+            foreach (var part in bodyParts)
+            {
+                //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
+                switch (playerType)
+                {
+                    case Players.P1:
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(1));
+                        break;
+                    case Players.P2:
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
+                        break;
+                    case Players.p3:
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
+                        break;
+                    case Players.p4:
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        else
+        {
+            foreach (var part in bodyParts)
+            {
+                part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+            }
         }
     }
     
@@ -196,8 +242,16 @@ public class Body : MonoBehaviour
 
             if (canJump)
             {
+                int dustCreatedCount = 0;
+
                 foreach (var part in bodyParts)
                 {
+                    if((part.eBodyPart == BodyParts.LowerRightLeg || part.eBodyPart == BodyParts.LowerLeftLeg) && dustCreatedCount < 2)
+                    {
+                        //CreateJumpDust(part.transform, dustCreatedCount);
+                        dustCreatedCount++;
+                    }
+ 
                     part.ApplyDirectionalForce(direction);
                 }
             }
@@ -217,6 +271,13 @@ public class Body : MonoBehaviour
             weappon.ApplyDirectionalForce(direction);
         }
 
+    }
+
+    void CreateJumpDust(Transform footTransform, int dustCount)
+    {
+        //Debug.Log("Dust Jump: " + footTransform.gameObject.name);
+        dustParticle[dustCount].transform.position = new Vector3(footTransform.position.x, footTransform.position.y - 0.25f, 0);
+        dustParticle[dustCount].Play();
     }
 
     #region StaggeredMovementBetterAnimation
@@ -268,8 +329,12 @@ public class Body : MonoBehaviour
 
     #endregion
 
-    public void DamageBodyPart(BodyPart _bodyPart, float dmg, Players attackingPlayersType)
+    public void DamageBodyPart(BodyPart _bodyPart, float dmg, float bleedDmg, Players attackingPlayersType, Collision2D collision)
     {
+        // ~ UNTESTED COULD CAUSE BUGS
+        if (!alive)
+            return;
+
         foreach (var bodypart in bodyParts)
         {
             if(bodypart == _bodyPart)
@@ -300,18 +365,38 @@ public class Body : MonoBehaviour
 
                 // Reduce Overall Body Health
                 health -= dmg;
-
-                // Reduce bodyPart Health, but at a slow rate, as it's ONLY used for severing
-                float healthReductionMultiplier = 10f;
-                //bodypart.health -= Mathf.Ceil(dmg / healthReductionMultiplier);
-                bodypart.health -= (dmg / healthReductionMultiplier);
-
                 healthbar.SetHealthBarCurrentHealth(health);
+           
+                // ~ TODO: Pass in "BleedDmg" from weapon (if I end with multiple bleed causing weapons)
+                if(bleedDmg > 0)
+                {
+                    // Player Bleed Denominator
+                    float bleedPerSecDenominator = 20f;
 
-                //Debug.Log(bodypart.name + " Max : " + bodypart.healthMax + " Health: " + bodypart.health);
+                    // Enemy Bleed Denomiator lower if Survival
+                    if (!GameManager.Inst.isPlayerTypePlayer(playerType) && GameManager.Inst.gameMode == eGameMode.Survival)
+                        bleedPerSecDenominator = 15f;
+
+                    bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
+                    DetermineBleedPerSecond();
+                }
+
+                // Reduce bodyPart Health @ a fraction of damage. Makes bodyParts easier to sever
+                float bodyPartHealthReductionDenominator = 10f;
+                bodypart.health -= (dmg / bodyPartHealthReductionDenominator);
+                bool severBodyPart = false;
+
+                // Sever the Body Part if damage above body part health
+                if (dmg >= bodypart.health)
+                    severBodyPart = true;
+
+                // ~ TESTSING - remove if you don't want parts to be severed on last hit
+                if(health <= 0)
+                    severBodyPart = true;
 
                 // Check if bodyPart is Destroyed/Disabled
-                if (dmg >= bodypart.health)
+                //if (dmg >= bodypart.health)
+                if(severBodyPart)
                 {
                     // Spawn Particles - OPTION: use on 'DiableBodyPart'
                     ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, bodypart.transform);
@@ -319,28 +404,12 @@ public class Body : MonoBehaviour
                 }
                 else
                 {
+                    // Spawn Blood Particle for Hit Dmg
+                    ParticleManager.Inst.PlayRandomParticle(ParticleManager.Inst.bloodOnHitParticles, 1, collision);
+
                     // Play Sound -- if hit but not severed
                     //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
                 }
-                /*
-                // Reduce Health
-                bodypart.health -= dmg;
-
-                healthbar.ReduceHealthBarCurrentHealth(dmg);
-
-                // Check if bodyPart is Destroyed/Disabled
-                if (bodypart.health <= 0)
-                {
-                    // Spawn Particles - OPTION: use on 'DiableBodyPart'
-                    ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, bodypart.transform);
-                    DisableBodyPart(bodypart, attackingPlayersType);
-                }
-                else
-                {
-                    // Play Sound -- if hit but not severed
-                    //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
-                }
-                */
             }
         }
     }
@@ -395,20 +464,20 @@ public class Body : MonoBehaviour
     {
         //Debug.Log("DetermineBleedPerSecond Ran");
         bleedPerSec = 0;
-        
-        if(legLowerLeft.disabled || legLowerRight.disabled)
+
+        if (legLowerLeft.disabled || legLowerRight.disabled)
         {
             if (legLowerLeft.disabled && legLowerRight.disabled)
             {
-                bleedPerSec += 10f;               
+                bleedPerSec += 20f;               
             }
             else if (legLowerLeft.disabled)
             {
-                bleedPerSec += 2f;
+                bleedPerSec += 4f;
             }
             else if (legLowerRight.disabled)
             {
-                bleedPerSec += 2f;
+                bleedPerSec += 4f;
             }
         }
 
@@ -432,15 +501,27 @@ public class Body : MonoBehaviour
         {
             if (armLowerLeft.disabled && armLowerRight.disabled)
             {
-                bleedPerSec += 30f;
+                bleedPerSec += 40f;
             }
             else if (armLowerLeft.disabled)
             {
-                bleedPerSec += 1f;
+                bleedPerSec += 2f;
             }
             else if (armLowerRight.disabled)
             {
-                bleedPerSec += 1f;
+                bleedPerSec += 2f;
+            }
+
+            // If no Weapons Increase BleedPerSec a lot
+            foreach (var weapon in weapons)
+            {
+                int weaponDisabledCount = weapons.Length;
+                //Debug.Log(weapon.name);
+                if(weapon.weaponDisabled || weapon.weaponType == eWeaponType.None)
+                    weaponDisabledCount--;
+
+                if (weaponDisabledCount <= 0)
+                    bleedPerSec += 30;
             }
         }
 
@@ -460,7 +541,10 @@ public class Body : MonoBehaviour
             }
         }
 
-        bleedPerSec *= bleedPerSecMultiplier;
+
+        // Body Part BleedPerSec + Weapon Based BleedPerSec * Preset Multiplier
+        bleedPerSec = (bleedPerSec + bleedPerSecFromWeaponDmg) * bleedPerSecMultiplier;
+        //Debug.Log(bleedPerSec);
 
         SetupBleedAnimation(bleedPerSec);      
     }
@@ -469,10 +553,10 @@ public class Body : MonoBehaviour
     {
         float animationSpeed = 0f;
 
-        Debug.Log("bleedPerSec: " + bleedPerSec);
+        //Debug.Log("bleedPerSec: " + bleedPerSec);
 
         if (bleedPerSec > 0)
-            animationSpeed = .15f;
+            animationSpeed = .10f;
 
         if (bleedPerSec >= 10)
             animationSpeed = .25f;
@@ -481,10 +565,13 @@ public class Body : MonoBehaviour
             animationSpeed = .50f;
 
         if (bleedPerSec >= 30)
-            animationSpeed = .75f;
+            animationSpeed = 1f;
 
         if (bleedPerSec >= 40)
-            animationSpeed = 1f;
+            animationSpeed = 2f;
+
+        if (bleedPerSec >= 60)
+            animationSpeed = 3f;
 
         healthbar.SetBleedAnimation(animationSpeed);
     }
@@ -592,7 +679,7 @@ public class Body : MonoBehaviour
     #region Setup Reference Arrays
     void SetupBodyPartsArray()
     {
-        bodyParts = GetComponentsInChildren<BodyPart>();    
+        bodyParts = GetComponentsInChildren<BodyPart>();
     }
 
     void RefineBodyPartsArray()
@@ -650,14 +737,21 @@ public class Body : MonoBehaviour
 
     void SetupWeaponsArray()
     {
+        /*
+        weaponArmObjects = GameObject.FindGameObjectsWithTag("WeaponArms");
+        foreach (var weaponArm in weaponArmObjects)
+        {
+            weaponArm.SetActive(true);
+        }
+        */
 
         weaponHandlers = GetComponentsInChildren<WeaponHandler>();
-
         foreach (var weaponHandler in weaponHandlers)
         {
-            weaponHandler.EquipWeaponArm();
+            weaponHandler.EquipWeaponArm();            
         }
 
+        int weaponCount = 0;
 
         // Setup Player with Weapons -- Just the Weapons (not custom arm limit settings, etc.)     
         foreach (var part in bodyParts)
@@ -667,13 +761,36 @@ public class Body : MonoBehaviour
                 WeaponHolder weaponHolder = part.GetComponent<WeaponHolder>();
                 weaponHolder.EquipWeapon();
 
+                /*
+                if (weaponHolder.currentWeaponScript.weaponType != eWeaponType.None) 
+                {
+                    weaponCount++;
+                }
+                */
+
                 // ARCHIVE
                 //part.GetComponent<WeaponHolder>().EquipWeapon(eWeaponType.Katana);
                 //part.GetComponent<WeaponHolder>().EquipRandomWeapon();
             }
-        }      
+        }
 
+  
         weapons = GetComponentsInChildren<Weapon>();
+
+        // Check if there are "no weapons" - and if so rerun setup
+        
+        foreach (var weapon in weapons)
+        {
+            if (weapon.weaponType != eWeaponType.None)
+                weaponCount++;
+        }
+
+        if (weaponCount == 0)
+            SetupWeaponsArray();
+
+
+
+
     }
 
     void SetupBalancingParts()

@@ -76,11 +76,23 @@ public class BodyPart : MonoBehaviour
             health = defaultHealth;     
     }
 
+    public void SetupSpriteColor(bool onlyColorHead, Color color)
+    {
+        sprite = GetComponent<SpriteRenderer>();
+
+        if(!onlyColorHead)
+            sprite.color = color;
+
+        if(onlyColorHead && eBodyPart == BodyParts.Head)
+            sprite.color = color;
+
+        spriteColorOriginal = sprite.color;
+    }
 
     void Update()
     {
-        if (body.playerType == Players.P2)
-            Debug.Log(this.name + " " + isGrounded);
+        //if (body.playerType == Players.P2)
+            //Debug.Log(this.name + " " + isGrounded);
 
     }
 
@@ -109,75 +121,11 @@ public class BodyPart : MonoBehaviour
         return dmgThreshold;
     }
 
-    public void TakeDamage(float dmg, Body attackingPlayersBody, Players attackingPlayersType)
+    public void TakeDamage(float dmg, float bleedDmg, Body attackingPlayersBody, Players attackingPlayersType, Collision2D collision)
     {
         // ~ TODO: Call directly from weapon, etc. eventually
-        body.DamageBodyPart(this, dmg, attackingPlayersType);
-
-        /*
-        // If Body Part disabled, return
-        if (disabled)
-            return;
-
-        // If damage is under threshhold (also checked in Weapon and OnCollision2d)                             
-        if (dmg < dmgThreshold) // TODO: Make this global for testing, because Weapon + OnCollision2d (for bodypart) also handle magnitude returns
-            return;
-
-        // Spawn Particles - OPTION: use 'TakeDamage'
-        //ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
-
-        SoundManager.Inst.Play(SoundManager.Inst.playerHit);
-
-
-        // Spawn Damage Numbers
-        DamageNumberManager.Inst.SpawnDamageNumber(dmg, attackingPlayersType, body.head.transform);
-        
-        // Flash Body on Hit
-        FlashBodyPart(.25f, 0f);
-
-        // Reduce Health
-        health -= dmg;
-
-        // Check if bodyPart is Destroyed/Disabled
-        if (health <= 0) 
-        {
-            // Spawn Particles - OPTION: use on 'DiableBodyPart'
-            ParticleManager.Inst.PlayParticle(ParticleManager.Inst.particleBlood, dmg, this.transform);
-            DisableBodyPart(attackingPlayersType);
-        }
-        else
-        {
-            // Play Sound -- if hit but not severed
-            //SoundManager.Inst.Play(SoundManager.Inst.playerHit);
-        }
-        */
+        body.DamageBodyPart(this, dmg, bleedDmg, attackingPlayersType, collision);
     }
-
-
-
-    void DisableBodyPart(Players playerDealingDamage)
-    {
-        /*
-        // Use Slow Time if the option is ticked
-        if (body.slowTimeOnDisableBodyPart)
-            TimeManager.Inst.SlowTime(.1f, .5f, true);
-
-        // Removing Body Parts via Body - Array of Parts
-        body.DisableBodyPart(this);
-
-        // Return if the player is already dead
-        if (!body.alive)
-            return;
-
-        // Kill the Player if Head or 'Chest' is destroyed
-        if (eBodyPart == BodyParts.Head || eBodyPart == BodyParts.Body)
-        {
-            body.DisableBody(playerDealingDamage);
-        }
-        */
-    }
-
-
 
     // Damage Flashing
     public void FlashBodyPart(float waitTimeAmount, float flashSpeedAmount)
@@ -198,7 +146,7 @@ public class BodyPart : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Used for Jumping
+        // Used for Jumping - Grounded whether it's ground, players arm, a weapon, etc.
         isGrounded = true;
 
         // Damage if hitting a Wall or other Causes Damage object
@@ -210,7 +158,7 @@ public class BodyPart : MonoBehaviour
             if (potentialMagnitudeDamage <= 5)
                 return;
 
-            TakeDamage(potentialMagnitudeDamage, null, Players.Environment);
+            TakeDamage(potentialMagnitudeDamage, 0, null, Players.Environment, collision);
         }   
 
     }
@@ -226,85 +174,5 @@ public class BodyPart : MonoBehaviour
     {
         // Used for Jumping
         isGrounded = true;
-    }
-
-
-    // Archie
-    #region Disable Hinges
-    void DetermineDirectlyConenctedHinge()
-{
-    HingeJoint2D[] hingeBodyParts = gameObject.GetComponentInParent<Movement>().GetComponentsInChildren<HingeJoint2D>();
-
-    foreach (var hinge in hingeBodyParts)
-    {
-        if (hinge.connectedBody.gameObject == this.gameObject)
-            otherBodyPartConnectedByHinge2D = hinge;
-    }
-}
-
-    //Disable Hinge of Body Part --- Likely need a recurssive action here
-    void DestoryAllConnectedBodyPartHinges()
-    {
-        HingeJoint2D[] hingeBodyParts = gameObject.GetComponentInParent<Movement>().GetComponentsInChildren<HingeJoint2D>();
-
-        foreach (var hinge in hingeBodyParts)
-        {
-            if (hinge.connectedBody.gameObject == this.gameObject)
-            {
-                Debug.Log("Connected Hinge Name: " + hinge.connectedBody.gameObject.name);
-                if (hinge.GetComponent<Balance>() != null)
-                    hinge.GetComponent<Balance>().force = 0;
-
-                if (hinge.GetComponent<Weapon>() != null)
-                    hinge.GetComponent<Weapon>().DisableWeapon();
-
-                hinge.enabled = false;
-            }
-        }
-
-        if (bodyPartHinge != null)
-            bodyPartHinge.enabled = false;
-    }
-
-    #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    void PlayHitSound()
-    {
-
-    }
-    void PlayDeathSound()
-    {
-
-    }
-
-    void PlayHitParticles()
-    {
-
-    }
-
-    void PlayDeathParticles()
-    {
-
     }
 }

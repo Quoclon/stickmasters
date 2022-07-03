@@ -13,6 +13,9 @@ TagManager:
   - RightArm
   - JoystickP1
   - JoystickP2
+  - Link
+  - SpawnManager
+  - WeaponArm
   layers:
   - Default
   - TransparentFX

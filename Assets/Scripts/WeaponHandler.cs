@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class WeaponHandler : MonoBehaviour
 {
+    // for main menu
+    public eWeaponArms armType;
+
     // WeaponHolder Options (i.e. AI)
     public eWeaponHolderOptions spawnOption;
 
@@ -18,8 +21,7 @@ public class WeaponHandler : MonoBehaviour
 
     public void EquipWeaponArm()
     {
-        //
-
+     
         // Default Option
         if (spawnOption == eWeaponHolderOptions.Default)
         {
@@ -89,9 +91,17 @@ public class WeaponHandler : MonoBehaviour
         // No Weapon
         if (spawnOption == eWeaponHolderOptions.NoWeapon)
         {
+            // ~ OLD CODE
+            
             foreach (var weaponArm in weaponArms)
             {
                  weaponArm.gameObject.SetActive(false);
+            }
+            
+            foreach (var weaponArm in weaponArms)
+            {
+                if (weaponArm.weaponType == eWeaponType.None)
+                    weaponArm.gameObject.SetActive(true);
             }
             return;
 

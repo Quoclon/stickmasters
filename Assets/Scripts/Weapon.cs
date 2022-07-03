@@ -15,6 +15,8 @@ public class Weapon : MonoBehaviour
     public Players weaponOwnerType;
     public Body ownersBody;
     public float dmgMultiplier = 1f;
+    //public eDamageType dmgType;
+    public float bleedDmg;
     //public float dmgEffectorModifer;
     public bool weaponDisabled;
 
@@ -29,6 +31,9 @@ public class Weapon : MonoBehaviour
     public Balance balance;
     public float balanceRotationDefault;
 
+    [Header("Physics Material")]
+    public PhysicsMaterial2D physicsMaterial;
+
     [Header("Weapon RigidBody")]
     Rigidbody2D rb;
 
@@ -39,13 +44,16 @@ public class Weapon : MonoBehaviour
     public HingeJoint2D weaponsHinge;
     public HingeJoint2D weaponHolderHinge;
 
+    [Header("Link Weapons")]
+    public GameObject[] weaponLinks;
+
     [Header("Weapon Sounds")]
     private bool readyToPlaySwingSound;
     private float swingSoundTimer = 0f;
     private float swingSoundTimerMax = 2f;
     private float totalVelocityPerSwing = 0;
     private float averageVelocityPerSecond = 0f;
-
+    
     [Header("State")]
     public bool isGrounded;
 
@@ -58,9 +66,13 @@ public class Weapon : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         // Setup Hinge
-        weaponsHinge = GetComponent<HingeJoint2D>();
+        if(weaponsHinge == null)
+            weaponsHinge = GetComponent<HingeJoint2D>();
         //weaponsHinge.connectedBody = gameObject.GetComponentInParent<Rigidbody2D>();  // Already Setup 
-        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
+        
+        // Only auto-setup if weapon does not already have a weaponHolderHinge assigneed (i.e. whip, flail are manual assign)
+        if(weaponHolderHinge == null)
+            weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
 
         // Ownership
         ownersBody = GetComponentInParent<Body>();
@@ -77,6 +89,13 @@ public class Weapon : MonoBehaviour
             balance.targetRotation = balanceRotationDefault;
         }
 
+        if(rb.GetComponent<PhysicsMaterial2D>() != null)
+        {
+            physicsMaterial =  rb.GetComponent<PhysicsMaterial2D>();
+            Debug.Log("physicsMaterial2d: " + physicsMaterial.bounciness);
+
+        }
+
         // Directional Force
         if (GetComponent<DirectionalForce>() != null)
             directionalForce = GetComponent<DirectionalForce>();
@@ -89,30 +108,7 @@ public class Weapon : MonoBehaviour
             gameObject.layer = 10;
     }
 
-    public void SetupWeaponComplicated(GameObject bodyPartGO)
-    {
-        rb = GetComponent<Rigidbody2D>();
-
-        // Setup Hinge
-        weaponsHinge = GetComponent<HingeJoint2D>();
-        weaponsHinge.connectedBody = bodyPartGO.GetComponent<Rigidbody2D>();
-
-        //
-        weaponHolderHinge = weaponsHinge.connectedBody.GetComponent<HingeJoint2D>();
-
-
-        ownersBody = GetComponentInParent<Body>();
-        weaponOwnerType = ownersBody.playerType;  // ~ NEEDS WORK
-        readyToPlaySwingSound = true;
-        swingSoundTimer = swingSoundTimerMax;
-
-        if (GetComponent<DirectionalForce>() != null)
-            directionalForce = GetComponent<DirectionalForce>();
-
-        if (ownersBody.weaponCollidesWithGround)
-            gameObject.layer = 8;
-    }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -146,7 +142,6 @@ public class Weapon : MonoBehaviour
         Vector2 relativeMousePositionToPlayersChest = Camera.main.ScreenToWorldPoint(Input.mousePosition) - ownersBody.chest.transform.position;
         rb.AddTorque(-relativeMousePositionToPlayersChest.normalized.x * weaponTorqueForce);
     }
-
     void ChangeBalance()
     {
         if (balance == null)
@@ -159,8 +154,6 @@ public class Weapon : MonoBehaviour
         else if(balance.targetRotation == 0)
             balance.targetRotation = balanceRotationDefault;
     }
-
-
     public void ApplyDirectionalForce(Direction direction)
     {
         if (weaponDisabled)
@@ -171,34 +164,11 @@ public class Weapon : MonoBehaviour
 
         directionalForce.ApplyForce(direction);
     }
-
-    public void DisableWeapon()
-    {
-        //Debug.Log("DisableWeapon");
-
-        // Adjust State
-        weaponDisabled = true;
-
-        // Release Weapon from holder
-        weaponsHinge.enabled = false;
-
-        // Adjust gravit and mass so weapon falls
-        rb.mass = 4;
-        rb.gravityScale = 1f;
-
-        // Set Weapon to WeaponIgnoreCollisionExceptGround (i.e. layer 8)
-        gameObject.layer = 8;
-
-        // Disable any "Force" Point Effectors on Weapon (i.e. cudgel)
-        if (GetComponentInChildren<PointEffector2D>() != null)
-            pointEffector2d.forceMagnitude = 0;
-    }
-
     void CheckSwordSwingSound()
     {
         swingSoundTimer += Time.deltaTime;
 
-        if(swingSoundTimer >= 1)
+        if (swingSoundTimer >= 1)
         {
             //totalVelocityPerSwing += rb.velocity.magnitude / Time.deltaTime;
             //averageVelocityPerSecond += totalVelocityPerSwing / swingSoundTimer;
@@ -217,8 +187,8 @@ public class Weapon : MonoBehaviour
         if (!readyToPlaySwingSound)
             return;
 
-       // if (rb.velocity.magnitude > 10)
-       if(Mathf.Abs(averageVelocityPerSecond) > 5)
+        // if (rb.velocity.magnitude > 10)
+        if (Mathf.Abs(averageVelocityPerSecond) > 5)
         {
             // ~ TODO: Improve with checking the sound playing last
             SoundManager.Inst.PlayRandomFromArray(SoundManager.Inst.swordSwings);
@@ -229,6 +199,53 @@ public class Weapon : MonoBehaviour
         }
     }
 
+
+    public void DisableWeapon()
+    {
+        //Debug.Log("DisableWeapon");
+
+        //DisablePhysicsMaterial();
+      
+        // Adjust State
+        weaponDisabled = true;
+
+        // Release Weapon from holder
+        weaponsHinge.enabled = false;
+
+        foreach (var link in weaponLinks)
+        {
+            Rigidbody2D _rb = link.GetComponent<Rigidbody2D>();
+            _rb.mass = 4;
+            _rb.gravityScale = 1f;
+            link.layer = 8;
+        }
+        // Adjust gravit and mass so weapon falls
+        rb.mass = 4;
+        rb.gravityScale = 1f;
+
+        // Set Weapon to WeaponIgnoreCollisionExceptGround (i.e. layer 8)
+        gameObject.layer = 8;
+
+        // Disable any "Force" Point Effectors on Weapon (i.e. cudgel)
+        if (GetComponentInChildren<PointEffector2D>() != null)
+            pointEffector2d.forceMagnitude = 0;
+    }
+
+    public void DisablePhysicsMaterial()
+    {
+
+        if (physicsMaterial != null)
+        {
+            Debug.Log("Bounciness " + physicsMaterial.bounciness);
+            physicsMaterial.bounciness = 0;
+            physicsMaterial.friction = 0;
+            Debug.Log("Post Bounciness " + physicsMaterial.bounciness);
+
+        }
+
+    }
+
+   
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")
@@ -243,8 +260,22 @@ public class Weapon : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (weaponDisabled)
+        if (weaponDisabled && collision.gameObject.tag == "Ground")
+        {
+            // Move into the groudn slightly (soem weapons have bigger colliders) ~ todo: not geat for laying flat
+            transform.position = new Vector3(transform.position.x, transform.position.y - 0.05f, transform.position.z);
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
+            // ~ Performance Improvements?
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
+            if(GetComponent<CapsuleCollider2D>() != null)
+                GetComponent<CapsuleCollider2D>().enabled = false;
+
+            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer.sortingLayerName = "Background";
+            spriteRenderer.sortingOrder = -1;   // Sit just behind ground layer, to hide handles, etc.
             return;
+        }
 
         if (GameManager.Inst.isRoundOver)
             return;
@@ -265,6 +296,28 @@ public class Weapon : MonoBehaviour
         {
             return;
         }
+        else if (collision.gameObject.tag == "Link")
+        {
+            /*
+            // ~ TODO: Disable link hinges
+            HingeJoint2D[] linkHinges = GetComponentsInChildren<HingeJoint2D>();
+            foreach (var hinge in linkHinges)
+            {
+                if (hinge.gameObject.tag != "Link")
+                    continue;
+
+                Debug.Log("Hinge Name: " + hinge.name);
+                if (hinge.attachedRigidbody.GetComponent<Weapon>() != null)
+                {
+                    hinge.attachedRigidbody.GetComponent<Weapon>().DisableWeapon();
+                }
+
+                hinge.enabled = false;              
+            }
+            */
+            return;
+            
+        }
         else if (collision.gameObject.tag == "Weapon")
         {
             if(ContinueWithCollision(collision))
@@ -272,9 +325,13 @@ public class Weapon : MonoBehaviour
         }
         else
         {
+            //Debug.Log("Weapon.cs 'else' collision tag: " + collision.gameObject.tag);
+
+            // Don't let weapons do damage is lazy grounded
             if (isGrounded)
                 return;
 
+            // Check if it's actually a body part, or ground, or same team, etc.
             if (ContinueWithCollision(collision))
                 BodyPartCollision(collision, dmgMagnitude);
         }     
@@ -293,13 +350,14 @@ public class Weapon : MonoBehaviour
 
     void BodyPartCollision(Collision2D collision, float dmgMagnitude)
     {
-   
+
+        //Debug.Log("collision.name: " + collision.gameObject.name);
         // SLow Time on Hit (slowdown for .1f seconds, time get cut in half)
         if (ownersBody.slowTimeOnHit)
             TimeManager.Inst.SlowTime(.05f, .8f, false);
 
         // Pass Magnitude as Damage, and pass Player Type (so if the body part is destroyed, GameManager can declare a winner)
-        collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, ownersBody, weaponOwnerType);
+        collision.gameObject.GetComponent<BodyPart>().TakeDamage(dmgMagnitude * dmgMultiplier, bleedDmg, ownersBody, weaponOwnerType, collision);
 
         // Deal damage first above, the spawn a Force Point Effector for a moment via coroutine
         if (pointEffector2d != null && dmgMagnitude >= 5)
@@ -353,7 +411,7 @@ public class Weapon : MonoBehaviour
         pointEffector2d.forceMagnitude = 0;
     }
 
-
+    /*
     void DetermineDirectlyConenctedHinge()
     {
         HingeJoint2D[] hingeBodyParts = gameObject.GetComponentInParent<Movement>().GetComponentsInChildren<HingeJoint2D>();
@@ -364,5 +422,8 @@ public class Weapon : MonoBehaviour
                 weaponHolderHinge = hinge;
         }
     }
+    */
 
 }
+
+

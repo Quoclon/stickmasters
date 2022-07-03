@@ -106,7 +106,7 @@ public class HealthBar : MonoBehaviour
     {
         bleedingHeartPanel.gameObject.SetActive(true);
         bleedingHeartAnimator.speed = animationSpeed;
-        Debug.Log("animationSpeed: " + animationSpeed);
+        //Debug.Log("animationSpeed: " + animationSpeed);
     }
 
 

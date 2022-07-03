@@ -64,6 +64,13 @@ public class GameManager : MonoBehaviour
     public float totalHealthPerPartModifier;
     //public bool noDmgIfWeaponGrounded;
 
+    [Header("Spanwed Enemies")]
+    public int spawnedEnemies;
+    public int enemiesWaveNumber = 1;
+    private int enemiesPerWave = 5;
+    public int totalWaveDenominator = 5;
+
+
     [Header("Controls")]
     public VariableJoystick variableJoystickP1;
     public VariableJoystick variableJoystickP2;
@@ -73,6 +80,9 @@ public class GameManager : MonoBehaviour
     public GameObject mainMenuButton;
     public GameObject nextRoundButton;
     public TextMeshProUGUI gameOverText;
+
+    [Header("Survival Mode")]
+    int survivalRoundsCleared = 0;
 
     [Header("Game Over")]
     public bool isRoundOver;
@@ -164,7 +174,8 @@ public class GameManager : MonoBehaviour
             cinemachineTargetGroup.AddMember(body.chest.transform, 1, 0);
         }
 
-        if (playerType == Players.P1 || playerType == Players.P2)
+        if (playerType == Players.P1 || playerType == Players.P2)   // ~ TODO: use isPlayerTypePlayer()
+
         {
             playerCameraTargetWeight = 1;
             playerBodyList.Add(body);
@@ -174,13 +185,18 @@ public class GameManager : MonoBehaviour
     }
     public void RemovePlayerFromList(Body body, Players playerType)
     {
+        //Debug.Log("RemovePlayerFromList Ran");
         if (playerType == Players.AI)
+        {
             npcBodyList.Remove(body);
+            if (gameMode == eGameMode.Survival)
+                cinemachineTargetGroup.RemoveMember(body.chest.transform);
+        }
 
         if (playerType == Players.P1 || playerType == Players.P2)
             playerBodyList.Remove(body);
 
-        //cinemachineTargetGroup.RemoveMember(body.chest.transform
+
         //StartCoroutine(RemovePlayerFromTargetGroup(body, .5f));
 
     }
@@ -208,11 +224,41 @@ public class GameManager : MonoBehaviour
     {
         //Debug.Log("Game Over - Player Wins Round: " + playerDealingLastBlow.ToString());
 
+        // Used throughout game
+        isRoundOver = true;
+
+        if (gameMode == eGameMode.Survival)
+        {
+            // If it is a player who dealt the "last blow" (i.e. No NPCs) - spawn another
+            if(playerBodyList.Count > 0 && npcBodyList.Count <= 0)
+            {
+                //Debug.Log("Ran the Survival Mode Check for Spawning");
+
+                // Increase Rounds
+                survivalRoundsCleared++;
+
+                // Display Text after each round
+                ScoreManager.Inst.scoreP1 = survivalRoundsCleared;
+                scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+
+                // Pan out camera to see carnage
+                StartCoroutine(WaitToSpawn(0.5f));
+            }
+
+            // Survival Match Over
+            if (playerBodyList.Count <= 0)
+            {
+                isMatchOver = true;
+                gameOverText.text = "Enemies Defeated: " + survivalRoundsCleared.ToString("F0");
+                StartCoroutine(WaitToZoomOut(2));
+
+            }
+        }
 
         // Round is Over, Only One Player, Check which player is left alive if Environmental Kill
         if (playerDealingLastBlow == Players.Environment)
         {
-            // Fin
+            // Pick a player or NPC to be the "Winner" if there's multiple and it was environment
             foreach (var player in npcBodyList)
             {
                 if (player.alive)
@@ -335,17 +381,18 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // ~ TODO: Set Canvas after a few seconds using Coroutine
-        StartCoroutine(WaitForGammeOverCorourtine(2));
 
-        // Used throughout game
-        isRoundOver = true;
+        if((isRoundOver && gameMode != eGameMode.Survival) || isMatchOver)
+        {
+            // ~ TODO: Set Canvas after a few seconds using Coroutine
+            StartCoroutine(WaitForGammeOverCorourtine(2));
 
-        // Assign Winner
-        playerWinner = playerDealingLastBlow;
+            // Assign Winner
+            playerWinner = playerDealingLastBlow;
 
-        //Disable Weapons of all non-winning players
-        DisablePlayerWeapons();
+            //Disable Weapons of all non-winning players
+            DisablePlayerWeapons();
+        }
     }
 
     void DisablePlayerWeapons()
@@ -372,6 +419,11 @@ public class GameManager : MonoBehaviour
     {
         isRoundOver = false;
         isMatchOver = false;
+
+        survivalRoundsCleared = 0;
+        scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
+        scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+
         canvasGameOver.SetActive(false);
 
         Time.timeScale = 1;
@@ -409,85 +461,50 @@ public class GameManager : MonoBehaviour
             
     }
 
-
-    #region Archive
-    void SetupBodiesInScene()
+    private IEnumerator WaitToSpawn(float waitTime)
     {
-        /*
-        GameObject[] allPlayersAndNpcs = GameObject.FindGameObjectsWithTag("Player");
+        // Wait until running -- do nothing first
+        yield return new WaitForSeconds(waitTime);
+        GameObject.FindGameObjectWithTag("SpawnManager").GetComponent<SpawnManager>().SpawnCharacters();
+    }
 
-        Debug.Log("allPlayersAndNpcs.Count: " + allPlayersAndNpcs.Length);
-
-        foreach (var player in allPlayersAndNpcs)
+    private IEnumerator WaitToZoomOut(float waitTime)
+    {
+        // Wait until running -- do nothing first
+        yield return new WaitForSeconds(waitTime);
+        // ~ TODO: create actual zoom out points, or do the camera in some other more performant way (i.e. just zoom, unfollow target)
+        GameObject[] causesDamageEnvironmentObjects = GameObject.FindGameObjectsWithTag("CausesDamage");
+        foreach (var npc in npcBodyList)
         {
-            Body playerBody = player.GetComponent<Body>();
-            playerBody.SetupBody();
+            cinemachineTargetGroup.RemoveMember(npc.chest.transform);
         }
-        */
-    }
 
-    void AwakeSetupMethods()
-    {
-        //Time.timeScale = 1f;
-        //npcBodyList.Clear();
-        //playerBodyList.Clear();
-
-        //levelRestarted = true;
-        //SetupBodiesInScene(); 
-    }
-
-    public void SetPlayerAndNpcArrays()
-    {
-        /*
-        // CLear Lists since Singleton
-        npcBodyList.Clear();
-        playerBodyList.Clear();
-
-        GameObject[] allPlayersAndNpcs = GameObject.FindGameObjectsWithTag("Player");
-
-        Debug.Log("allPlayersAndNpcs.Count: " + allPlayersAndNpcs.Length);
-
-        int numberOfNpcs = 0;
-        int numberOfPlayers = 0;
-
-        foreach (var player in allPlayersAndNpcs)
+        foreach (var boundary in causesDamageEnvironmentObjects)
         {
-            Body playerBody = player.GetComponent<Body>();
+            Debug.Log("wall name: " + boundary.name);
+            float weight = 1;
+            if (boundary.name == "Block - Top")
+                weight = 2;
 
-            Debug.Log(playerBody.gameObject.name);
-
-            if (playerBody.playerType == Players.AI)
-            {
-                numberOfNpcs++;
-                npcBodyList.Add(playerBody);
-            }
-
-            if (playerBody.playerType == Players.P1 || playerBody.playerType == Players.P2)
-            {
-                numberOfPlayers++;
-                playerBodyList.Add(playerBody);
-            }
+            cinemachineTargetGroup.AddMember(boundary.transform, weight, 0);
         }
-        */
     }
-    #endregion
+
+    public void UpdateSpawnedEnemiesStats(int numberOfSpawnedEnemies)
+    {
+        spawnedEnemies = numberOfSpawnedEnemies;
+
+        //Debug.Log("spawnedEnemies % enemiesPerWave " + spawnedEnemies % enemiesPerWave);
+        if (( (spawnedEnemies) % enemiesPerWave == 0))
+        {
+            enemiesWaveNumber++;
+        }
+        
+    }
 
     public void SetGameMode(eGameMode _gameMode)
     {
         gameMode = _gameMode;
-        /*
-        switch (_gameMode)
-        {
-            case eGameMode.SinglePlayer:
-                gameMode = _gameMode;
-                break;
-            case eGameMode.MultiPlayer:
-                gameMode = _gameMode;
-                break;
-            default:
-                break;
-        }
-        */
     }
 
     public bool isPlayerTypePlayer(Players playerType)
@@ -516,7 +533,8 @@ public enum eGameMode
 {
     SinglePlayer,
     MultiPlayer,
-    Coop
+    Coop,
+    Survival
 }
 
 public enum Players
@@ -556,6 +574,17 @@ public enum eWeaponType
     Cudgel,
     Dagger,
     Spear,
+    BroadSword,
+    Whip,
+    Flail,
+    Nunchuck,
+    Sabre
+}
+
+public enum eDamageType
+{
+    standard,
+    bleed
 }
 
 public enum eWeaponHolderOptions
@@ -565,5 +594,11 @@ public enum eWeaponHolderOptions
     Random,
     WeightedRandom,
     EntireArm
+}
+
+public enum eWeaponArms
+{
+    Left,
+    Right
 }
 
