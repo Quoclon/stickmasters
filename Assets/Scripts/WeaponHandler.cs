@@ -34,7 +34,8 @@ public class WeaponHandler : MonoBehaviour
             return;
         }
 
-        // Random Option
+
+        // Random Option #1
         if (spawnOption == eWeaponHolderOptions.Random)
         {
             int randomNum = Random.Range(0, weaponArms.Count);
@@ -48,7 +49,8 @@ public class WeaponHandler : MonoBehaviour
             return;
         }
 
-        // Weighted Random Option
+
+        //  Random Option #2 (Weighted)
         if (spawnOption == eWeaponHolderOptions.WeightedRandom)
         {
             // Calculate total chance, based on each weapons indivdual chances. Used to generate top end of random.
@@ -66,7 +68,6 @@ public class WeaponHandler : MonoBehaviour
 
             // Random Chance based on all the of weights added up for each weapon
             int randomNumWeighted = Random.Range(0, totalWeightedRandomChance);
-            //Debug.Log("randomNumWeighted: " + randomNumWeighted);
 
             // First - Set all weaponArms to False
             foreach (var weaponArm in weaponArms)
@@ -87,12 +88,10 @@ public class WeaponHandler : MonoBehaviour
             return;
         }
 
-
         // No Weapon
         if (spawnOption == eWeaponHolderOptions.NoWeapon)
         {
-            // ~ OLD CODE
-            
+            // ~ OLD CODE        
             foreach (var weaponArm in weaponArms)
             {
                  weaponArm.gameObject.SetActive(false);
@@ -109,6 +108,21 @@ public class WeaponHandler : MonoBehaviour
 
         // Fallback Action
         //weaponArms[0].gameObject.SetActive(true);
+    }
+
+    public void EquipWeaponArmFromMenu(eWeaponArms _arm, eWeaponType _weaponType)
+    {
+       // Default Option
+        foreach (var weaponArm in weaponArms)
+        {
+            if (armType != _arm)
+                return;
+
+            weaponArm.gameObject.SetActive(true);
+
+            if (weaponArm.weaponType != _weaponType)
+                weaponArm.gameObject.SetActive(false);
+        }
 
     }
 

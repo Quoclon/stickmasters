@@ -36,13 +36,19 @@ public class GameManager : MonoBehaviour
     
     #region Singleton
     static GameManager _instance;
+    
+    //[Header("Game Manager in Menu")]
+    //public bool isMenuMode;
+
     public static GameManager Inst
     {
         get
         {
             if (_instance == null)
             {
-                _instance = GameObject.Find("SingletonWellKnownName").GetComponent<GameManager>();      // This is Broken -- See SoundManager
+                // Used to determine if GameManager is in the menu or not
+                if(SceneManager.GetActiveScene().buildIndex != 0)
+                    _instance = GameObject.Find("SingletonWellKnownName").GetComponent<GameManager>();      // This is Broken -- See SoundManager
             }
             return _instance;
         }
@@ -55,7 +61,8 @@ public class GameManager : MonoBehaviour
         CheckMobileWebGL();
     }
     #endregion
-    
+
+
     [Header("Game Mode")]
     public eGameMode gameMode;
     public bool isMobileWebGL;
@@ -578,7 +585,9 @@ public enum eWeaponType
     Whip,
     Flail,
     Nunchuck,
-    Sabre
+    Sabre,
+    Random,
+    BrassKnuckles
 }
 
 public enum eDamageType

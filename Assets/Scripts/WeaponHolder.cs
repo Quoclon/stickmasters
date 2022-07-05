@@ -24,6 +24,7 @@ public class WeaponHolder : MonoBehaviour
     {
         foreach (var weapon in weapons)
         {
+            //Debug.Log(weapon.name);
             if(weapon.activeInHierarchy == true)
             {
                 //Debug.Log(this.gameObject.name + " " + weapon.name);

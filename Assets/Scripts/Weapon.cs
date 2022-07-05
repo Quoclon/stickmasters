@@ -277,11 +277,14 @@ public class Weapon : MonoBehaviour
             return;
         }
 
-        if (GameManager.Inst.isRoundOver)
-            return;
+        if(GameManager.Inst != null)
+        {
+            if (GameManager.Inst.isRoundOver)
+                return;
+        }
 
         // Don't deal damage if not above threshhold (i.e. zero)
-        if(collision.relativeVelocity.magnitude < 1)
+        if (collision.relativeVelocity.magnitude < 1)
             return;
 
         if (collision.gameObject.tag == "Ground")
@@ -387,13 +390,17 @@ public class Weapon : MonoBehaviour
             return false;
         }
 
-        if (GameManager.Inst.gameMode == eGameMode.Coop)
+        // ~TODO: Update for 4 players
+        if(GameManager.Inst != null)
         {
-            if (collisionPlayerBody.playerType == Players.P1 && weaponOwnerType == Players.P2)
-                return false;
+            if (GameManager.Inst.gameMode == eGameMode.Coop)
+            {
+                if (collisionPlayerBody.playerType == Players.P1 && weaponOwnerType == Players.P2)
+                    return false;
 
-            if (collisionPlayerBody.playerType == Players.P2 && weaponOwnerType == Players.P1)
-                return false;
+                if (collisionPlayerBody.playerType == Players.P2 && weaponOwnerType == Players.P1)
+                    return false;
+            }
         }
 
         return true;

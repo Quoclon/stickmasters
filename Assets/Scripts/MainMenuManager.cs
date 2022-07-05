@@ -12,6 +12,7 @@ public class MainMenuManager : MonoBehaviour
     // Initialize the singleton instance.
     private void Awake()
     {
+        
         // If there is not already an instance of SoundManager, set it to this.
         if (Inst == null)
         {
@@ -23,17 +24,26 @@ public class MainMenuManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        playerWeaponsLeft.Clear();
+        playerWeaponsRight.Clear();
+
         //Set SoundManager to DontDestroyOnLoad so that it won't be destroyed when reloading our scene.
         DontDestroyOnLoad(gameObject);
     }
     #endregion
 
     public eGameMode gameMode;
+    
+    [Header("Weapons Selected")]
+    public List<eWeaponType> playerWeapons;
+    public List<eWeaponType> playerWeaponsLeft;
+    public List<eWeaponType> playerWeaponsRight;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+      
     }
 
     // Update is called once per frame

@@ -39,6 +39,7 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+  
         if (playerDead)
             return;
 
