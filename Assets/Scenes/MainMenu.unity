@@ -1000,7 +1000,11 @@ MonoBehaviour:
   leftArmWeapon: 0
   rightArmWeapon: 0
   characterSelectionManager: {fileID: 0}
-  playerType: 0
+  playerType: 1
+  up: 273
+  down: 274
+  left: 276
+  right: 275
 --- !u!114 &632192150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1102,7 +1106,11 @@ MonoBehaviour:
   leftArmWeapon: 0
   rightArmWeapon: 0
   characterSelectionManager: {fileID: 0}
-  playerType: 0
+  playerType: 2
+  up: 0
+  down: 0
+  left: 0
+  right: 0
 --- !u!114 &698476721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1557,7 +1565,11 @@ MonoBehaviour:
   leftArmWeapon: 0
   rightArmWeapon: 0
   characterSelectionManager: {fileID: 0}
-  playerType: 0
+  playerType: 3
+  up: 0
+  down: 0
+  left: 0
+  right: 0
 --- !u!114 &794726436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2377,7 +2389,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1159786905
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3310,6 +3322,10 @@ MonoBehaviour:
   rightArmWeapon: 0
   characterSelectionManager: {fileID: 0}
   playerType: 0
+  up: 119
+  down: 115
+  left: 97
+  right: 100
 --- !u!114 &1419010904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3569,7 +3585,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1560162121
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3661,6 +3677,10 @@ MonoBehaviour:
   rightArmWeapon: 9
   characterSelectionManager: {fileID: 1560162125}
   playerType: 0
+  up: 0
+  down: 0
+  left: 0
+  right: 0
 --- !u!114 &1560162125
 MonoBehaviour:
   m_ObjectHideFlags: 0

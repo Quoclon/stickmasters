@@ -32,6 +32,13 @@ public class CharacterSelect : MonoBehaviour
     [Header("Player Type")]
     public Players playerType;
 
+    [Header("Input Type")]
+    public KeyCode up;
+    public KeyCode down;
+    public KeyCode left;
+    public KeyCode right;
+
+
     private void OnEnable()
     {
         //SpawnPlayersForSelection();
@@ -172,13 +179,34 @@ public class CharacterSelect : MonoBehaviour
         // ~TODO: Move this to it's own script that sits on the player or platform
         // Spawning Player/Platform shiould be it's own script
         // ~TODO: Change player type, change player weapons, change player health, change color?
-        WeaponSelect(); 
+        WeaponSelect();
     }
 
+    void CheckInput()
+    {
+        switch (playerType)
+        {
+            case Players.P1:
+                
+                break;
+            case Players.P2:
+                break;
+            case Players.p3:
+                break;
+            case Players.p4:
+                break;
+            case Players.AI:
+                break;
+            case Players.Environment:
+                break;
+            default:
+                break;
+        }
+    }
     void WeaponSelect()
     {
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(right))
         {
             leftWeaponsIndex++;
             if (leftWeaponsIndex > leftWeapons.Count - 1)
@@ -188,7 +216,7 @@ public class CharacterSelect : MonoBehaviour
             playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(left))
         {
             leftWeaponsIndex--;
             if (leftWeaponsIndex < 0)
@@ -198,7 +226,7 @@ public class CharacterSelect : MonoBehaviour
             playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(up))
         {
             rightWeaponsIndex++;
             if (rightWeaponsIndex > rightWeapons.Count - 1)
@@ -208,7 +236,7 @@ public class CharacterSelect : MonoBehaviour
             playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(down))
         {
             rightWeaponsIndex--;
             if (rightWeaponsIndex < 0)
