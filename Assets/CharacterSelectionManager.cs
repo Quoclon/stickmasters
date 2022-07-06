@@ -29,6 +29,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
     [Header("Character Selectors")]
     public List<CharacterSelect> characterSelectors;
+    private int[] playerOrderOnPlatforms = new int[] { 2, 0, 1, 3 };
 
     private void OnEnable()
     {
@@ -40,16 +41,28 @@ public class CharacterSelectionManager : MonoBehaviour
 
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
     void SpawnPlayersForSelection()
     {
 
+        //for (int i = 0; i < playerOrderOnPlatforms.Length; i++)
         for (int i = 0; i < characterSelectors.Count; i++)
         {
-            //characterSelectors[i].SpawnPlayer(i);
-            SpawnPlayer(i);
+            characterSelectors[i].SpawnPlayer(i);
+            //characterSelectors[i].SpawnPlayer(i, spawnPoints[playerOrderOnPlatforms[i]].transform);
         }
     }
 
+
+
+
+
+    /*
     Players GetPlayerNumber(int playerNumber)
     {
         Players playerType = Players.P1;
@@ -89,7 +102,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
         characterSelectors[playerNumber].AddSpawnedPlayer(_playerType, playerBody, platform);
 
-        /*
+        
         // Setup List of Player Left/Right Weapons on Arms/Weapons in Player Prefab
         foreach (var weaponHandler in playerBody.weaponHandlers)
         {
@@ -121,17 +134,11 @@ public class CharacterSelectionManager : MonoBehaviour
                 rightArmWeapon = rightWeapons[rightWeaponsIndex];
             }
         }
-        */
+        
 
         // ~ Use this LATER??
         //playerBodies.Add(playerBody);
         //playerPlatforms.Add(platform);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    */
 }

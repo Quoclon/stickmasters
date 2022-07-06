@@ -15,6 +15,8 @@ public class CharacterSelect : MonoBehaviour
 
     [Header("Spawnpoints")]
     public Transform[] spawnPoints;
+    public Transform spawnPoint;
+
 
     [Header("Weapon Lists")]
     public List<eWeaponType> leftWeapons;
@@ -33,15 +35,19 @@ public class CharacterSelect : MonoBehaviour
     public Players playerType;
 
     [Header("Input Type")]
+    public string playerNumberForInput;
     public KeyCode up;
     public KeyCode down;
     public KeyCode left;
     public KeyCode right;
-
+    public float inputDebounceTimer;
+    private float inputDebounceTimerMax;
 
     private void OnEnable()
     {
         //SpawnPlayersForSelection();
+        inputDebounceTimerMax = 0.15f;
+        inputDebounceTimer = inputDebounceTimerMax;
     }
     // Start is called before the first frame update
     void Start()
@@ -49,6 +55,7 @@ public class CharacterSelect : MonoBehaviour
 
     }
 
+    /*
     public void AddSpawnedPlayer(Players _playerType, Body _playerBody, GameObject _platform)
     {
         playerType = _playerType;
@@ -56,7 +63,9 @@ public class CharacterSelect : MonoBehaviour
         playerPlatforms.Add(_platform);
         SetupWeapons();
     }
+    */
 
+    /*
     void SpawnPlayersForSelection()
     {
         for (int i = 0; i < spawnPoints.Length; i++)
@@ -64,6 +73,7 @@ public class CharacterSelect : MonoBehaviour
             //SpawnPlayer(i);
         }    
     }
+    */
 
     Players GetPlayerNumber(int playerNumber)
     {
@@ -88,10 +98,12 @@ public class CharacterSelect : MonoBehaviour
 
     public void SpawnPlayer(int playerNumber)
     {
+        //Debug.Log(playerNumber);
         Players playerTypeToSpawn = GetPlayerNumber(playerNumber);
 
         // Instantiate the player
-        GameObject player = Instantiate(playerPrefab, spawnPoints[playerNumber].position, Quaternion.identity);
+        //GameObject player = Instantiate(playerPrefab, spawnPoints[playerNumber].position, Quaternion.identity);
+        GameObject player = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
         player.SetActive(true);
 
         // Instantiate the 'platform' (later a cage, or platform, etc.) - could not do preset platforms in WebGL build
@@ -134,46 +146,11 @@ public class CharacterSelect : MonoBehaviour
             }
         }
 
-        //playerBodies.Add(playerBody);
+        playerBodies.Add(playerBody);
         //playerPlatforms.Add(platform);
     }
 
-    public void SetupWeapons()
-    {
 
-        // Setup List of Player Left/Right Weapons on Arms/Weapons in Player Prefab
-        foreach (var weaponHandler in playerBodies[0].weaponHandlers)
-        {
-            foreach (var weaponArm in weaponHandler.weaponArms)
-            {
-                if (weaponHandler.armType == eWeaponArms.Left)
-                    leftWeapons.Add(weaponArm.weaponType);
-
-                if (weaponHandler.armType == eWeaponArms.Right)
-                    rightWeapons.Add(weaponArm.weaponType);
-            }
-        }
-
-        for (int i = 0; i < leftWeapons.Count; i++)
-        {
-            if (leftWeapons[i] == eWeaponType.None)
-            {
-                leftWeaponsIndex = i;
-                leftArmWeapon = leftWeapons[leftWeaponsIndex];
-            }
-
-        }
-
-        for (int i = 0; i < rightWeapons.Count; i++)
-        {
-            if (rightWeapons[i] == eWeaponType.None)
-            {
-                rightWeaponsIndex = i;
-                rightArmWeapon = rightWeapons[rightWeaponsIndex];
-            }
-        }
-    }
-  
     void Update()
     {
         // ~TODO: Move this to it's own script that sits on the player or platform
@@ -182,69 +159,102 @@ public class CharacterSelect : MonoBehaviour
         WeaponSelect();
     }
 
-    void CheckInput()
-    {
-        switch (playerType)
-        {
-            case Players.P1:
-                
-                break;
-            case Players.P2:
-                break;
-            case Players.p3:
-                break;
-            case Players.p4:
-                break;
-            case Players.AI:
-                break;
-            case Players.Environment:
-                break;
-            default:
-                break;
-        }
-    }
     void WeaponSelect()
     {
+        inputDebounceTimer -= Time.deltaTime;
+        if (inputDebounceTimer > 0)
+            return;
+
+        float xInput = Input.GetAxisRaw("Horizontal" + playerNumberForInput);
+        float yInput = Input.GetAxisRaw("Vertical" + playerNumberForInput);
+
+        if(xInput > 0)
+        {
+            LeftWeaponNext();
+            inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
+        }
+
+        if (xInput < 0)
+        {
+            LeftWeaponPrevious();
+            inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
+        }
+
+        if (yInput > 0)
+        {
+            RightWeaponNext();
+            inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
+        }
+
+        if (yInput < 0)
+        {
+            RightWeaponPrevious();
+            inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
+        }
+
 
         if (Input.GetKeyDown(right))
         {
-            leftWeaponsIndex++;
-            if (leftWeaponsIndex > leftWeapons.Count - 1)
-                leftWeaponsIndex = 0;
-
-            leftArmWeapon = leftWeapons[leftWeaponsIndex];
-            playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
+          
         }
 
         if (Input.GetKeyDown(left))
         {
-            leftWeaponsIndex--;
-            if (leftWeaponsIndex < 0)
-                leftWeaponsIndex = leftWeapons.Count - 1;
 
-            leftArmWeapon = leftWeapons[leftWeaponsIndex];
-            playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
         if (Input.GetKeyDown(up))
         {
-            rightWeaponsIndex++;
-            if (rightWeaponsIndex > rightWeapons.Count - 1)
-                rightWeaponsIndex = 0;
 
-            rightArmWeapon = rightWeapons[rightWeaponsIndex];
-            playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
         if (Input.GetKeyDown(down))
         {
-            rightWeaponsIndex--;
-            if (rightWeaponsIndex < 0)
-                rightWeaponsIndex = rightWeapons.Count - 1;
 
-            rightArmWeapon = rightWeapons[rightWeaponsIndex];
-            playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
         }
 
+
+
+    }
+
+    void LeftWeaponNext()
+    {
+        Debug.Log(leftWeaponsIndex);
+        leftWeaponsIndex++;
+        if (leftWeaponsIndex > leftWeapons.Count - 1)
+            leftWeaponsIndex = 0;
+
+        leftArmWeapon = leftWeapons[leftWeaponsIndex];
+        playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
+    }
+
+    void LeftWeaponPrevious()
+    {
+        leftWeaponsIndex--;
+        if (leftWeaponsIndex < 0)
+            leftWeaponsIndex = leftWeapons.Count - 1;
+
+        leftArmWeapon = leftWeapons[leftWeaponsIndex];
+        playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
+    }
+
+    void RightWeaponNext()
+    {
+        rightWeaponsIndex++;
+        if (rightWeaponsIndex > rightWeapons.Count - 1)
+            rightWeaponsIndex = 0;
+
+        rightArmWeapon = rightWeapons[rightWeaponsIndex];
+        playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
+    }
+
+    void RightWeaponPrevious()
+    {
+        rightWeaponsIndex--;
+        if (rightWeaponsIndex < 0)
+            rightWeaponsIndex = rightWeapons.Count - 1;
+
+        rightArmWeapon = rightWeapons[rightWeaponsIndex];
+        playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
     }
 }

@@ -244,10 +244,10 @@ public class Body : MonoBehaviour
                 case Players.P2:
                     part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
                     break;
-                case Players.p3:
+                case Players.P3:
                     part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
                     break;
-                case Players.p4:
+                case Players.P4:
                     part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
                     break;
                 case Players.AI:
@@ -831,7 +831,7 @@ public class Body : MonoBehaviour
                 weaponHandler.EquipWeaponArmFromMenu(weaponHandler.armType, _rightArmWeapon);
         }
 
-        int weaponCount = 0;
+        //int weaponCount = 0;
 
         // Setup Player with Weapons -- Just the Weapons (not custom arm limit settings, etc.)     
         foreach (var part in bodyParts)

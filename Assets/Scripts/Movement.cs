@@ -187,8 +187,20 @@ public class Movement : MonoBehaviour
 
         if (body.playerType == Players.P2)
         {
-            moveX = Input.GetAxis("Horizontal2");
-            moveY = Input.GetAxis("Vertical2");
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
+        }
+
+        if (body.playerType == Players.P3)
+        {
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
+        }
+
+        if (body.playerType == Players.P4)
+        {
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
         }
 
         // Add Mobiles Directions if available (overwrite the keys by default)

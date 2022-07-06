@@ -522,9 +522,9 @@ public class GameManager : MonoBehaviour
                 return true;
             case Players.P2:
                 return true;
-            case Players.p3:
+            case Players.P3:
                 return true;
-            case Players.p4:
+            case Players.P4:
                 return true;
             case Players.AI:
                 return false;
@@ -548,8 +548,8 @@ public enum Players
 {
     P1,
     P2,
-    p3,
-    p4,
+    P3,
+    P4,
     AI,
     Environment
 }

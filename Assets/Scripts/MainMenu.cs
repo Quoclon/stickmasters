@@ -110,6 +110,27 @@ public class MainMenu : MonoBehaviour
         MainMenuManager.Inst.LoadScene(1);
     }
 
+    public void SetMultiplayerPlayerMode()
+    {
+        MainMenuManager.Inst.gameMode = eGameMode.MultiPlayer;
+        MainMenuManager.Inst.LoadScene(1);
+    }
+
+
+    public void SetMultiplayerPlayerModeCustom()
+    {
+        AssignWeapons();
+        MainMenuManager.Inst.gameMode = eGameMode.MultiPlayer;
+        MainMenuManager.Inst.LoadScene(1);
+    }
+
+
+    public void SetCoopPlayerMode()
+    {
+        MainMenuManager.Inst.gameMode = eGameMode.Coop;
+        MainMenuManager.Inst.LoadScene(1);
+    }
+
     void AssignWeapons()
     {
         // Clear any chosen weapons from previous rounds
@@ -119,13 +140,46 @@ public class MainMenu : MonoBehaviour
         // Get all the weapons chosen in the Character Selector
         CharacterSelect[] characterSelectors = GameObject.FindObjectsOfType<CharacterSelect>();
         //CharacterSelectionManager characterSelectionManager = GameObject.FindObjectOfType<CharacterSelectionManager>();
+     
+        var playerTypes = System.Enum.GetValues(typeof(Players));
 
+        // Loop through Enum of player types
+        foreach (var _playerType in playerTypes)
+        {
+            foreach (var characterSelector in characterSelectors)
+            {
+                if(characterSelector.playerType == (Players)_playerType)
+                {
+                    MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
+                    MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
+                }                  
+            }
+        }
+
+        /*
         foreach (var characterSelector in characterSelectors)
         {
-            Debug.Log(characterSelector.name);
-            MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
-            MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
+            switch (characterSelector.playerType)
+            {
+                case Players.P1:
+                    MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
+                    MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
+                    break;
+                case Players.P2:
+                    break;
+                case Players.P3:
+                    break;
+                case Players.P4:
+                    break;
+                case Players.AI:
+                    break;
+                case Players.Environment:
+                    break;
+                default:
+                    break;
+            }          
         }
+        */
 
     }
 
@@ -148,16 +202,5 @@ public class MainMenu : MonoBehaviour
         MainMenuManager.Inst.LoadScene(1);
     }
 
-    public void SetMultiplayerPlayerMode()
-    {
-        MainMenuManager.Inst.gameMode = eGameMode.MultiPlayer;
-        MainMenuManager.Inst.LoadScene(1);
-    }
-
-
-    public void SetCoopPlayerMode()
-    {
-        MainMenuManager.Inst.gameMode = eGameMode.Coop;
-        MainMenuManager.Inst.LoadScene(1);
-    }
+  
 }
