@@ -35,7 +35,7 @@ public class MainMenuManager : MonoBehaviour
     public eGameMode gameMode;
     
     [Header("Weapons Selected")]
-    public List<eWeaponType> playerWeapons;
+    public List<Players> playerTypes;
     public List<eWeaponType> playerWeaponsLeft;
     public List<eWeaponType> playerWeaponsRight;
 

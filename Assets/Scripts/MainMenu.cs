@@ -134,13 +134,16 @@ public class MainMenu : MonoBehaviour
     void AssignWeapons()
     {
         // Clear any chosen weapons from previous rounds
+        MainMenuManager.Inst.playerTypes.Clear();
         MainMenuManager.Inst.playerWeaponsLeft.Clear();
         MainMenuManager.Inst.playerWeaponsRight.Clear();
 
         // Get all the weapons chosen in the Character Selector
         CharacterSelect[] characterSelectors = GameObject.FindObjectsOfType<CharacterSelect>();
         //CharacterSelectionManager characterSelectionManager = GameObject.FindObjectOfType<CharacterSelectionManager>();
-     
+        Debug.Log("characterSelectors.length: " + characterSelectors.Length);
+
+
         var playerTypes = System.Enum.GetValues(typeof(Players));
 
         // Loop through Enum of player types
@@ -148,8 +151,10 @@ public class MainMenu : MonoBehaviour
         {
             foreach (var characterSelector in characterSelectors)
             {
+                // Add Players to MainMenuManager List in same order as Enum Players (P1, P2, P3, P4, AI, Environment)
                 if(characterSelector.playerType == (Players)_playerType)
                 {
+                    MainMenuManager.Inst.playerTypes.Add(characterSelector.playerType);
                     MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
                     MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
                 }                  

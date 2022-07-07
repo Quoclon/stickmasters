@@ -100,6 +100,10 @@ public class GameManager : MonoBehaviour
     [Header("Canvas - Scores")]
     public TextMeshProUGUI scoreTextP1;
     public TextMeshProUGUI scoreTextP2;
+    public TextMeshProUGUI scoreTextP3;
+    public TextMeshProUGUI scoreTextP4;
+
+
 
     [Header("Player Body List")]
     public List<Body> playerBodyList;
@@ -163,6 +167,9 @@ public class GameManager : MonoBehaviour
     {
         scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
         scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+        scoreTextP3.text = ScoreManager.Inst.scoreP3.ToString("F0");
+        scoreTextP4.text = ScoreManager.Inst.scoreP4.ToString("F0");
+
     }
 
     void SetGameMode()
@@ -181,8 +188,8 @@ public class GameManager : MonoBehaviour
             cinemachineTargetGroup.AddMember(body.chest.transform, 1, 0);
         }
 
-        if (playerType == Players.P1 || playerType == Players.P2)   // ~ TODO: use isPlayerTypePlayer()
-
+        //if (playerType == Players.P1 || playerType == Players.P2)   // ~ TODO: use isPlayerTypePlayer()
+        if(isPlayerTypePlayer(playerType))
         {
             playerCameraTargetWeight = 1;
             playerBodyList.Add(body);
@@ -200,7 +207,8 @@ public class GameManager : MonoBehaviour
                 cinemachineTargetGroup.RemoveMember(body.chest.transform);
         }
 
-        if (playerType == Players.P1 || playerType == Players.P2)
+        //if (playerType == Players.P1 || playerType == Players.P2)
+        if(isPlayerTypePlayer(playerType))
             playerBodyList.Remove(body);
 
 
@@ -219,11 +227,22 @@ public class GameManager : MonoBehaviour
 
     public void CheckGameOver(Players playerKilled, Players playerDealingLastBlow, Body bodyKilled)
     {
-
+        Debug.Log("playerList.length: " + playerBodyList.Count);
         RemovePlayerFromList(bodyKilled, playerKilled);
 
-        if (npcBodyList.Count <= 0 || playerBodyList.Count <= 0)
-            GameOver(playerDealingLastBlow);         
+       
+
+        if(gameMode == eGameMode.MultiPlayer)
+        {
+            if(playerBodyList.Count == 1)
+                GameOver(playerDealingLastBlow);
+        }
+        else
+        {
+            if (npcBodyList.Count <= 0 || playerBodyList.Count <= 0)    // one group is completely dead
+                GameOver(playerDealingLastBlow);
+        }
+          
     }
 
     // ~ Convert this to not be "Player Type" - but rather player "Body" or something specific (i.e. not NPC)
@@ -280,8 +299,10 @@ public class GameManager : MonoBehaviour
 
         }
 
+     
         if (gameMode == eGameMode.SinglePlayer || gameMode == eGameMode.MultiPlayer)
         {
+
             if (playerDealingLastBlow == Players.P1)                                        
             {
                 ScoreManager.Inst.scoreP1 += 1;
@@ -318,6 +339,48 @@ public class GameManager : MonoBehaviour
                 {
                     isMatchOver = true;
                     gameOverText.text = "Player 2 Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
+
+            }
+
+            if (playerDealingLastBlow == Players.P3)
+            {
+                ScoreManager.Inst.scoreP3 += 1;
+                scoreTextP3.text = ScoreManager.Inst.scoreP3.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP3 < roundsToWin)
+                {
+                    gameOverText.text = "Player 3 Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "Player 3 Wins Match!";
+                    mainMenuButton.SetActive(true);
+                    nextRoundButton.SetActive(false);
+                }
+
+            }
+
+            if (playerDealingLastBlow == Players.P4)
+            {
+                ScoreManager.Inst.scoreP4 += 1;
+                scoreTextP4.text = ScoreManager.Inst.scoreP4.ToString("F0");
+
+                if (ScoreManager.Inst.scoreP4 < roundsToWin)
+                {
+                    gameOverText.text = "Player 4 Wins Round!";
+                    nextRoundButton.SetActive(true);
+                    mainMenuButton.SetActive(false);
+                }
+                else
+                {
+                    isMatchOver = true;
+                    gameOverText.text = "Player 4 Wins Match!";
                     mainMenuButton.SetActive(true);
                     nextRoundButton.SetActive(false);
                 }

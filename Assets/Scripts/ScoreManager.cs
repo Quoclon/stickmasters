@@ -29,6 +29,9 @@ public class ScoreManager : MonoBehaviour
 
 	public int scoreP1 = 0;
 	public int scoreP2 = 0;
+	public int scoreP3 = 0;
+	public int scoreP4 = 0;
+
 
 	// Start is called before the first frame update
 	void Start()

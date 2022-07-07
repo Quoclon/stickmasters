@@ -260,6 +260,9 @@ public class Weapon : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (GameManager.Inst == null)
+            return;
+
         if (weaponDisabled && collision.gameObject.tag == "Ground")
         {
             // Move into the groudn slightly (soem weapons have bigger colliders) ~ todo: not geat for laying flat
@@ -382,6 +385,7 @@ public class Weapon : MonoBehaviour
         // Get the collision body
         if (collision.gameObject.GetComponentInParent<Body>() == null)
             return false;
+
         Body collisionPlayerBody = collision.gameObject.GetComponentInParent<Body>();
 
         // Check if there is a body part to damage, check if it's the same "Type" of Player (i.e. NPC can't harm their type)
@@ -395,11 +399,17 @@ public class Weapon : MonoBehaviour
         {
             if (GameManager.Inst.gameMode == eGameMode.Coop)
             {
+                // ~ Did this cause bugs?
+                if (GameManager.Inst.isPlayerTypePlayer(collisionPlayerBody.playerType) && GameManager.Inst.isPlayerTypePlayer(weaponOwnerType))
+                    return false;
+                
+                /*
                 if (collisionPlayerBody.playerType == Players.P1 && weaponOwnerType == Players.P2)
                     return false;
 
                 if (collisionPlayerBody.playerType == Players.P2 && weaponOwnerType == Players.P1)
                     return false;
+                */
             }
         }
 

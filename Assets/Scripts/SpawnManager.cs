@@ -127,6 +127,39 @@ public class SpawnManager : MonoBehaviour
                 player1.GetComponent<Body>().SetupBody(Players.P1);
             */
 
+            if (MainMenuManager.Inst != null)
+            {
+                Debug.Log("MainMenuManager.Inst.playerTypes: " + MainMenuManager.Inst.playerTypes.Count);
+                var playerTypes = System.Enum.GetValues(typeof(Players));
+                int x = 0;
+                foreach (var menuListOfPlayerTypes in MainMenuManager.Inst.playerTypes)
+                {
+                    //Debug.Log("x: " + x);
+                    int i = 0;
+                    foreach (var _playerType in playerTypes)
+                    {
+                        //Debug.Log("i: " + i);
+                        if (menuListOfPlayerTypes.ToString() == _playerType.ToString())
+                        {
+                            GameObject player = Instantiate(playerPrefab, spawnPoints[x].position, Quaternion.identity);
+                            player.SetActive(true);
+                            //player.GetComponent<Body>().SetupBody((Players)_playerType);
+                           
+                            //if (MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
+                            if(MainMenuManager.Inst.playerWeaponsLeft[x] == eWeaponType.None && MainMenuManager.Inst.playerWeaponsRight[x] == eWeaponType.None)
+                                player.GetComponent<Body>().SetupBody((Players)_playerType);
+                            else
+                                player.GetComponent<Body>().SetupBody((Players)_playerType, MainMenuManager.Inst.playerWeaponsLeft[x], MainMenuManager.Inst.playerWeaponsRight[x]);
+                        }
+                        i++;
+                    }
+                    x++;
+                }
+            }
+
+
+
+            /*
             GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
             GameObject player2 = Instantiate(playerPrefab, spawnPoints[1].position, Quaternion.identity);
 
@@ -136,6 +169,7 @@ public class SpawnManager : MonoBehaviour
             //Debug.Log("SpawnManager - Multiplayer");
             player1.GetComponent<Body>().SetupBody(Players.P1);
             player2.GetComponent<Body>().SetupBody(Players.P2);
+            */
         }
 
         if (GameManager.Inst.gameMode == eGameMode.Coop)

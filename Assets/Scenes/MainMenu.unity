@@ -3155,7 +3155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameMode: 0
-  playerWeapons: 
+  playerTypes: 
   playerWeaponsLeft: 
   playerWeaponsRight: 
 --- !u!4 &1351611009
@@ -3724,7 +3724,6 @@ GameObject:
   - component: {fileID: 1560162121}
   - component: {fileID: 1560162123}
   - component: {fileID: 1560162122}
-  - component: {fileID: 1560162124}
   - component: {fileID: 1560162125}
   m_Layer: 5
   m_Name: Panel + CharacterSelectorManager
@@ -3796,42 +3795,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1560162120}
   m_CullTransparentMesh: 1
---- !u!114 &1560162124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1560162120}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5518be7a31ffb7a479f9bd88ec0f9a4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 8692947287489698016, guid: ee0165a39d5f46342bb24eb6c4334d57, type: 3}
-  playerPlatformPrefab: {fileID: 1165524749537828077, guid: bab8df812921d1048aeccbe0b6e88646, type: 3}
-  playerBodies: []
-  playerPlatforms: []
-  spawnPoints:
-  - {fileID: 499406237}
-  - {fileID: 98255277}
-  - {fileID: 1006559851}
-  - {fileID: 1668142713}
-  spawnPoint: {fileID: 0}
-  leftWeapons: 
-  leftWeaponsIndex: 0
-  rightWeapons: 
-  rightWeaponsIndex: 0
-  leftArmWeapon: 1
-  rightArmWeapon: 9
-  characterSelectionManager: {fileID: 1560162125}
-  playerType: 0
-  playerNumberForInput: 
-  up: 0
-  down: 0
-  left: 0
-  right: 0
-  inputDebounceTimer: 0
 --- !u!114 &1560162125
 MonoBehaviour:
   m_ObjectHideFlags: 0

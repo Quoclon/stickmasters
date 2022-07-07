@@ -219,7 +219,6 @@ public class CharacterSelect : MonoBehaviour
 
     void LeftWeaponNext()
     {
-        Debug.Log(leftWeaponsIndex);
         leftWeaponsIndex++;
         if (leftWeaponsIndex > leftWeapons.Count - 1)
             leftWeaponsIndex = 0;
