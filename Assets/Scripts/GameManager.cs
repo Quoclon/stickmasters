@@ -199,6 +199,8 @@ public class GameManager : MonoBehaviour
     }
     public void RemovePlayerFromList(Body body, Players playerType)
     {
+        // ~TODO: These if-statements are essentially the same no, no need for survival specific?
+
         //Debug.Log("RemovePlayerFromList Ran");
         if (playerType == Players.AI)
         {
@@ -208,8 +210,12 @@ public class GameManager : MonoBehaviour
         }
 
         //if (playerType == Players.P1 || playerType == Players.P2)
-        if(isPlayerTypePlayer(playerType))
+        if (isPlayerTypePlayer(playerType))
+        {
             playerBodyList.Remove(body);
+            cinemachineTargetGroup.RemoveMember(body.chest.transform);
+        }
+
 
 
         //StartCoroutine(RemovePlayerFromTargetGroup(body, .5f));
