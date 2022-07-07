@@ -493,6 +493,9 @@ public class GameManager : MonoBehaviour
         survivalRoundsCleared = 0;
         scoreTextP1.text = ScoreManager.Inst.scoreP1.ToString("F0");
         scoreTextP2.text = ScoreManager.Inst.scoreP2.ToString("F0");
+        scoreTextP3.text = ScoreManager.Inst.scoreP3.ToString("F0");
+        scoreTextP4.text = ScoreManager.Inst.scoreP4.ToString("F0");
+
 
         canvasGameOver.SetActive(false);
 
