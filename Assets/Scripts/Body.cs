@@ -75,7 +75,9 @@ public class Body : MonoBehaviour
         //SetupBody();
     }
 
-    public void SetupBody(Players _playerType)
+    
+
+    public void SetupBody(Players _playerType, eWeaponType _leftArm, eWeaponType _rightArm)
     {
         //Debug.Log(_playerType);
 
@@ -85,6 +87,34 @@ public class Body : MonoBehaviour
         SetupBodyPartsArray();
         SetupHinge2DArray();
         SetupBalancingParts();
+        SetupWeaponsArrayFromMenu(_leftArm, _rightArm);
+        //SetupWeaponsArray();
+        SetupCollidersArray();
+        GetComponent<IgnoreCollision>().AvoidInternalCollisions();
+
+        RefineBodyPartsArray();
+
+        // Setup Player Head/Body Color
+        SetupColor();
+
+        // Setup Hit Points
+        SetupHealth();
+
+        //Debug.Log("Body: " + this + " " + "PlayerType: " + playerType);
+
+        if(GameManager.Inst != null)
+            GameManager.Inst.AddPlayerToList(this, playerType);
+    }
+
+    public void SetupBody(Players _playerType)
+    {
+        // Called via SpawnManager
+        playerType = _playerType;
+        alive = true;
+        SetupBodyPartsArray();
+        SetupHinge2DArray();
+        SetupBalancingParts();
+        //SetupWeaponsArrayFromMenu(_leftArm, _rightArm);
         SetupWeaponsArray();
         SetupCollidersArray();
         GetComponent<IgnoreCollision>().AvoidInternalCollisions();
@@ -99,17 +129,21 @@ public class Body : MonoBehaviour
 
         //Debug.Log("Body: " + this + " " + "PlayerType: " + playerType);
 
-        GameManager.Inst.AddPlayerToList(this, playerType);
+        if (GameManager.Inst != null)
+            GameManager.Inst.AddPlayerToList(this, playerType);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Inst.isRoundOver)
-            return;
+        if(GameManager.Inst != null)
+        {
+            if (GameManager.Inst.isRoundOver)
+                return;
 
-        if (GameManager.Inst.isMatchOver)
-            return;
+            if (GameManager.Inst.isMatchOver)
+                return;
+        }
 
         if (!alive)
             return;
@@ -130,41 +164,50 @@ public class Body : MonoBehaviour
 
     void SetupHealth()
     {
-        // Survival Mode - Give player more health; Enemy per part will have been reduced already
-        if(GameManager.Inst.gameMode == eGameMode.Survival)
+        // Menu WOrkaround ~
+        if(GameManager.Inst == null)
         {
-            // Overall Health = [all parts health] * totalHealthModifier
-            if (GameManager.Inst.isPlayerTypePlayer(playerType))
-            {
-                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * 1.5f;
-                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
-            }
-            else
-            {
-                //Debug.Log("GameManager.Inst.spawnedEnemies: " + GameManager.Inst.spawnedEnemies);
-                //Debug.Log("GameManager.Inst.enemiesWaveNumber: " + GameManager.Inst.enemiesWaveNumber);
-                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * GameManager.Inst.enemiesWaveNumber / GameManager.Inst.totalWaveDenominator;  // .20f first level, .40f second level 
-                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
-                //Debug.Log("healthPerPartModifier: " + healthPerPartModifier);
-            }
+            healthPerPartModifier = 1f;
+            totalHealthModifier = 1f;
         }
-
-        // Non-Survival Modes
-        if (GameManager.Inst.gameMode != eGameMode.Survival)
-        {
-            // Give the player more health
-            if (GameManager.Inst.isPlayerTypePlayer(playerType))
+        else
+        {     // Survival Mode - Give player more health; Enemy per part will have been reduced already
+            if (GameManager.Inst.gameMode == eGameMode.Survival)
             {
-                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
-                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier + 0.25f;  // A little extra health vs npc 1v1, 2v2, etc.
-            }
-            else
-            {
-                healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
-                totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+                // Overall Health = [all parts health] * totalHealthModifier
+                if (GameManager.Inst.isPlayerTypePlayer(playerType))
+                {
+                    healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * 1.5f;
+                    totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+                }
+                else
+                {
+                    //Debug.Log("GameManager.Inst.spawnedEnemies: " + GameManager.Inst.spawnedEnemies);
+                    //Debug.Log("GameManager.Inst.enemiesWaveNumber: " + GameManager.Inst.enemiesWaveNumber);
+                    healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier * GameManager.Inst.enemiesWaveNumber / GameManager.Inst.totalWaveDenominator;  // .20f first level, .40f second level 
+                    totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+                    //Debug.Log("healthPerPartModifier: " + healthPerPartModifier);
+                }
             }
 
+            // Non-Survival Modes
+            if (GameManager.Inst.gameMode != eGameMode.Survival)
+            {
+                // Give the player more health
+                if (GameManager.Inst.isPlayerTypePlayer(playerType))
+                {
+                    healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
+                    totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier + 0.25f;  // A little extra health vs npc 1v1, 2v2, etc.
+                }
+                else
+                {
+                    healthPerPartModifier = GameManager.Inst.totalHealthPerPartModifier;
+                    totalHealthModifier = GameManager.Inst.totalHealthPerPartModifier;
+                }
+            }
+
         }
+   
 
         // Foreach part, modify it's per-part health; add to total, modify total as needed.
         foreach (var part in bodyParts)
@@ -189,37 +232,75 @@ public class Body : MonoBehaviour
         // Get the Color Handler Script
         colorHandler = GetComponent<ColorHandler>();
 
-        if (GameManager.Inst.isPlayerTypePlayer(playerType))
+     
+        foreach (var part in bodyParts)
         {
-            foreach (var part in bodyParts)
+            //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
+            switch (playerType)
             {
-                //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
-                switch (playerType)
-                {
-                    case Players.P1:
-                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(1));
-                        break;
-                    case Players.P2:
-                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
-                        break;
-                    case Players.p3:
-                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
-                        break;
-                    case Players.p4:
-                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
-                        break;
-                    default:
-                        break;
-                }
+                case Players.P1:
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(1));
+                    break;
+                case Players.P2:
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
+                    break;
+                case Players.P3:
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
+                    break;
+                case Players.P4:
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
+                    break;
+                case Players.AI:
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+                    break;
+            default:
+                    break;
             }
+        }
+    
+     
+        /*
+        if(GameManager.Inst == null)
+        {
+
         }
         else
         {
-            foreach (var part in bodyParts)
+            if (GameManager.Inst.isPlayerTypePlayer(playerType))
             {
-                part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+                foreach (var part in bodyParts)
+                {
+                    //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
+                    switch (playerType)
+                    {
+                        case Players.P1:
+                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(1));
+                            break;
+                        case Players.P2:
+                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
+                            break;
+                        case Players.p3:
+                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
+                            break;
+                        case Players.p4:
+                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var part in bodyParts)
+                {
+                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+                }
             }
         }
+        */
+
+
     }
     
     public void AddDirectionalForceToRelevantBodyParts(Direction direction)
@@ -640,7 +721,8 @@ public class Body : MonoBehaviour
         alive = false;
 
         // Final Hit Slow-Down
-        TimeManager.Inst.SlowTime(.15f, .2f, false);
+        if(TimeManager.Inst != null)    // ~ menu check
+            TimeManager.Inst.SlowTime(.15f, .2f, false);
 
         // Disable any remaining "Balancing" parts (so player falls)
         DisableAllBalancingBodyParts();
@@ -652,7 +734,8 @@ public class Body : MonoBehaviour
         }
 
         // Set Game Over State -- let GameManager know winner
-        GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
+        if(GameManager.Inst !=null)
+            GameManager.Inst.CheckGameOver(playerType, playerDealingDamage, this);
     }
 
 
@@ -733,6 +816,48 @@ public class Body : MonoBehaviour
                     break;
             }
         }
+    }
+
+    void SetupWeaponsArrayFromMenu(eWeaponType _leftArmWeapon, eWeaponType _rightArmWeapon)
+    {
+        weaponHandlers = GetComponentsInChildren<WeaponHandler>();
+
+        foreach (var weaponHandler in weaponHandlers)
+        {
+            if(weaponHandler.armType == eWeaponArms.Left)
+                weaponHandler.EquipWeaponArmFromMenu(weaponHandler.armType, _leftArmWeapon);
+
+            if (weaponHandler.armType == eWeaponArms.Right)
+                weaponHandler.EquipWeaponArmFromMenu(weaponHandler.armType, _rightArmWeapon);
+        }
+
+        //int weaponCount = 0;
+
+        // Setup Player with Weapons -- Just the Weapons (not custom arm limit settings, etc.)     
+        foreach (var part in bodyParts)
+        {
+            if (part.GetComponent<WeaponHolder>() != null)
+            {
+                WeaponHolder weaponHolder = part.GetComponent<WeaponHolder>();
+                //Debug.Log(weaponHolder.name);
+                weaponHolder.EquipWeapon();
+            }
+        }
+
+        weapons = GetComponentsInChildren<Weapon>();
+        //Debug.Log(weapons.Length);
+
+        /*
+        // Check if there are "no weapons" - and if so rerun setup - used in Random Mode
+        foreach (var weapon in weapons)
+        {
+            if (weapon.weaponType != eWeaponType.None)
+                weaponCount++;
+        }
+
+        if (weaponCount == 0)
+            SetupWeaponsArrayFromMenu();
+        */
     }
 
     void SetupWeaponsArray()

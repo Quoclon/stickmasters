@@ -71,9 +71,12 @@ public class Movement : MonoBehaviour
         // Setup Body
         body = GetComponent<Body>();
 
-        // ~Default to "optionsMobileControls" for all players, but not NPC's ~ TODO: Commented out because of double-jumping for NPCs; Fix this
-        //body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
-        body.useJumpTimer = !GameManager.Inst.isPlayerTypePlayer(body.playerType);
+        if(GameManager.Inst != null)
+        {
+            // ~Default to "optionsMobileControls" for all players, but not NPC's ~ TODO: Commented out because of double-jumping for NPCs; Fix this
+            //body.optionMobileControls = GameManager.Inst.isPlayerTypePlayer(body.playerType);
+            body.useJumpTimer = !GameManager.Inst.isPlayerTypePlayer(body.playerType);
+        }
 
         if (body.optionMobileControls == true)
         {
@@ -118,24 +121,32 @@ public class Movement : MonoBehaviour
         }
         else if(body.playerType == Players.P1)
         {
-            variableJoystick = GameManager.Inst.variableJoystickP1;
+            if(GameManager.Inst != null)
+                variableJoystick = GameManager.Inst.variableJoystickP1;
         }
         else if (body.playerType == Players.P2)
         {
-            variableJoystick = GameManager.Inst.variableJoystickP2;
+            if (GameManager.Inst != null)
+                variableJoystick = GameManager.Inst.variableJoystickP2;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Disable Movement if Main Menu
+        if (GameManager.Inst == null)
+            return;
 
         //if (GameManager.Inst.isRoundOver && playerType == Players.AI)
         //body.DisableAllVelocity();
 
         // Stop Input/AI Input if you are NOT the winner player (i.e. Player, or last NPC Striker)
-        if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
-            return;
+        if(GameManager.Inst != null)
+        {
+            if (GameManager.Inst.isRoundOver && GameManager.Inst.playerWinner != body.playerType)
+                return;
+        }
 
         if (body.alive == false)
             return;
@@ -176,8 +187,20 @@ public class Movement : MonoBehaviour
 
         if (body.playerType == Players.P2)
         {
-            moveX = Input.GetAxis("Horizontal2");
-            moveY = Input.GetAxis("Vertical2");
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
+        }
+
+        if (body.playerType == Players.P3)
+        {
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
+        }
+
+        if (body.playerType == Players.P4)
+        {
+            moveX = Input.GetAxis("Horizontal1");
+            moveY = Input.GetAxis("Vertical1");
         }
 
         // Add Mobiles Directions if available (overwrite the keys by default)

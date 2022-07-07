@@ -46,7 +46,19 @@ public class SpawnManager : MonoBehaviour
                 // Player
                 GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
                 player1.SetActive(true);
-                player1.GetComponent<Body>().SetupBody(Players.P1);
+
+                // Use Weapon Choices from MainMenuManager if it is available, otherwise.. Random?
+                if (MainMenuManager.Inst != null) 
+                {
+                    if(MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
+                        player1.GetComponent<Body>().SetupBody(Players.P1, MainMenuManager.Inst.playerWeaponsLeft[0], MainMenuManager.Inst.playerWeaponsRight[0]);
+                    else
+                        player1.GetComponent<Body>().SetupBody(Players.P1);
+                }
+                else
+                    player1.GetComponent<Body>().SetupBody(Players.P1);
+                
+                // First Spawn Needs to be noted
                 firstSpawnSurvivalMode = false;
 
                 // Enemy
@@ -101,6 +113,20 @@ public class SpawnManager : MonoBehaviour
 
         if (GameManager.Inst.gameMode == eGameMode.MultiPlayer)
         {
+            // ~TODO: START HERE
+            /*
+            // Use Weapon Choices from MainMenuManager if it is available, otherwise.. Random?
+            if (MainMenuManager.Inst != null)
+            {
+                if (MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
+                    player1.GetComponent<Body>().SetupBody(Players.P1, MainMenuManager.Inst.playerWeaponsLeft[0], MainMenuManager.Inst.playerWeaponsRight[0]);
+                else
+                    player1.GetComponent<Body>().SetupBody(Players.P1);
+            }
+            else
+                player1.GetComponent<Body>().SetupBody(Players.P1);
+            */
+
             GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
             GameObject player2 = Instantiate(playerPrefab, spawnPoints[1].position, Quaternion.identity);
 
