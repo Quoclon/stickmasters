@@ -20,7 +20,15 @@ public class MainMenu : MonoBehaviour
     public List<eWeaponType> playerWeaponsLeft;
     public List<eWeaponType> playerWeaponsRight;
 
+    private void OnEnable()
+    {
+        if (MainMenuManager.Inst == null)
+            return;
 
+        MainMenuManager.Inst.playerTypes.Clear();
+        MainMenuManager.Inst.playerWeaponsLeft.Clear();
+        MainMenuManager.Inst.playerWeaponsRight.Clear();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +77,7 @@ public class MainMenu : MonoBehaviour
         //CharacterSelect _characterSelect = panelPlayerSelect.GetComponent<CharacterSelect>();
         //panelPlayerSelect.GetComponent<CharacterSelect>().playerBodies.Clear();
         //panelPlayerSelect.GetComponent<CharacterSelect>().playerPlatforms.Clear();
+        MainMenuManager.Inst.playerTypes.Clear();
         MainMenuManager.Inst.playerWeaponsLeft.Clear();
         MainMenuManager.Inst.playerWeaponsRight.Clear();
         
@@ -105,7 +114,11 @@ public class MainMenu : MonoBehaviour
 
     public void SetSinglePlayerSurvivalModeCustom()
     {
-        AssignWeapons();
+        AssignPlayersAndWeapons();
+
+        if (MainMenuManager.Inst.playerTypes.Count < 1)
+            return;
+
         MainMenuManager.Inst.gameMode = eGameMode.Survival; // ~ TODO: Need to ensure there is at least one weapon
         MainMenuManager.Inst.LoadScene(1);
     }
@@ -119,7 +132,10 @@ public class MainMenu : MonoBehaviour
 
     public void SetMultiplayerPlayerModeCustom()
     {
-        AssignWeapons();
+        AssignPlayersAndWeapons();
+        if (MainMenuManager.Inst.playerTypes.Count < 2)
+            return;
+
         MainMenuManager.Inst.gameMode = eGameMode.MultiPlayer;
         MainMenuManager.Inst.LoadScene(1);
     }
@@ -131,7 +147,7 @@ public class MainMenu : MonoBehaviour
         MainMenuManager.Inst.LoadScene(1);
     }
 
-    void AssignWeapons()
+    void AssignPlayersAndWeapons()
     {
         // Clear any chosen weapons from previous rounds
         MainMenuManager.Inst.playerTypes.Clear();
@@ -154,57 +170,17 @@ public class MainMenu : MonoBehaviour
                 // Add Players to MainMenuManager List in same order as Enum Players (P1, P2, P3, P4, AI, Environment)
                 if(characterSelector.playerType == (Players)_playerType)
                 {
+
+                    // Don't add players without weapons (can add a "random" wepaon mode later) ~
+                    if (characterSelector.leftArmWeapon == eWeaponType.None && characterSelector.rightArmWeapon == eWeaponType.None)
+                        continue;
+                   
                     MainMenuManager.Inst.playerTypes.Add(characterSelector.playerType);
                     MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
                     MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
                 }                  
             }
         }
-
-        /*
-        foreach (var characterSelector in characterSelectors)
-        {
-            switch (characterSelector.playerType)
-            {
-                case Players.P1:
-                    MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
-                    MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
-                    break;
-                case Players.P2:
-                    break;
-                case Players.P3:
-                    break;
-                case Players.P4:
-                    break;
-                case Players.AI:
-                    break;
-                case Players.Environment:
-                    break;
-                default:
-                    break;
-            }          
-        }
-        */
-
-    }
-
-    void OldWeaponAssignment()
-    {
-
-        // Clear any chosen weapons from previous rounds
-        MainMenuManager.Inst.playerWeaponsLeft.Clear();
-        MainMenuManager.Inst.playerWeaponsRight.Clear();
-
-        // Get all the weapons chosen in the Character Selector
-        CharacterSelect[] characterSelectors = GameObject.FindObjectsOfType<CharacterSelect>();
-        foreach (var characterSelector in characterSelectors)
-        {
-            MainMenuManager.Inst.playerWeaponsLeft.Add(characterSelector.leftArmWeapon);
-            MainMenuManager.Inst.playerWeaponsRight.Add(characterSelector.rightArmWeapon);
-        }
-
-        MainMenuManager.Inst.gameMode = eGameMode.Survival;
-        MainMenuManager.Inst.LoadScene(1);
     }
 
   

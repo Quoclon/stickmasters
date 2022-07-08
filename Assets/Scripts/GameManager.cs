@@ -98,6 +98,10 @@ public class GameManager : MonoBehaviour
     public Players playerWinner;
 
     [Header("Canvas - Scores")]
+    public TextMeshProUGUI teamTextP1;
+    public TextMeshProUGUI teamTextP2;
+    public TextMeshProUGUI teamTextP3;
+    public TextMeshProUGUI teamTextP4;
     public TextMeshProUGUI scoreTextP1;
     public TextMeshProUGUI scoreTextP2;
     public TextMeshProUGUI scoreTextP3;
@@ -170,6 +174,10 @@ public class GameManager : MonoBehaviour
         scoreTextP3.text = ScoreManager.Inst.scoreP3.ToString("F0");
         scoreTextP4.text = ScoreManager.Inst.scoreP4.ToString("F0");
 
+        teamTextP1.gameObject.SetActive(false);
+        teamTextP2.gameObject.SetActive(false);
+        teamTextP3.gameObject.SetActive(false);
+        teamTextP4.gameObject.SetActive(false);
     }
 
     void SetGameMode()
@@ -186,17 +194,67 @@ public class GameManager : MonoBehaviour
         {
             npcBodyList.Add(body);
             cinemachineTargetGroup.AddMember(body.chest.transform, 1, 0);
+
+            if(gameMode != eGameMode.Survival)
+                EnableScoreUI(playerType);
         }
 
         //if (playerType == Players.P1 || playerType == Players.P2)   // ~ TODO: use isPlayerTypePlayer()
-        if(isPlayerTypePlayer(playerType))
+        if (isPlayerTypePlayer(playerType))
         {
             playerCameraTargetWeight = 1;
             playerBodyList.Add(body);
             cinemachineTargetGroup.AddMember(body.chest.transform, playerCameraTargetWeight, 0);
+
+            
+            EnableScoreUI(playerType);
+        }
+    }
+
+    void EnableScoreUI(Players _playerType)
+    {
+        // Only one 'text' in Surival or Coop ("Kills")
+        if(gameMode == eGameMode.Survival)
+        {
+            teamTextP1.gameObject.SetActive(true);
+            teamTextP1.text = "Kills:";
+            return;
         }
 
+        // Only one 'text' in Surival or Coop ("Kills")
+        if (gameMode == eGameMode.Coop)
+        {
+            teamTextP1.gameObject.SetActive(true);
+            teamTextP1.text = "Team 1:";
+
+            teamTextP2.gameObject.SetActive(true);
+            teamTextP2.text = "Team 2:";
+            return;
+        }
+
+        // 1v1 + Multiplayer
+        switch (_playerType)
+        {
+            case Players.P1:
+                teamTextP1.gameObject.SetActive(true);                
+                break;
+            case Players.P2:
+                teamTextP2.gameObject.SetActive(true);
+                break;
+            case Players.P3:
+                teamTextP3.gameObject.SetActive(true);
+                break;
+            case Players.P4:
+                teamTextP4.gameObject.SetActive(true);
+                break;
+            case Players.AI:
+                teamTextP2.gameObject.SetActive(true);
+                break;
+            default:
+                break;
+        }
     }
+
     public void RemovePlayerFromList(Body body, Players playerType)
     {
         // ~TODO: These if-statements are essentially the same no, no need for survival specific?

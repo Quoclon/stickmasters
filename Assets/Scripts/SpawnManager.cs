@@ -43,20 +43,31 @@ public class SpawnManager : MonoBehaviour
 
             if (firstSpawnSurvivalMode)
             {
-                // Player
-                GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
-                player1.SetActive(true);
-
+    
                 // Use Weapon Choices from MainMenuManager if it is available, otherwise.. Random?
-                if (MainMenuManager.Inst != null) 
-                {
-                    if(MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
-                        player1.GetComponent<Body>().SetupBody(Players.P1, MainMenuManager.Inst.playerWeaponsLeft[0], MainMenuManager.Inst.playerWeaponsRight[0]);
-                    else
+                if (MainMenuManager.Inst != null && MainMenuManager.Inst.playerTypes.Count > 0) 
+                {                  
+                    if (MainMenuManager.Inst.playerWeaponsLeft[0] == eWeaponType.None && MainMenuManager.Inst.playerWeaponsRight[0] == eWeaponType.None)
+                    {
+                        // Player
+                        GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
+                        player1.SetActive(true);
                         player1.GetComponent<Body>().SetupBody(Players.P1);
+                    }
+                    else
+                    {
+                        GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
+                        player1.SetActive(true);
+                        player1.GetComponent<Body>().SetupBody(Players.P1, MainMenuManager.Inst.playerWeaponsLeft[0], MainMenuManager.Inst.playerWeaponsRight[0]);
+                    }
                 }
                 else
+                {
+                    GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
+                    player1.SetActive(true);
                     player1.GetComponent<Body>().SetupBody(Players.P1);
+                }
+                
                 
                 // First Spawn Needs to be noted
                 firstSpawnSurvivalMode = false;
@@ -97,7 +108,7 @@ public class SpawnManager : MonoBehaviour
             GameManager.Inst.isRoundOver = false;
             GameManager.Inst.isMatchOver = false;
         }
-
+        
         if (GameManager.Inst.gameMode == eGameMode.SinglePlayer)
         {
             GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
@@ -113,48 +124,64 @@ public class SpawnManager : MonoBehaviour
 
         if (GameManager.Inst.gameMode == eGameMode.MultiPlayer)
         {
-            // ~TODO: START HERE
-            /*
-            // Use Weapon Choices from MainMenuManager if it is available, otherwise.. Random?
+
+            var playerTypes = System.Enum.GetValues(typeof(Players));
             if (MainMenuManager.Inst != null)
             {
-                if (MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
-                    player1.GetComponent<Body>().SetupBody(Players.P1, MainMenuManager.Inst.playerWeaponsLeft[0], MainMenuManager.Inst.playerWeaponsRight[0]);
-                else
+                // If there happens to be less than two players
+                if (MainMenuManager.Inst.playerTypes.Count < 1)
+                {                   
+                    GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
+                    player1.SetActive(true);
                     player1.GetComponent<Body>().SetupBody(Players.P1);
+
+                    GameObject player2 = Instantiate(playerPrefab, spawnPoints[1].position, Quaternion.identity);
+                    player2.SetActive(true);
+                    player2.GetComponent<Body>().SetupBody(Players.P2);
+                  
+                }
+                else
+                {
+                    Debug.Log("MainMenuManager.Inst.playerTypes.Count: " + MainMenuManager.Inst.playerTypes.Count);
+                    int x = 0;
+                    foreach (var menuListOfPlayerTypes in MainMenuManager.Inst.playerTypes)
+                    {
+                        //Debug.Log("x: " + x);
+                        int i = 0;
+                        foreach (var _playerType in playerTypes)
+                        {
+                            //Debug.Log("i: " + i);
+                            if (menuListOfPlayerTypes.ToString() == _playerType.ToString())
+                            {                         
+                                //if (MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
+                                if (MainMenuManager.Inst.playerWeaponsLeft[x] == eWeaponType.None && MainMenuManager.Inst.playerWeaponsRight[x] == eWeaponType.None)
+                                {
+                                    //GameObject player = Instantiate(playerPrefab, spawnPoints[x].position, Quaternion.identity);
+                                    //player.SetActive(true);
+                                    //player.GetComponent<Body>().SetupBody((Players)_playerType);
+                                }
+                                else
+                                {
+                                    GameObject player = Instantiate(playerPrefab, spawnPoints[x].position, Quaternion.identity);
+                                    player.SetActive(true);
+                                    player.GetComponent<Body>().SetupBody((Players)_playerType, MainMenuManager.Inst.playerWeaponsLeft[x], MainMenuManager.Inst.playerWeaponsRight[x]);
+                                }
+                            }
+                            i++;
+                        }
+                        x++;
+                    }
+                }
             }
             else
+            {                
+                GameObject player1 = Instantiate(playerPrefab, spawnPoints[0].position, Quaternion.identity);
+                player1.SetActive(true);
                 player1.GetComponent<Body>().SetupBody(Players.P1);
-            */
 
-            if (MainMenuManager.Inst != null)
-            {
-                Debug.Log("MainMenuManager.Inst.playerTypes: " + MainMenuManager.Inst.playerTypes.Count);
-                var playerTypes = System.Enum.GetValues(typeof(Players));
-                int x = 0;
-                foreach (var menuListOfPlayerTypes in MainMenuManager.Inst.playerTypes)
-                {
-                    //Debug.Log("x: " + x);
-                    int i = 0;
-                    foreach (var _playerType in playerTypes)
-                    {
-                        //Debug.Log("i: " + i);
-                        if (menuListOfPlayerTypes.ToString() == _playerType.ToString())
-                        {
-                            GameObject player = Instantiate(playerPrefab, spawnPoints[x].position, Quaternion.identity);
-                            player.SetActive(true);
-                            //player.GetComponent<Body>().SetupBody((Players)_playerType);
-                           
-                            //if (MainMenuManager.Inst.playerWeaponsLeft.Count > 0 && MainMenuManager.Inst.playerWeaponsRight.Count > 0)
-                            if(MainMenuManager.Inst.playerWeaponsLeft[x] == eWeaponType.None && MainMenuManager.Inst.playerWeaponsRight[x] == eWeaponType.None)
-                                player.GetComponent<Body>().SetupBody((Players)_playerType);
-                            else
-                                player.GetComponent<Body>().SetupBody((Players)_playerType, MainMenuManager.Inst.playerWeaponsLeft[x], MainMenuManager.Inst.playerWeaponsRight[x]);
-                        }
-                        i++;
-                    }
-                    x++;
-                }
+                GameObject player2 = Instantiate(playerPrefab, spawnPoints[1].position, Quaternion.identity);
+                player2.SetActive(true);
+                player2.GetComponent<Body>().SetupBody(Players.P2);
             }
 
 
