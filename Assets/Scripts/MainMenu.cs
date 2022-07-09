@@ -60,7 +60,8 @@ public class MainMenu : MonoBehaviour
 
         foreach (var platform in platformsInMenuScene)
         {
-            Destroy(platform.gameObject);
+            //Destroy(platform.gameObject);
+            platform.SetActive(false);
         }
 
         // Clear all the Lists, since we are going back to MainMenu. Will respawn Bodies and weapon choices

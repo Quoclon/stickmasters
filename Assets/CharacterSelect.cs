@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterSelect : MonoBehaviour
 {
     // TODO: These will each be on their own "Panel" for each player
     [Header("Player Select Prefabs")]
-    //public GameObject playerPrefab;
-    //public GameObject playerPlatformPrefab;
+    public GameObject playerPrefab;
+    public GameObject playerPlatformPrefab;
 
     [Header("Spawned Objects")]
     public List<Body> playerBodies;
@@ -28,6 +29,7 @@ public class CharacterSelect : MonoBehaviour
     public eWeaponType rightArmWeapon;
 
     [Header("Player Type")]
+    public int playerNumber;
     public Players playerType;
 
     [Header("Input Type")]
@@ -35,10 +37,19 @@ public class CharacterSelect : MonoBehaviour
     private float inputDebounceTimer;
     private float inputDebounceTimerMax;
 
+    [Header("UI Buttons")]
+    public Button[] uiButtons;
+
     private void OnEnable()
     {
         inputDebounceTimerMax = 0.15f;
         inputDebounceTimer = inputDebounceTimerMax;
+        DisableSelectorButtons();
+    }
+
+    public void NextPlayerType()
+    {
+        // Make it possible to change playerTypes via button; no overlaps allowed
     }
 
     Players GetPlayerNumber(int playerNumber)
@@ -62,6 +73,99 @@ public class CharacterSelect : MonoBehaviour
         return playerType;
     }
 
+
+    public void ToggleSelectorButtons()
+    {
+        if (playerBodies.Count > 0)
+        {
+            Destroy(playerBodies[0].gameObject);
+            playerBodies.Clear();
+        }
+        else
+            SpawnPlayer();
+
+        foreach (var button in uiButtons)
+        {
+            if(button.gameObject.activeInHierarchy)
+                button.gameObject.SetActive(false);
+            else
+                button.gameObject.SetActive(true);
+        }
+    }
+
+    public void EnableSelectorButtons()
+    {
+        ToggleSelectorButtons();
+        /*
+        if(playerBodies.Count == 0)
+            SpawnPlayer();
+
+        foreach (var button in uiButtons)
+        {
+            button.gameObject.SetActive(true);
+        }
+        */
+    }
+
+    public void DisableSelectorButtons()
+    {
+        foreach (var button in uiButtons)
+        {
+            button.gameObject.SetActive(false);
+        }
+    }
+
+
+    public void SpawnPlayer()
+    {
+        //Players playerTypeToSpawn = GetPlayerNumber(playerNumber);
+
+        // Instantiate the player
+        GameObject player = Instantiate(playerPrefab, transform.position + new Vector3(0f, 4.2f, 0), Quaternion.identity);
+        player.SetActive(true);
+
+        // Setup the 'Body' of the player; defaulting to no weapons
+        Body playerBody = player.GetComponent<Body>();
+        playerBody.SetupBody(playerType, eWeaponType.None, eWeaponType.None);
+
+        // Setup List of Player Left/Right Weapons on Arms/Weapons in Player Prefab
+        foreach (var weaponHandler in playerBody.weaponHandlers)
+        {
+            foreach (var weaponArm in weaponHandler.weaponArms)
+            {
+                if (weaponHandler.armType == eWeaponArms.Left)
+                    leftWeapons.Add(weaponArm.weaponType);
+
+                if (weaponHandler.armType == eWeaponArms.Right)
+                    rightWeapons.Add(weaponArm.weaponType);
+            }
+        }
+
+        for (int i = 0; i < leftWeapons.Count; i++)
+        {
+            if (leftWeapons[i] == eWeaponType.None)
+            {
+                leftWeaponsIndex = i;
+                leftArmWeapon = leftWeapons[leftWeaponsIndex];
+            }
+
+        }
+
+        for (int i = 0; i < rightWeapons.Count; i++)
+        {
+            if (rightWeapons[i] == eWeaponType.None)
+            {
+                rightWeaponsIndex = i;
+                rightArmWeapon = rightWeapons[rightWeaponsIndex];
+            }
+        }
+
+        playerBodies.Add(playerBody);
+        //playerPlatforms.Add(platform);
+    }
+
+
+    /*
     public void SpawnPlayer(GameObject playerPrefab, GameObject playerPlatformPrefab, int playerNumber, GameObject canvasToAttachUI)
     {
         //Debug.Log(playerNumber);
@@ -69,12 +173,11 @@ public class CharacterSelect : MonoBehaviour
 
         // Instantiate the player
         //GameObject player = Instantiate(playerPrefab, spawnPoints[playerNumber].position, Quaternion.identity);
-        GameObject player = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
+        GameObject player = Instantiate(playerPrefab, transform.position + new Vector3(0f, 4.2f, 0), Quaternion.identity);
         player.SetActive(true);
 
-        // Instantiate the 'platform' (later a cage, or platform, etc.) - could not do preset platforms in WebGL build
-        GameObject platform = Instantiate(playerPlatformPrefab, new Vector3(player.transform.position.x, playerPlatformPrefab.transform.position.y, 0), Quaternion.identity);
-        //platform.transform.SetParent(this.transform);
+        // [~NOTE: Built into CharacterSelect now] Instantiate the 'platform' (later a cage, or platform, etc.) - could not do preset platforms in WebGL build
+        //GameObject platform = Instantiate(playerPlatformPrefab, new Vector3(player.transform.position.x, playerPlatformPrefab.transform.position.y, 0), Quaternion.identity);
 
         // Setup the 'Body' of the player; defaulting to no weapons
         Body playerBody = player.GetComponent<Body>();
@@ -116,6 +219,7 @@ public class CharacterSelect : MonoBehaviour
         playerBodies.Add(playerBody);
         //playerPlatforms.Add(platform);
     }
+    */
 
 
     void Update()
@@ -157,8 +261,9 @@ public class CharacterSelect : MonoBehaviour
         }
     }
 
-    void LeftWeaponNext()
+    public void LeftWeaponNext()
     {
+        Debug.Log("LeftWeaponNext");
         leftWeaponsIndex++;
         if (leftWeaponsIndex > leftWeapons.Count - 1)
             leftWeaponsIndex = 0;
@@ -167,7 +272,7 @@ public class CharacterSelect : MonoBehaviour
         playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
     }
 
-    void LeftWeaponPrevious()
+    public void LeftWeaponPrevious()
     {
         leftWeaponsIndex--;
         if (leftWeaponsIndex < 0)
@@ -177,7 +282,7 @@ public class CharacterSelect : MonoBehaviour
         playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
     }
 
-    void RightWeaponNext()
+    public void RightWeaponNext()
     {
         rightWeaponsIndex++;
         if (rightWeaponsIndex > rightWeapons.Count - 1)
@@ -187,7 +292,7 @@ public class CharacterSelect : MonoBehaviour
         playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
     }
 
-    void RightWeaponPrevious()
+    public void RightWeaponPrevious()
     {
         rightWeaponsIndex--;
         if (rightWeaponsIndex < 0)

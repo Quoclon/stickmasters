@@ -25,14 +25,24 @@ public class CharacterSelectionManager : MonoBehaviour
 
     private void OnEnable()
     {
-        SpawnPlayersForSelection();
+        SpawnPlayerSelectorUI();
     }
 
-    void SpawnPlayersForSelection()
+
+    void SpawnPlayerSelectorUI()
     {
         for (int playerNum = 0; playerNum < characterSelectors.Count; playerNum++)
         {
-            characterSelectors[playerNum].SpawnPlayer(playerPrefab, playerPlatformPrefab, playerNum, canvasObject);
+            characterSelectors[playerNum].gameObject.SetActive(true);
+            //characterSelectors[playerNum].SpawnPlayerAndUI();
+        }
+    }
+
+void SpawnPlayersForSelection()
+    {
+        for (int playerNum = 0; playerNum < characterSelectors.Count; playerNum++)
+        {
+            //characterSelectors[playerNum].SpawnPlayer(playerPrefab, playerPlatformPrefab, playerNum, canvasObject);
         }
     }
 }
