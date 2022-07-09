@@ -72,7 +72,7 @@ public class ParticleManager : MonoBehaviour
 
 
 		ParticleSystem particle = Instantiate(particleTypeToInstantiate[randomNumber], collision.contacts[0].point, collision.transform.rotation);
-		Debug.Log(particleTypeToInstantiate[randomNumber].name);
+		//Debug.Log(particleTypeToInstantiate[randomNumber].name);
 
 		// ~ TODO - FIgure out how to make the particles bigger - this is NOT working
 		//particle.emissionRate += (collisionMagnitude * 1.5f);

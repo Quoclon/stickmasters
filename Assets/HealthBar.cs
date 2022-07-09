@@ -118,19 +118,4 @@ public class HealthBar : MonoBehaviour
         HideUI();
     }
 
-
-
-        #region Unused
-        public void ReduceHealthBarCurrentHealth(float _reductionAmount)
-    {
-        // lerp here if possible
-        slider.value -= _reductionAmount;
-    }
-
-    public void SetHealthBarMax(float _maxHealth)
-    {
-        slider.maxValue = _maxHealth;
-    }
-
-    #endregion
 }

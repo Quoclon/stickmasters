@@ -454,12 +454,24 @@ public class Body : MonoBehaviour
                     // Player Bleed Denominator
                     float bleedPerSecDenominator = 20f;
 
-                    // Enemy Bleed Denomiator lower if Survival
-                    if (!GameManager.Inst.isPlayerTypePlayer(playerType) && GameManager.Inst.gameMode == eGameMode.Survival)
-                        bleedPerSecDenominator = 15f;
-
-                    bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
-                    DetermineBleedPerSecond();
+                    // Surival Mode -- Only Enemy Bleeds out
+                    if(GameManager.Inst.gameMode == eGameMode.Survival)
+                    {
+                        // Enemy
+                        if (!GameManager.Inst.isPlayerTypePlayer(playerType))
+                        {
+                            // Enemy Bleed Denomiator lower if Survival (bleeds faster)
+                            bleedPerSecDenominator = 15f;
+                            bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
+                            DetermineBleedPerSecond();
+                        }
+                    }
+                    // ALL OTHER MODES -- Player and Enemy can Bleed Out
+                    else
+                    {
+                        bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
+                        DetermineBleedPerSecond();
+                    }                
                 }
 
                 // Reduce bodyPart Health @ a fraction of damage. Makes bodyParts easier to sever

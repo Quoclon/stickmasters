@@ -6,17 +6,16 @@ public class CharacterSelect : MonoBehaviour
 {
     // TODO: These will each be on their own "Panel" for each player
     [Header("Player Select Prefabs")]
-    public GameObject playerPrefab;
-    public GameObject playerPlatformPrefab;
+    //public GameObject playerPrefab;
+    //public GameObject playerPlatformPrefab;
 
     [Header("Spawned Objects")]
     public List<Body> playerBodies;
     public List<GameObject> playerPlatforms;
 
     [Header("Spawnpoints")]
-    public Transform[] spawnPoints;
+    //public Transform[] spawnPoints;
     public Transform spawnPoint;
-
 
     [Header("Weapon Lists")]
     public List<eWeaponType> leftWeapons;
@@ -28,52 +27,19 @@ public class CharacterSelect : MonoBehaviour
     public eWeaponType leftArmWeapon;
     public eWeaponType rightArmWeapon;
 
-    [Header("Character Selection Manager")]
-    public CharacterSelectionManager characterSelectionManager;
-
     [Header("Player Type")]
     public Players playerType;
 
     [Header("Input Type")]
     public string playerNumberForInput;
-    public KeyCode up;
-    public KeyCode down;
-    public KeyCode left;
-    public KeyCode right;
-    public float inputDebounceTimer;
+    private float inputDebounceTimer;
     private float inputDebounceTimerMax;
 
     private void OnEnable()
     {
-        //SpawnPlayersForSelection();
         inputDebounceTimerMax = 0.15f;
         inputDebounceTimer = inputDebounceTimerMax;
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    /*
-    public void AddSpawnedPlayer(Players _playerType, Body _playerBody, GameObject _platform)
-    {
-        playerType = _playerType;
-        playerBodies.Add(_playerBody);
-        playerPlatforms.Add(_platform);
-        SetupWeapons();
-    }
-    */
-
-    /*
-    void SpawnPlayersForSelection()
-    {
-        for (int i = 0; i < spawnPoints.Length; i++)
-        {
-            //SpawnPlayer(i);
-        }    
-    }
-    */
 
     Players GetPlayerNumber(int playerNumber)
     {
@@ -96,7 +62,7 @@ public class CharacterSelect : MonoBehaviour
         return playerType;
     }
 
-    public void SpawnPlayer(int playerNumber)
+    public void SpawnPlayer(GameObject playerPrefab, GameObject playerPlatformPrefab, int playerNumber, GameObject canvasToAttachUI)
     {
         //Debug.Log(playerNumber);
         Players playerTypeToSpawn = GetPlayerNumber(playerNumber);
@@ -108,6 +74,7 @@ public class CharacterSelect : MonoBehaviour
 
         // Instantiate the 'platform' (later a cage, or platform, etc.) - could not do preset platforms in WebGL build
         GameObject platform = Instantiate(playerPlatformPrefab, new Vector3(player.transform.position.x, playerPlatformPrefab.transform.position.y, 0), Quaternion.identity);
+        //platform.transform.SetParent(this.transform);
 
         // Setup the 'Body' of the player; defaulting to no weapons
         Body playerBody = player.GetComponent<Body>();
@@ -153,9 +120,6 @@ public class CharacterSelect : MonoBehaviour
 
     void Update()
     {
-        // ~TODO: Move this to it's own script that sits on the player or platform
-        // Spawning Player/Platform shiould be it's own script
-        // ~TODO: Change player type, change player weapons, change player health, change color?
         WeaponSelect();
     }
 
@@ -164,7 +128,7 @@ public class CharacterSelect : MonoBehaviour
         inputDebounceTimer -= Time.deltaTime;
         if (inputDebounceTimer > 0)
             return;
-
+      
         float xInput = Input.GetAxisRaw("Horizontal" + playerNumberForInput);
         float yInput = Input.GetAxisRaw("Vertical" + playerNumberForInput);
 
@@ -191,30 +155,6 @@ public class CharacterSelect : MonoBehaviour
             RightWeaponPrevious();
             inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
         }
-
-
-        if (Input.GetKeyDown(right))
-        {
-          
-        }
-
-        if (Input.GetKeyDown(left))
-        {
-
-        }
-
-        if (Input.GetKeyDown(up))
-        {
-
-        }
-
-        if (Input.GetKeyDown(down))
-        {
-
-        }
-
-
-
     }
 
     void LeftWeaponNext()

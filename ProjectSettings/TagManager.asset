@@ -16,6 +16,7 @@ TagManager:
   - Link
   - SpawnManager
   - WeaponArm
+  - PlayerSelectPanel
   layers:
   - Default
   - TransparentFX
