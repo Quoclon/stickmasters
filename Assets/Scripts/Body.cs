@@ -48,8 +48,8 @@ public class Body : MonoBehaviour
 
     [Header("Health")]
     public HealthBar healthbar;
-    [SerializeField] float health;
-    [SerializeField] float maxHealth;
+    [SerializeField] public float health;
+    [SerializeField] public float maxHealth;
     float healthPerPartModifier;
     float totalHealthModifier;
 

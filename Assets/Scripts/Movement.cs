@@ -125,16 +125,51 @@ public class Movement : MonoBehaviour
     }
 
 
+    void TargetWeakestPlayer()
+    {
+        if (GameManager.Inst == null)
+            return;
+
+        float weakestPlayerHealth = 100000f;
+        Body weakestPlayerBody = body;          // Risk of causing issues targeting self - shoudl resolve below, could be issues if only AI left
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var player in players)
+        {
+            Body playerBody = player.GetComponent<Body>();
+
+            if (GameManager.Inst.isPlayerTypePlayer(playerBody.playerType)) // ~ PROBLEM IF YOU WANTED AI TO BATTLE EACH OTHER; Team Based later?
+            {
+                //Debug.Log(playerBody.playerType);
+                if (playerBody.alive)
+                {
+                    //Debug.Log("Enemy: " + body.playerType + " PlayerBody: " + playerBody.playerType + " Health: " + playerBody.health);
+                    if (playerBody.health < weakestPlayerHealth)
+                    {
+                        weakestPlayerBody = playerBody;
+                        weakestPlayerHealth = playerBody.health;
+                        //Debug.Log("weakest PlayerBody: " + weakestPlayerBody.playerType);
+                    }
+                }
+
+            }
+        }
+
+        //Debug.Log("Final Weakest Player Body: " + weakestPlayerBody.playerType);
+        targetPlayerMovement = weakestPlayerBody.GetComponent<Movement>();
+        enemyTargetLockTimer = enemyTargeLockTimerMax;
+    }
+
     void TargetClosestPlayer()
     {
-        /// Checks for Cloest Player. ~TODO: Weighted Decision, based on Health? Damage Dealt?
+        if (GameManager.Inst == null)
+            return;
 
         float closestPlayerDistance = 10000f;
         Body cloestPlayerBody = body; // ~ THIS COULD CAUSE BUGS
 
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player"); 
-
-        Debug.Log("Enemy Body Checking: " + body.playerType);
+        //Debug.Log("Enemy Body Checking: " + body.playerType);
         foreach (var player in players)
         {
             Body playerBody = player.GetComponent<Body>();             
@@ -145,19 +180,19 @@ public class Movement : MonoBehaviour
                 if (playerBody.alive)
                 {
                     float distance = Mathf.Abs(Vector3.Distance(body.chest.transform.position, playerBody.chest.transform.position));
-                    Debug.Log("Enemy: " + body.playerType + " PlayerBody: " + playerBody.playerType + " Distance: " + distance);
+                    //Debug.Log("Enemy: " + body.playerType + " PlayerBody: " + playerBody.playerType + " Distance: " + distance);
                     if (distance < closestPlayerDistance)
                     {
                         cloestPlayerBody = playerBody;
                         closestPlayerDistance = distance;
-                        Debug.Log("current cloestPlayerBody: " + cloestPlayerBody.playerType);
+                        //Debug.Log("current cloestPlayerBody: " + cloestPlayerBody.playerType);
                     }
                 }
 
             }
         }
 
-        Debug.Log("Final Closet Player Body: " + cloestPlayerBody.playerType);
+        //Debug.Log("Final Closet Player Body: " + cloestPlayerBody.playerType);
         targetPlayerMovement = cloestPlayerBody.GetComponent<Movement>();
         enemyTargetLockTimer = enemyTargeLockTimerMax;
     }
@@ -276,7 +311,15 @@ public class Movement : MonoBehaviour
         if(targetPlayerMovement != null)
         {
             if (!targetPlayerMovement.body.alive || enemyTargetLockTimer <= 0)
-                TargetClosestPlayer();
+            {
+                // Equal chance to target the clost player or the weakest player
+                int randomTarget = Random.Range(0, 2);
+                Debug.Log("Random Targeting - Int: " + randomTarget);
+                if (randomTarget == 0)
+                    TargetClosestPlayer();
+                else
+                    TargetWeakestPlayer();
+            }
 
             if (randomInt > 0)
             {

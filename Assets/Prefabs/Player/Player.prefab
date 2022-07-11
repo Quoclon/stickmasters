@@ -19247,7 +19247,6 @@ MonoBehaviour:
   currentWeapon: {fileID: 0}
   weapons:
   - {fileID: 8792004108279835088}
-  - {fileID: 8792004108279835088}
   weaponArms: []
 --- !u!1 &4675699234601917699
 GameObject:
