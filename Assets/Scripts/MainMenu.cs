@@ -66,8 +66,8 @@ public class MainMenu : MonoBehaviour
 
         // Clear all the Lists, since we are going back to MainMenu. Will respawn Bodies and weapon choices
         CharacterSelectionManager _characterSelectionManager = panelPlayerSelect.GetComponent<CharacterSelectionManager>();
-        _characterSelectionManager.playerBodies.Clear();
-        _characterSelectionManager.playerPlatforms.Clear();
+        //_characterSelectionManager.playerBodies.Clear();
+        //_characterSelectionManager.playerPlatforms.Clear();
 
         foreach (var characterSelector in _characterSelectionManager.characterSelectors)
         {

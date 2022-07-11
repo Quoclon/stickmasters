@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class CharacterSelect : MonoBehaviour
 {
+    [Header("Charater Selection Manager")]
+    public CharacterSelectionManager characterSelectionManager;
+
     // TODO: These will each be on their own "Panel" for each player
     [Header("Player Select Prefabs")]
     public GameObject playerPrefab;
@@ -31,6 +35,7 @@ public class CharacterSelect : MonoBehaviour
     [Header("Player Type")]
     public int playerNumber;
     public Players playerType;
+    public TextMeshProUGUI playerTypeName;
 
     [Header("Input Type")]
     public string playerNumberForInput;
@@ -42,20 +47,26 @@ public class CharacterSelect : MonoBehaviour
 
     private void OnEnable()
     {
+        //characterSelectionManager = GameObject.FindObjectOfType<CharacterSelectionManager>();
         inputDebounceTimerMax = 0.15f;
         inputDebounceTimer = inputDebounceTimerMax;
         DisableSelectorButtons();
+
+        //playerTypeName.text = playerType.ToString();
     }
 
     public void NextPlayerType()
     {
-        // Make it possible to change playerTypes via button; no overlaps allowed
+        //Players currentPlayerType = playerType;
+        playerType = characterSelectionManager.GetNextPlayerType(playerType);
+        
+        //if(playerType != currentPlayerType)
+            //playerTypeName.text = playerType.ToString();
     }
 
     Players GetPlayerNumber(int playerNumber)
     {
         Players playerType = Players.P1;
-
         var playerTypes = System.Enum.GetValues(typeof(Players));
 
         // Loop through Enum of player types
@@ -69,10 +80,8 @@ public class CharacterSelect : MonoBehaviour
 
             i++;
         }
-
         return playerType;
     }
-
 
     public void ToggleSelectorButtons()
     {
@@ -80,16 +89,26 @@ public class CharacterSelect : MonoBehaviour
         {
             Destroy(playerBodies[0].gameObject);
             playerBodies.Clear();
+            characterSelectionManager.AddToAvailablePlayerTypes(playerType);
         }
         else
+        {
+            //characterSelectionManager.AddChosenPlayerToPlayerTypesAvailableList(playerType);
+            //characterSelectionManager.AddToAvailablePlayerTypes(playerType);
             SpawnPlayer();
+            characterSelectionManager.RemoveFromAvailablePlayerTypes(playerType);
+        }
 
         foreach (var button in uiButtons)
         {
-            if(button.gameObject.activeInHierarchy)
+            if (button.gameObject.activeInHierarchy)
+            {
                 button.gameObject.SetActive(false);
+            }
             else
+            {
                 button.gameObject.SetActive(true);
+            }
         }
     }
 
