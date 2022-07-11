@@ -26465,6 +26465,8 @@ MonoBehaviour:
   enemyActionTimerMax: 0
   enemyActionTimer: 0
   targetPlayerMovement: {fileID: 0}
+  enemyTargeLockTimerMax: 5
+  enemyTargetLockTimer: 0
   headTransform: {fileID: 0}
   headTransformOriginal: {fileID: 8692947287472158556}
 --- !u!114 &8692947287489698020

@@ -22,7 +22,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
         for (int i = 0; i < playerTypeOptions.Length; i++)
         {
-            Debug.Log(playerTypeOptions[i]);      
+            //Debug.Log(playerTypeOptions[i]);      
             playerTypesAvailable.Add(playerTypeOptions[i]); // Including AI, but AI never 'adds' or 'resmove' from this list later
         }
 
@@ -62,11 +62,10 @@ public class CharacterSelectionManager : MonoBehaviour
 
     public Players GetNextPlayerType(Players currentPlayerType)
     {
-        Debug.Log("current playerType: " + currentPlayerType);
+        //Debug.Log("current playerType: " + currentPlayerType);
         
         Players _playerTypeToSelect = currentPlayerType;
-        
-        
+               
         int startingPoint = 0;
         for (int j = 0; j < playerTypeOptions.Length; j++)
         {
@@ -74,26 +73,25 @@ public class CharacterSelectionManager : MonoBehaviour
                 startingPoint = j;
         }
 
-        Debug.Log("Starting Point inPlayerOptions Array: " + startingPoint);
+        //Debug.Log("Starting Point inPlayerOptions Array: " + startingPoint);
 
         int loopStartingPoint = startingPoint + 1;
         if (loopStartingPoint >= playerTypeOptions.Length)
             loopStartingPoint = 0;
 
-        Debug.Log("Looping Starting Point: " + loopStartingPoint);
-        Debug.Log("playerTypeOptions.Length: " + playerTypeOptions.Length);
+        //Debug.Log("Looping Starting Point: " + loopStartingPoint);
+        //Debug.Log("playerTypeOptions.Length: " + playerTypeOptions.Length);
 
         for (int i = loopStartingPoint; i < playerTypeOptions.Length; i++)
         {
             if (i == startingPoint)
             {
-                Debug.Log("i == startingPoint");
+                //Debug.Log("i == startingPoint");
                 return _playerTypeToSelect;
             }
 
             for (int x = 0; x < playerTypesAvailable.Count; x++)
             {
-
                 if ((playerTypeOptions[i] == playerTypesAvailable[x]) && (playerTypeOptions[i] != currentPlayerType))
                 {
 
@@ -101,11 +99,9 @@ public class CharacterSelectionManager : MonoBehaviour
                     if (currentPlayerType == Players.AI)
                     {
                         playerTypesAvailable.Remove(playerTypeOptions[i]);
-                        //playerTypesAvailable.Add(currentPlayerType);
                     }
                     else
                     {
-                        //playerTypesAvailable.Remove(playerTypeOptions[i]);
                         playerTypesAvailable.Add(currentPlayerType);
                         if (playerTypeOptions[i] != Players.AI)
                             playerTypesAvailable.Remove(playerTypeOptions[i]);
@@ -116,57 +112,10 @@ public class CharacterSelectionManager : MonoBehaviour
 
             }
 
-            Debug.Log("Loop (i): " + i +" playerTypeOptions[i]: " + playerTypeOptions[i]);
+            //Debug.Log("Loop (i): " + i +" playerTypeOptions[i]: " + playerTypeOptions[i]);
             if (i == playerTypeOptions.Length-1)
                 i = -1; //i++ runs before next loop
         }
-
-        /*
-        int i = loopStartingPoint;
-        while(i != startingPoint)
-        {
-            if(i >= playerTypeOptions.Length)
-            {
-                Debug.Log("Reset i to Zero");
-                i = 0;
-            }
-            else
-            {
-                Debug.Log("i: " + i);
-            }
-
-            i++;
-        }
-        */
-
-
-        /*
-        for (int i = loopStartingPoint; i < playerTypeOptions.Length; i++)
-        {
-            //Debug.Log("i:" + i);
-            if (i == startingPoint)
-            {
-                Debug.Log("Loop Done");
-                return currentPlayerType;
-            }
-
-            for (int x = 0; x < playerTypesAvailable.Count; x++)
-            {
-                
-                if (playerTypeOptions[i] == playerTypesAvailable[x] && playerTypeOptions[i] != currentPlayerType)
-                {
-                    playerTypesAvailable.Remove(playerTypesAvailable[x]);
-                    playerTypesAvailable.Add(currentPlayerType);
-                    return playerTypeOptions[i];
-                }
-                
-            }
-
-            if (i + 1 >= playerTypeOptions.Length)
-                i = -1; // because i++ runs before next loop
-        }
-        */
-        
 
         return currentPlayerType;
     }

@@ -158,8 +158,7 @@ public class MainMenu : MonoBehaviour
         // Get all the weapons chosen in the Character Selector
         CharacterSelect[] characterSelectors = GameObject.FindObjectsOfType<CharacterSelect>();
         //CharacterSelectionManager characterSelectionManager = GameObject.FindObjectOfType<CharacterSelectionManager>();
-        Debug.Log("characterSelectors.length: " + characterSelectors.Length);
-
+        //Debug.Log("characterSelectors.length: " + characterSelectors.Length);
 
         var playerTypes = System.Enum.GetValues(typeof(Players));
 

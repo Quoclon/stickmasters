@@ -50,6 +50,9 @@ public class Movement : MonoBehaviour
     public float enemyActionTimerMax;
     public float enemyActionTimer;
     public Movement targetPlayerMovement;
+    public float enemyTargeLockTimerMax;
+    public float enemyTargetLockTimer;
+
 
     [Header("Head - for facing direct")]
     public Transform headTransform;
@@ -104,20 +107,10 @@ public class Movement : MonoBehaviour
         jumpCooldown = 0;
         ResetJumpCooldown();
 
-
-
         //Enemy AI Setup - Move Later                                                   /// JUST CHANGTED THIS COLD CAUSE BOYGS
         if (body.playerType == Players.AI)
         {
-            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-            foreach (var player in players)
-            {
-                Body playerBody = player.GetComponent<Body>();              /// JUST CHANGTED THIS COLD CAUSE BOYGS
-                if (playerBody.playerType == Players.P1)
-                {
-                    targetPlayerMovement = playerBody.GetComponent<Movement>();
-                }
-            }
+            TargetClosestPlayer();
         }
         else if(body.playerType == Players.P1)
         {
@@ -129,6 +122,44 @@ public class Movement : MonoBehaviour
             if (GameManager.Inst != null)
                 variableJoystick = GameManager.Inst.variableJoystickP2;
         }
+    }
+
+
+    void TargetClosestPlayer()
+    {
+        /// Checks for Cloest Player. ~TODO: Weighted Decision, based on Health? Damage Dealt?
+
+        float closestPlayerDistance = 10000f;
+        Body cloestPlayerBody = body; // ~ THIS COULD CAUSE BUGS
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player"); 
+
+        Debug.Log("Enemy Body Checking: " + body.playerType);
+        foreach (var player in players)
+        {
+            Body playerBody = player.GetComponent<Body>();             
+            //if (playerBody.playerType == Players.P1)
+            if (GameManager.Inst.isPlayerTypePlayer(playerBody.playerType)) // ~ PROBLEM IF YOU WANTED AI TO BATTLE EACH OTHER; Team Based later?
+            {
+                Debug.Log(playerBody.playerType);
+                if (playerBody.alive)
+                {
+                    float distance = Mathf.Abs(Vector3.Distance(body.chest.transform.position, playerBody.chest.transform.position));
+                    Debug.Log("Enemy: " + body.playerType + " PlayerBody: " + playerBody.playerType + " Distance: " + distance);
+                    if (distance < closestPlayerDistance)
+                    {
+                        cloestPlayerBody = playerBody;
+                        closestPlayerDistance = distance;
+                        Debug.Log("current cloestPlayerBody: " + cloestPlayerBody.playerType);
+                    }
+                }
+
+            }
+        }
+
+        Debug.Log("Final Closet Player Body: " + cloestPlayerBody.playerType);
+        targetPlayerMovement = cloestPlayerBody.GetComponent<Movement>();
+        enemyTargetLockTimer = enemyTargeLockTimerMax;
     }
 
     // Update is called once per frame
@@ -234,70 +265,79 @@ public class Movement : MonoBehaviour
     {
         enemyActionTimer -= Time.deltaTime;
         jumpCooldown -= Time.deltaTime;
+        enemyTargetLockTimer -= Time.deltaTime;
+
 
         if (enemyActionTimer >= 0)
             return;
 
         int randomInt = Random.Range(0, 100);
 
-        if(targetPlayerMovement != null && randomInt > 0)
+        if(targetPlayerMovement != null)
         {
-            //Debug.Log("targetPlayerMovement.headTransform.position " + targetPlayerMovement.headTransform.position);
-            //Debug.Log("this.headTransform.position " + this.headTransform.position);
+            if (!targetPlayerMovement.body.alive || enemyTargetLockTimer <= 0)
+                TargetClosestPlayer();
 
-            Vector2 direction = targetPlayerMovement.headTransform.position - this.headTransform.position;
-
-            //Debug.Log("direction " + direction);
-
-            // ~ TODO: Set this up in inspector via AI
-            int chanceToMoveInOppositeDirectionOfPlayer = Random.Range(0, 100);
-
-            // What additional Actions to Take after moving
-            int bonusMoveInt = Random.Range(0, 100);
-
-            if (direction.x < 0 && chanceToMoveInOppositeDirectionOfPlayer > 10)
+            if (randomInt > 0)
             {
-                //Debug.Log("Moving Left");
-                ActionMoveLeft();
-                ActionMoveLeft();
-                ActionMoveLeft();
-                ActionMoveLeft();
-                ActionMoveLeft();
-                ActionMoveLeft();
-                
-                if (bonusMoveInt > 80)
+                //Debug.Log("targetPlayerMovement.headTransform.position " + targetPlayerMovement.headTransform.position);
+                //Debug.Log("this.headTransform.position " + this.headTransform.position);
+
+                Vector2 direction = targetPlayerMovement.headTransform.position - this.headTransform.position;
+
+                //Debug.Log("direction " + direction);
+
+                // ~ TODO: Set this up in inspector via AI
+                int chanceToMoveInOppositeDirectionOfPlayer = Random.Range(0, 100);
+
+                // What additional Actions to Take after moving
+                int bonusMoveInt = Random.Range(0, 100);
+
+                if (direction.x < 0 && chanceToMoveInOppositeDirectionOfPlayer > 10)
                 {
-                    ActionMoveDuck();
+                    //Debug.Log("Moving Left");
+                    ActionMoveLeft();
+                    ActionMoveLeft();
+                    ActionMoveLeft();
+                    ActionMoveLeft();
+                    ActionMoveLeft();
+                    ActionMoveLeft();
+
+                    if (bonusMoveInt > 80)
+                    {
+                        ActionMoveDuck();
+                    }
+
+                    else if (bonusMoveInt > 70 && jumpCooldown <= 0)
+                    {
+                        ActionMoveJump();
+                    }
                 }
 
-                else if (bonusMoveInt > 70 && jumpCooldown <= 0)
+                // These are backwards... maybe due to facing
+                else
                 {
-                    ActionMoveJump();
-                }
-            }
+                    //Debug.Log("Moving Right");
+                    ActionMoveRight();
+                    ActionMoveRight();
+                    ActionMoveRight();
+                    ActionMoveRight();
+                    ActionMoveRight();
+                    ActionMoveRight();
 
-            // These are backwards... maybe due to facing
-            else
-            {
-                //Debug.Log("Moving Right");
-                ActionMoveRight();
-                ActionMoveRight();
-                ActionMoveRight();
-                ActionMoveRight();
-                ActionMoveRight();
-                ActionMoveRight();
-         
-                if (bonusMoveInt > 80)
-                {
-                    ActionMoveDuck();
-                }
+                    if (bonusMoveInt > 80)
+                    {
+                        ActionMoveDuck();
+                    }
 
-                else if (bonusMoveInt > 70 && jumpCooldown <= 0)
-                {
-                    ActionMoveJump();
+                    else if (bonusMoveInt > 70 && jumpCooldown <= 0)
+                    {
+                        ActionMoveJump();
+                    }
                 }
             }
         }
+
 
         ResetEnemyTimer();
     }
