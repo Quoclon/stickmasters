@@ -251,7 +251,10 @@ public class Body : MonoBehaviour
                     part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
                     break;
                 case Players.AI:
-                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+                    if (GameManager.Inst != null)
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
+                    else
+                        part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(1));
                     break;
             default:
                     break;

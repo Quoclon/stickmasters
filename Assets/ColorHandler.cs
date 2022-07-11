@@ -39,7 +39,7 @@ public class ColorHandler : MonoBehaviour
 
     public Color GetPlayerColor(int playerNumber)
     {
-        if (playerNumber > npcColors.Length)
+        if (playerNumber > playerColors.Length)
             return playerColors[playerColors.Length - 1];
         else
             return playerColors[playerNumber - 1];

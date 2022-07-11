@@ -23,7 +23,7 @@ public class CharacterSelectionManager : MonoBehaviour
         for (int i = 0; i < playerTypeOptions.Length; i++)
         {
             Debug.Log(playerTypeOptions[i]);      
-            playerTypesAvailable.Add(playerTypeOptions[i]);
+            playerTypesAvailable.Add(playerTypeOptions[i]); // Including AI, but AI never 'adds' or 'resmove' from this list later
         }
 
         SpawnPlayerSelectorUI();
@@ -32,18 +32,37 @@ public class CharacterSelectionManager : MonoBehaviour
     public void AddToAvailablePlayerTypes(Players _playerType)
     {
         Debug.Log("AddToAvailablePlayerTypes: " + _playerType);
-        playerTypesAvailable.Add(_playerType);
+        if (_playerType != Players.AI)
+            playerTypesAvailable.Add(_playerType);
     }
 
     public void RemoveFromAvailablePlayerTypes(Players _playerType)
     {
         Debug.Log("RemoveFromAvailablePlayerTypes: " + _playerType);
-        playerTypesAvailable.Remove(_playerType);
+        if(_playerType != Players.AI)
+            playerTypesAvailable.Remove(_playerType);
+    }
+
+    public Players GetAvailablePlayerType()
+    {
+        // Ensures Ordered Players Return
+        foreach (var _playerOption in playerTypeOptions)
+        {
+            foreach (var _playerType in playerTypesAvailable)
+            {
+                if(_playerOption == _playerType)
+                    return _playerType;
+            }
+        }
+       
+
+        //Default
+        return Players.AI;
     }
 
     public Players GetNextPlayerType(Players currentPlayerType)
     {
-        Debug.Log("GetNextPlayerType: " + currentPlayerType);
+        Debug.Log("current playerType: " + currentPlayerType);
         
         Players _playerTypeToSelect = currentPlayerType;
         
@@ -55,15 +74,54 @@ public class CharacterSelectionManager : MonoBehaviour
                 startingPoint = j;
         }
 
-        Debug.Log("Starting Point: " + startingPoint);
+        Debug.Log("Starting Point inPlayerOptions Array: " + startingPoint);
 
         int loopStartingPoint = startingPoint + 1;
         if (loopStartingPoint >= playerTypeOptions.Length)
             loopStartingPoint = 0;
 
-        Debug.Log("Looping Point: " + loopStartingPoint);
+        Debug.Log("Looping Starting Point: " + loopStartingPoint);
+        Debug.Log("playerTypeOptions.Length: " + playerTypeOptions.Length);
 
+        for (int i = loopStartingPoint; i < playerTypeOptions.Length; i++)
+        {
+            if (i == startingPoint)
+            {
+                Debug.Log("i == startingPoint");
+                return _playerTypeToSelect;
+            }
 
+            for (int x = 0; x < playerTypesAvailable.Count; x++)
+            {
+
+                if ((playerTypeOptions[i] == playerTypesAvailable[x]) && (playerTypeOptions[i] != currentPlayerType))
+                {
+
+                    // Next Item in the List is playerTypeOptions[i]
+                    if (currentPlayerType == Players.AI)
+                    {
+                        playerTypesAvailable.Remove(playerTypeOptions[i]);
+                        //playerTypesAvailable.Add(currentPlayerType);
+                    }
+                    else
+                    {
+                        //playerTypesAvailable.Remove(playerTypeOptions[i]);
+                        playerTypesAvailable.Add(currentPlayerType);
+                        if (playerTypeOptions[i] != Players.AI)
+                            playerTypesAvailable.Remove(playerTypeOptions[i]);
+                    }
+
+                    return playerTypeOptions[i];
+                }
+
+            }
+
+            Debug.Log("Loop (i): " + i +" playerTypeOptions[i]: " + playerTypeOptions[i]);
+            if (i == playerTypeOptions.Length-1)
+                i = -1; //i++ runs before next loop
+        }
+
+        /*
         int i = loopStartingPoint;
         while(i != startingPoint)
         {
@@ -79,7 +137,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
             i++;
         }
-
+        */
 
 
         /*

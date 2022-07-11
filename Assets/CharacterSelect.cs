@@ -50,6 +50,9 @@ public class CharacterSelect : MonoBehaviour
         //characterSelectionManager = GameObject.FindObjectOfType<CharacterSelectionManager>();
         inputDebounceTimerMax = 0.15f;
         inputDebounceTimer = inputDebounceTimerMax;
+
+        // ~ TEST
+        playerTypeName.text = "Click";
         DisableSelectorButtons();
 
         //playerTypeName.text = playerType.ToString();
@@ -57,11 +60,17 @@ public class CharacterSelect : MonoBehaviour
 
     public void NextPlayerType()
     {
-        //Players currentPlayerType = playerType;
+        Players currentPlayerType = playerType;
         playerType = characterSelectionManager.GetNextPlayerType(playerType);
         
-        //if(playerType != currentPlayerType)
-            //playerTypeName.text = playerType.ToString();
+        if(playerType != currentPlayerType)
+        {
+            Destroy(playerBodies[0].gameObject);
+            playerBodies.Clear();
+            playerTypeName.text = playerType.ToString();
+            SpawnPlayer();
+        }
+           
     }
 
     Players GetPlayerNumber(int playerNumber)
@@ -89,14 +98,19 @@ public class CharacterSelect : MonoBehaviour
         {
             Destroy(playerBodies[0].gameObject);
             playerBodies.Clear();
-            characterSelectionManager.AddToAvailablePlayerTypes(playerType);
+            playerTypeName.text = "Click";
+            if (playerType != Players.AI)
+                characterSelectionManager.AddToAvailablePlayerTypes(playerType);
         }
         else
         {
             //characterSelectionManager.AddChosenPlayerToPlayerTypesAvailableList(playerType);
             //characterSelectionManager.AddToAvailablePlayerTypes(playerType);
+            playerType = characterSelectionManager.GetAvailablePlayerType();
+            playerTypeName.text = playerType.ToString();
             SpawnPlayer();
-            characterSelectionManager.RemoveFromAvailablePlayerTypes(playerType);
+            if(playerType != Players.AI)
+                characterSelectionManager.RemoveFromAvailablePlayerTypes(playerType);
         }
 
         foreach (var button in uiButtons)

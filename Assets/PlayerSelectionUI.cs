@@ -6,7 +6,13 @@ public class PlayerSelectionUI : MonoBehaviour
 {
 
     public GameObject rightArmButton;
-    public GameObject playerPanel;
+    public GameObject playerSelectPanel;
+    //public CharacterSelect = 
+
+    private void OnEnable()
+    {
+        
+    }
 
     // Start is called before the first frame update
     void Start()

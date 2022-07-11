@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rightArmButton: {fileID: 0}
-  playerPanel: {fileID: 0}
+  playerSelectPanel: {fileID: 0}
 --- !u!1 &40345494
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,7 +2158,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &569599793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2204,7 +2204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rightArmButton: {fileID: 0}
-  playerPanel: {fileID: 0}
+  playerSelectPanel: {fileID: 0}
 --- !u!4 &569599795
 Transform:
   m_ObjectHideFlags: 0
@@ -2239,7 +2239,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &576422557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2285,7 +2285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rightArmButton: {fileID: 0}
-  playerPanel: {fileID: 0}
+  playerSelectPanel: {fileID: 0}
 --- !u!4 &576422559
 Transform:
   m_ObjectHideFlags: 0
@@ -5365,7 +5365,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1110507723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5411,7 +5411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rightArmButton: {fileID: 0}
-  playerPanel: {fileID: 0}
+  playerSelectPanel: {fileID: 0}
 --- !u!4 &1110507725
 Transform:
   m_ObjectHideFlags: 0
@@ -7322,7 +7322,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1560162121
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9616,7 +9616,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1165524750754725085
 MonoBehaviour:
   m_ObjectHideFlags: 0
