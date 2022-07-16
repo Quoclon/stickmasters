@@ -116,6 +116,7 @@ public class Weapon : MonoBehaviour
             return;
 
         // ~ TODO: TEST/REMOVE
+        /*
         if (Input.GetMouseButtonDown(0) && weaponOwnerType == Players.P1)
         {
             //SwingWeaponForce();
@@ -127,6 +128,7 @@ public class Weapon : MonoBehaviour
         {
             //SwingWeaponTorque();
         }
+        */
 
         // Check if sword swing has enough magnitude for a sound
         //CheckSwordSwingSound();

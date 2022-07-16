@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
@@ -243,8 +244,23 @@ public class Movement : MonoBehaviour
         CheckDuck();
     }
 
+    public void OnMovement(InputValue value)
+    {
+        moveX = 0;
+        moveY = 0;
+
+        //Debug.Log("value.Get<Vector2>().x " + value.Get<Vector2>().x);
+        //Debug.Log("value.Get<Vector2>().y " + value.Get<Vector2>().y);
+
+        moveX = Mathf.RoundToInt(value.Get<Vector2>().x);
+        moveY = Mathf.RoundToInt(value.Get<Vector2>().y);
+    }
+
     void HandleInputs()
     {
+
+
+        /*
         if (body.playerType == Players.P1)
         {
             moveX = Input.GetAxis("Horizontal");
@@ -278,6 +294,8 @@ public class Movement : MonoBehaviour
             if (variableJoystick.Vertical > variableJoystick.DeadZone || variableJoystick.Vertical < -variableJoystick.DeadZone)
                 moveY = variableJoystick.Vertical;
         }
+        */
+
 
     }
 
@@ -388,6 +406,7 @@ public class Movement : MonoBehaviour
 
     void CheckMovement()
     {
+        //Debug.Log("CheckMovement: X " + moveX);
         if (moveX != 0)
         {
             if(moveX > 0)

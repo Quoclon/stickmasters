@@ -150,6 +150,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // TESTING
+        /*
         if (Input.GetKeyDown(KeyCode.R))
         {
             if (!isMatchOver)
@@ -165,6 +166,7 @@ public class GameManager : MonoBehaviour
             else if (isRoundOver)
                 ResetScene();
         }
+        */
     }
 
     void SetupScoreCanvas()
