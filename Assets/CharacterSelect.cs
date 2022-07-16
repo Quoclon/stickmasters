@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class CharacterSelect : MonoBehaviour
 {
@@ -265,11 +266,54 @@ public class CharacterSelect : MonoBehaviour
         inputDebounceTimer -= Time.deltaTime;
         if (inputDebounceTimer > 0)
             return;
-      
-        float xInput = Input.GetAxisRaw("Horizontal" + playerNumberForInput);
-        float yInput = Input.GetAxisRaw("Vertical" + playerNumberForInput);
+     
+        // OLD INPUT APPROACH
+        //float xInput = Input.GetAxisRaw("Horizontal" + playerNumberForInput);
+        //float yInput = Input.GetAxisRaw("Vertical" + playerNumberForInput);
 
-        if(xInput > 0)
+        // NEW INPUT APPROACH
+        float xInput = 0;
+        float yInput = 0;
+
+        //Debug.Log("value.Get<Vector2>().x " + value.Get<Vector2>().x);
+        //Debug.Log("value.Get<Vector2>().y " + value.Get<Vector2>().y);
+
+        if (playerBodies.Count == 0)
+            return;
+
+        int playerNumber = -1;
+        switch (playerType)
+        {
+            case Players.P1:
+                playerNumber = 0;
+                break;
+            case Players.P2:
+                playerNumber = 1;
+                break;
+            case Players.P3:
+                playerNumber = 2;
+                break;
+            case Players.P4:
+                playerNumber = 3;
+                break;
+            case Players.AI:
+                playerNumber = 4;
+                break;
+            case Players.Environment:
+                break;
+            default:
+                break;
+        }
+
+        Debug.Log(playerNumber);
+
+        if (playerNumber < 0 || playerNumber > Gamepad.all.Count-1)
+            return;
+
+        xInput = Mathf.RoundToInt(Gamepad.all[playerNumber].leftStick.ReadValue().x);
+        yInput = Mathf.RoundToInt(Gamepad.all[playerNumber].leftStick.ReadValue().y);
+
+        if (xInput > 0)
         {
             LeftWeaponNext();
             inputDebounceTimer = inputDebounceTimerMax; //Reset Timer
@@ -311,7 +355,7 @@ public class CharacterSelect : MonoBehaviour
         if (leftWeaponsIndex < 0)
             leftWeaponsIndex = leftWeapons.Count - 1;
 
-        leftArmWeapon = leftWeapons[leftWeaponsIndex];
+        leftArmWeapon = leftWeapons[leftWeaponsIndex];  
         playerBodies[0].SetupBody(playerType, leftArmWeapon, rightArmWeapon);
     }
 

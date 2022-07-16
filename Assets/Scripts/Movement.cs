@@ -258,8 +258,6 @@ public class Movement : MonoBehaviour
 
     void HandleInputs()
     {
-
-
         /*
         if (body.playerType == Players.P1)
         {
