@@ -30,7 +30,7 @@ TagManager:
   - BodyPartIgnoreCollisionsOnDeath
   - WeaponGroundCollisions
   - EnvironmentalDamage
-  - 
+  - WeaponIgnoresWeapons
   - 
   - 
   - 

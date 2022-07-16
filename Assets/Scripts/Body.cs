@@ -608,14 +608,19 @@ public class Body : MonoBehaviour
                 bleedPerSec += 2f;
             }
 
-            // If no Weapons Increase BleedPerSec a lot
+            // If no Weapons Increase BleedPerSec a lot (i.e. if one weapon lost, and only fist)
+            int weaponDisabledCount = weapons.Length;
             foreach (var weapon in weapons)
             {
-                int weaponDisabledCount = weapons.Length;
-                //Debug.Log(weapon.name);
-                if(weapon.weaponDisabled || weapon.weaponType == eWeaponType.None)
+                Debug.Log("weapon.name: " + weapon.name);
+                Debug.Log("weapon.weaponType: " + weapon.weaponType);
+                Debug.Log("weapon.weaponDisabled: " + weapon.weaponDisabled);
+
+                Debug.Log("weaponDisabledCount - Pre: " + weaponDisabledCount);
+                if (weapon.weaponDisabled || weapon.weaponType == eWeaponType.None)
                     weaponDisabledCount--;
 
+                Debug.Log("weaponDisabledCount - Post: " + weaponDisabledCount);
                 if (weaponDisabledCount <= 0)
                     bleedPerSec += 30;
             }

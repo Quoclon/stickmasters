@@ -176,7 +176,7 @@ public class Movement : MonoBehaviour
             //if (playerBody.playerType == Players.P1)
             if (GameManager.Inst.isPlayerTypePlayer(playerBody.playerType)) // ~ PROBLEM IF YOU WANTED AI TO BATTLE EACH OTHER; Team Based later?
             {
-                Debug.Log(playerBody.playerType);
+                //Debug.Log(playerBody.playerType);
                 if (playerBody.alive)
                 {
                     float distance = Mathf.Abs(Vector3.Distance(body.chest.transform.position, playerBody.chest.transform.position));
@@ -314,7 +314,7 @@ public class Movement : MonoBehaviour
             {
                 // Equal chance to target the clost player or the weakest player
                 int randomTarget = Random.Range(0, 2);
-                Debug.Log("Random Targeting - Int: " + randomTarget);
+                //Debug.Log("Random Targeting - Int: " + randomTarget);
                 if (randomTarget == 0)
                     TargetClosestPlayer();
                 else

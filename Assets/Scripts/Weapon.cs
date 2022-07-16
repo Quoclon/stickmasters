@@ -399,17 +399,9 @@ public class Weapon : MonoBehaviour
         {
             if (GameManager.Inst.gameMode == eGameMode.Coop)
             {
-                // ~ Did this cause bugs?
+                // ~ Players cannot harm players in coop. Does this cause  bugs?
                 if (GameManager.Inst.isPlayerTypePlayer(collisionPlayerBody.playerType) && GameManager.Inst.isPlayerTypePlayer(weaponOwnerType))
                     return false;
-                
-                /*
-                if (collisionPlayerBody.playerType == Players.P1 && weaponOwnerType == Players.P2)
-                    return false;
-
-                if (collisionPlayerBody.playerType == Players.P2 && weaponOwnerType == Players.P1)
-                    return false;
-                */
             }
         }
 
