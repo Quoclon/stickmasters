@@ -228,9 +228,6 @@ public class Movement : MonoBehaviour
             return;
         }
 
-
-        // Player P1 and Player P1 Checks //
-
         // Handle Players
         HandleInputs();
 
@@ -244,20 +241,31 @@ public class Movement : MonoBehaviour
         CheckDuck();
     }
 
+    // PlayerInput has Maps/Actions (i.e. Movement) that get called via 'On'Movement
+    // This happens whenever there is input as defined in 'Movement' of Input Asset
     public void OnMovement(InputValue value)
     {
+        Debug.Log("OnMovement - InputValue value: " + value);
+
+        // Reset Input before next frame of Input
         moveX = 0;
         moveY = 0;
 
-        //Debug.Log("value.Get<Vector2>().x " + value.Get<Vector2>().x);
-        //Debug.Log("value.Get<Vector2>().y " + value.Get<Vector2>().y);
-
+        // Get the Vecto2 values from the value pasesd in (i.e WASD, Left Analog Stick)     
         moveX = Mathf.RoundToInt(value.Get<Vector2>().x);
         moveY = Mathf.RoundToInt(value.Get<Vector2>().y);
     }
 
     void HandleInputs()
     {
+        if (!GameManager.Inst.isMobileWebGL)
+            return;
+
+        // Reset Input before next frame of Input
+        moveX = 0;
+        moveY = 0;
+
+        #region Old Input System - Keyboard
         /*
         if (body.playerType == Players.P1)
         {
@@ -283,6 +291,9 @@ public class Movement : MonoBehaviour
             moveY = Input.GetAxis("Vertical3");
         }
 
+        */
+        #endregion
+
         // Add Mobiles Directions if available (overwrite the keys by default)
         if (variableJoystick != null)
         {
@@ -292,9 +303,6 @@ public class Movement : MonoBehaviour
             if (variableJoystick.Vertical > variableJoystick.DeadZone || variableJoystick.Vertical < -variableJoystick.DeadZone)
                 moveY = variableJoystick.Vertical;
         }
-        */
-
-
     }
 
 

@@ -150,7 +150,6 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // TESTING
-        
         if (Input.GetKeyDown(KeyCode.R))
         {
             if (!isMatchOver)
