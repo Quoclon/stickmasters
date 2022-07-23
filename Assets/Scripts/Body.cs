@@ -728,8 +728,11 @@ public class Body : MonoBehaviour
     {
         foreach (var part in bodyParts)
         {
+            // Set Physics Layer to "9" (no collisions with other players)
             part.gameObject.layer = 9;
+            part.sprite.sortingOrder -= 10; // ~ TODO: Move head foward to always have it be at front?
             part.disabled = true;
+
         }
     }
 
