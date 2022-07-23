@@ -305,7 +305,7 @@ public class CharacterSelect : MonoBehaviour
                 break;
         }
 
-        Debug.Log(playerNumber);
+        //Debug.Log(playerNumber);
 
         if (playerNumber < 0 || playerNumber > Gamepad.all.Count-1)
             return;

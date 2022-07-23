@@ -60,6 +60,12 @@ public class Movement : MonoBehaviour
     public Transform headTransformOriginal;
 
 
+    [Header("Old Input System (Multiplayer Keyboard")]
+    public bool isUsingKeyboard;
+    PlayerInput playerInput;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -122,6 +128,37 @@ public class Movement : MonoBehaviour
         {
             if (GameManager.Inst != null)
                 variableJoystick = GameManager.Inst.variableJoystickP2;
+        }
+
+        // Setup Old Input Manager || Manually Assign Keyboard (based on some passed in menu variables)
+        playerInput = GetComponent<PlayerInput>();
+        for (int i = 0; i < Gamepad.all.Count; i++)
+        {
+            Debug.Log("i: " + i);
+            Debug.Log(playerInput.playerIndex);
+            if (playerInput.playerIndex == i)
+            {
+                //playerInput.SwitchCurrentControlScheme(Gamepad.all[i]);
+            }
+        }
+        
+        foreach (var input in PlayerInput.all)
+        {
+            Debug.Log("input.name: " + input.name);
+            Debug.Log("input.playerIndex: " + input.playerIndex);
+            Debug.Log("input.currentControlScheme: " + input.currentControlScheme);
+            Debug.Log("input.currentActionMap: " + input.currentActionMap);
+            if(input.currentControlScheme == null)
+            {
+                Debug.Log("No Control Sceheme Available or Assigned - isUsingKeyboard now set to True");
+                isUsingKeyboard = true;
+            }
+            //input.SwitchCurrentControlScheme("Keyboard", Keyboard.current);
+            Debug.Log("input.currentControlScheme: " + input.currentControlScheme);
+
+
+
+
         }
     }
 
@@ -245,8 +282,6 @@ public class Movement : MonoBehaviour
     // This happens whenever there is input as defined in 'Movement' of Input Asset
     public void OnMovement(InputValue value)
     {
-        Debug.Log("OnMovement - InputValue value: " + value);
-
         // Reset Input before next frame of Input
         moveX = 0;
         moveY = 0;
@@ -258,15 +293,19 @@ public class Movement : MonoBehaviour
 
     void HandleInputs()
     {
-        if (!GameManager.Inst.isMobileWebGL)
+        //if (!GameManager.Inst.isMobileWebGL)
+            //return;
+
+        // Also check for Player 1?
+        if (!isUsingKeyboard)
             return;
 
         // Reset Input before next frame of Input
         moveX = 0;
         moveY = 0;
 
-        #region Old Input System - Keyboard
-        /*
+        #region Old Input System - Keyboard        
+        
         if (body.playerType == Players.P1)
         {
             moveX = Input.GetAxis("Horizontal");
@@ -290,8 +329,6 @@ public class Movement : MonoBehaviour
             moveX = Input.GetAxis("Horizontal3");
             moveY = Input.GetAxis("Vertical3");
         }
-
-        */
         #endregion
 
         // Add Mobiles Directions if available (overwrite the keys by default)
