@@ -233,6 +233,7 @@ public class Body : MonoBehaviour
         colorHandler = GetComponent<ColorHandler>();
 
      
+        // Color Each Body Part (OPTION: Only color head)
         foreach (var part in bodyParts)
         {
             //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
@@ -260,50 +261,6 @@ public class Body : MonoBehaviour
                     break;
             }
         }
-    
-     
-        /*
-        if(GameManager.Inst == null)
-        {
-
-        }
-        else
-        {
-            if (GameManager.Inst.isPlayerTypePlayer(playerType))
-            {
-                foreach (var part in bodyParts)
-                {
-                    //SpriteRenderer sprite = part.GetComponent<SpriteRenderer>();
-                    switch (playerType)
-                    {
-                        case Players.P1:
-                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(1));
-                            break;
-                        case Players.P2:
-                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(2));
-                            break;
-                        case Players.p3:
-                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(3));
-                            break;
-                        case Players.p4:
-                            part.SetupSpriteColor(onlyColorHead, colorHandler.GetPlayerColor(4));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                foreach (var part in bodyParts)
-                {
-                    part.SetupSpriteColor(onlyColorHead, colorHandler.GetColorByWave(GameManager.Inst.enemiesWaveNumber));
-                }
-            }
-        }
-        */
-
-
     }
     
     public void AddDirectionalForceToRelevantBodyParts(Direction direction)

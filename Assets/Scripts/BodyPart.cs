@@ -80,14 +80,70 @@ public class BodyPart : MonoBehaviour
     {
         sprite = GetComponent<SpriteRenderer>();
 
-        if(!onlyColorHead)
-            sprite.color = color;
 
-        if(onlyColorHead && eBodyPart == BodyParts.Head)
-            sprite.color = color;
+        Color lighterColor = color;    
+        float h, s, v;
+        Color.RGBToHSV(color, out h, out s, out v);
+        Debug.Log("H: " + h + " " + "S: " + s + " " + "V: " + v);
+        Color darkerColor = Color.HSVToRGB(h, s, v - 0.4f);
 
+        // Color all body parts
+        if (!onlyColorHead)
+        {
+            switch (eBodyPart)
+            {
+                case BodyParts.Default:
+                    break;
+                case BodyParts.Head:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.Body:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.UpperRightArm:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.LowerRightArm:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.UpperLeftArm:
+                    sprite.color = darkerColor;
+                    break;
+                case BodyParts.LowerLeftArm:
+                    sprite.color = darkerColor;
+                    break;
+                case BodyParts.UpperLeftLeg:
+                    sprite.color = darkerColor;
+                    break;
+                case BodyParts.LowerLeftLeg:
+                    sprite.color = darkerColor;
+                    break;
+                case BodyParts.UpperRightLeg:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.LowerRightLeg:
+                    sprite.color = lighterColor;
+                    break;
+                case BodyParts.WeaponHolder:
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+       
+        // Color only head
+        if (onlyColorHead && eBodyPart == BodyParts.Head)
+        {
+            sprite.color = color;
+        }
+
+        // Use for flashing damage and returning to current color
         spriteColorOriginal = sprite.color;
     }
+
+
 
     void Update()
     {
