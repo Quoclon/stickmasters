@@ -422,21 +422,20 @@ public class Body : MonoBehaviour
                         {
                             // Enemy Bleed Denomiator lower if Survival (bleeds faster)
                             bleedPerSecDenominator = 15f;
-                            bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
+                            bleedPerSecFromWeaponDmg += dmg * bleedDmg / bleedPerSecDenominator;
                             DetermineBleedPerSecond();
                         }
                     }
                     // ALL OTHER MODES -- Player and Enemy can Bleed Out
                     else
                     {
-                        bleedPerSecFromWeaponDmg += dmg / bleedPerSecDenominator;
+                        bleedPerSecFromWeaponDmg += dmg * bleedDmg / bleedPerSecDenominator;
                         DetermineBleedPerSecond();
                     }                
                 }
 
-                // Reduce bodyPart Health @ a fraction of damage. Makes bodyParts easier to sever
-                float bodyPartHealthReductionDenominator = 10f;
-                bodypart.health -= (dmg / bodyPartHealthReductionDenominator);
+
+                // Default to not severing body part
                 bool severBodyPart = false;
 
                 // Sever the Body Part if damage above body part health
@@ -444,11 +443,14 @@ public class Body : MonoBehaviour
                     severBodyPart = true;
 
                 // ~ TESTSING - remove if you don't want parts to be severed on last hit
-                if(health <= 0)
+                if (health <= 0)
                     severBodyPart = true;
 
+                // Reduce bodyPart Health @ a fraction of damage. Makes bodyParts easier to sever
+                float bodyPartHealthReductionDenominator = 10f;
+                bodypart.health -= (dmg / bodyPartHealthReductionDenominator);
+
                 // Check if bodyPart is Destroyed/Disabled
-                //if (dmg >= bodypart.health)
                 if(severBodyPart)
                 {
                     // Spawn Particles - OPTION: use on 'DiableBodyPart'

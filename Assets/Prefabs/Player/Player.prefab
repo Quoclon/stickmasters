@@ -5907,7 +5907,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1115813380
 Transform:
   m_ObjectHideFlags: 0
@@ -25863,7 +25863,6 @@ MonoBehaviour:
   - {fileID: 8692947288290988314}
   - {fileID: 648209529443564367}
   - {fileID: 1344163456}
-  - {fileID: 1115813381}
   - {fileID: 519464113242804252}
 --- !u!1 &8692947287025639188
 GameObject:
