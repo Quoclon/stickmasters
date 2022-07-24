@@ -122,12 +122,18 @@ public class Movement : MonoBehaviour
         else if(body.playerType == Players.P1)
         {
             if(GameManager.Inst != null)
+            {
                 variableJoystick = GameManager.Inst.variableJoystickP1;
+                variableJoystick.SetMode(GameManager.Inst.joystickType);    // Later have this be per player and adjustable in options?
+            }
         }
         else if (body.playerType == Players.P2)
         {
             if (GameManager.Inst != null)
+            {
                 variableJoystick = GameManager.Inst.variableJoystickP2;
+                variableJoystick.SetMode(JoystickType.Fixed);
+            }
         }
 
         // Setup Old Input Manager || Manually Assign Keyboard (based on some passed in menu variables)

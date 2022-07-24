@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
 
 
     [Header("Controls")]
+    public JoystickType joystickType;
     public VariableJoystick variableJoystickP1;
     public VariableJoystick variableJoystickP2;
 
