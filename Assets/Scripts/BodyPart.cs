@@ -32,7 +32,7 @@ public class BodyPart : MonoBehaviour
     private Color spriteColorOriginal;
 
     [Header("Environment Damage")]
-    private float environmentDamageDenominator = 3;
+    private float environmentDamageDenominator = 2;
 
     [Header("Hinges")]
     public HingeJoint2D bodyPartHinge;

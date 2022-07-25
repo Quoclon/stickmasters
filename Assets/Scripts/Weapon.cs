@@ -47,6 +47,9 @@ public class Weapon : MonoBehaviour
     [Header("Link Weapons")]
     public GameObject[] weaponLinks;
 
+    [Header("Line Renderer")]
+    GameObject lineRendererGO;
+
     [Header("Weapon Sounds")]
     private bool readyToPlaySwingSound;
     private float swingSoundTimer = 0f;
@@ -106,6 +109,26 @@ public class Weapon : MonoBehaviour
         // Collision Layers
         if (ownersBody.weaponCollidesWithGround)
             gameObject.layer = 10;
+
+        SetupWeaponLineRenderer();
+    }
+
+    void SetupWeaponLineRenderer()
+    {
+        //lineRendererPrefab = Resources.Load("Prefabs/LineRendererObject") as GameObject;
+        if (ownersBody == null)
+            return;
+
+        if (ownersBody.weaponLineRendererPrefab == null)
+            return;
+
+        if (weaponType == eWeaponType.None)
+            return;
+
+        lineRendererGO = Instantiate(ownersBody.weaponLineRendererPrefab, this.transform);
+        TrailRenderer weaponLineRenderer = lineRendererGO.GetComponent<TrailRenderer>();
+        //Debug.Log(weaponLineRenderer.sortingLayerID);
+        weaponLineRenderer.sortingLayerID = this.GetComponent<SpriteRenderer>().sortingLayerID; // ~ Could cause slowdowns?
     }
 
     
@@ -227,6 +250,9 @@ public class Weapon : MonoBehaviour
 
         // Set Weapon to WeaponIgnoreCollisionExceptGround (i.e. layer 8)
         gameObject.layer = 8;
+
+        if (lineRendererGO != null)
+            lineRendererGO.SetActive(false);
 
         // Disable any "Force" Point Effectors on Weapon (i.e. cudgel)
         if (GetComponentInChildren<PointEffector2D>() != null)

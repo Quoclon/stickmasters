@@ -36,7 +36,8 @@ public class Body : MonoBehaviour
 
     [Header("Weapons")]
     public WeaponHandler weaponsHandler;
-    private GameObject[] weaponArmObjects;
+    public GameObject weaponLineRendererPrefab; // ~TODO: Better on each weapon, but too lazy to add right now
+    //private GameObject[] weaponArmObjects;
 
     [Header("Arrays of Attached Components")]
     public Balance[] balancingParts;
